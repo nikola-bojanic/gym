@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${app.db-host}:5432/spring-rest-local
+    username: local
+    password: local
+  activemq:
+    broker-url: tcp://${app.broker-host}:61619
+    user: local
+    password: local
+    packages:
+      trust-all: false
+      trusted: com.nikolabojanic

@@ -1,0 +1,69 @@
+version: '3.9'
+services:
+  postgres:
+    container_name: postgres
+    image: postgres:16
+    environment:
+      POSTGRES_DB: spring-rest
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  activemq-docker:
+    container_name: activemq-docker
+    image: apache/activemq-artemis:2.32.0-alpine
+    environment:
+      ARTEMIS_USER: docker
+      ARTEMIS_PASSWORD: docker
+    ports:
+      - 61616:61616
+      - 8161:8161
+    depends_on:
+      - postgres
+  main-service:
+    container_name: main-service
+    build:
+      context: ../main-service
+      dockerfile: ./docker/Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - activemq-docker
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ../main-service/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - "9090:9090"
+    depends_on:
+      - main-service
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:latest
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../main-service/grafana/provisioning:/etc/grafana/provisioning
+      - ../main-service/grafana/dashboards:/var/lib/grafana/dashboards
+    depends_on:
+      - prometheus
+  trainer-service:
+    container_name: trainer-service
+    build:
+      context: ../trainer-service
+      dockerfile: ./docker/Dockerfile
+    ports:
+      - "8081:8081"
+    depends_on:
+      - activemq-docker
+volumes:
+  postgres_data:

@@ -1,0 +1,8 @@
+spring:
+  activemq:
+    broker-url: tcp://${app.broker-host}:61620
+    user: prod
+    password: prod
+    packages:
+      trust-all: false
+      trusted: com.nikolabojanic
