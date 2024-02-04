@@ -61,7 +61,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(registry -> registry
                 .requestMatchers(HttpMethod.POST, "/api/v1/trainees",
                     "/api/v1/trainers").permitAll()
-                .requestMatchers("/hawtio").permitAll()
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .requestMatchers("/api/v1/trainees/**").hasAuthority("TRAINEE")
                 .requestMatchers("/api/v1/trainers/**").hasAuthority("TRAINER")
                 .anyRequest().authenticated())
