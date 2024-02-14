@@ -1,5 +1,6 @@
 package com.nikolabojanic.config.security;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
@@ -7,8 +8,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nikolabojanic.service.security.LoginAttemptService;
-import jakarta.servlet.ServletException;
 import java.io.IOException;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
@@ -24,11 +25,13 @@ import org.springframework.security.core.AuthenticationException;
 class CustomAuthenticationFailureHandlerTest {
     @Mock
     private LoginAttemptService loginAttemptService;
+    @Mock
+    private ObjectMapper objectMapper;
     @InjectMocks
     private CustomAuthenticationFailureHandler authenticationFailureHandler;
 
     @Test
-    void commenceTest() throws ServletException, IOException {
+    void commenceTest() throws IOException {
         //arrange
         AuthenticationException authException = mock(AuthenticationException.class);
         MockHttpServletRequest httpServletRequest = new MockHttpServletRequest();
@@ -36,6 +39,8 @@ class CustomAuthenticationFailureHandlerTest {
         httpServletRequest.setRemoteAddr(RandomStringUtils.randomNumeric(5));
         doNothing().when(loginAttemptService).loginFailed(anyString());
         when(loginAttemptService.isBlocked()).thenReturn(true);
+        when(objectMapper.writeValueAsString(any()))
+            .thenReturn(RandomStringUtils.randomAlphabetic(5));
         //act
         authenticationFailureHandler.commence(httpServletRequest, httpServletResponse, authException);
         //assert

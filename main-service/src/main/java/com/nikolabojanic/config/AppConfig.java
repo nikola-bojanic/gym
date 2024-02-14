@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
@@ -12,7 +13,10 @@ import org.springframework.jms.support.converter.MessageType;
 import org.springframework.web.client.RestTemplate;
 
 @Configuration
+@RequiredArgsConstructor
 public class AppConfig {
+    private final ObjectMapper objectMapper;
+
     /**
      * Creates and registers a counter named "total_transactions" in the specified {@link MeterRegistry}.
      * The counter tracks the number of total transactions.
@@ -112,7 +116,6 @@ public class AppConfig {
     @Bean
     public MessageConverter jsonMessageConverter() {
         MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
-        ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         converter.setObjectMapper(objectMapper);
         converter.setTargetType(MessageType.TEXT);

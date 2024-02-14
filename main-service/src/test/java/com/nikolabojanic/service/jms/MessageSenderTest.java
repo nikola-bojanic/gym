@@ -30,6 +30,7 @@ class MessageSenderTest {
     @Test
     void sendTest() {
         //arrange
+        messageSender.setQueue("test");
         doNothing().when(jmsTemplate)
             .convertAndSend(any(String.class), any(TrainerWorkloadRequestDto.class), any(MessagePostProcessor.class));
         //act

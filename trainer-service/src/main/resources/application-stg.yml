@@ -1,8 +1,7 @@
+app:
+  active-mq:
+    workload-queue: workload.queue.stg
 spring:
-  activemq:
-    broker-url: tcp://${app.broker-host}:61621
-    user: stg
-    password: stg
-    packages:
-      trust-all: false
-      trusted: com.nikolabojanic
+  data:
+    mongodb:
+      database: workload-dev

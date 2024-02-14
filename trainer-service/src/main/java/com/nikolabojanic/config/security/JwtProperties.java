@@ -2,7 +2,6 @@ package com.nikolabojanic.config.security;
 
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.OctetSequenceKey;
-import java.time.Duration;
 import javax.crypto.SecretKey;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,20 +14,16 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties("app.jwt")
 public class JwtProperties {
     private SecretKey key;
-    private String issuer;
     private JWSAlgorithm algorithm;
-    private Duration expiresIn;
 
     public void setAlgorithm(String algorithm) {
         this.algorithm = JWSAlgorithm.parse(algorithm);
     }
 
     /**
-     * This method takes a key represented as a String and builds an OctetSequenceKey
-     * using the provided key bytes and the specified algorithm. The resulting OctetSequenceKey
-     * is then converted to a SecretKey and set as the key for the current instance.
+     * Sets the key used for signing the JWT.
      *
-     * @param key Represent a signing key.
+     * @param key The key to set for signing the JWT.
      */
     public void setKey(String key) {
         OctetSequenceKey jwk = new OctetSequenceKey.Builder(key.getBytes())

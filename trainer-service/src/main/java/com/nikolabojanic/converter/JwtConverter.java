@@ -26,6 +26,7 @@ public class JwtConverter implements Converter<Jwt, UserPrincipalAuthenticationT
             source.getClaim("username"),
             null,
             authorities);
+        log.info("Successfully converted a jwt into a user principal authentication token");
         return new UserPrincipalAuthenticationToken(userPrincipal);
     }
 }

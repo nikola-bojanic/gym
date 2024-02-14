@@ -7,6 +7,7 @@ import com.nikolabojanic.dto.AuthDtoRequest;
 import com.nikolabojanic.dto.UserPasswordChangeRequestDto;
 import com.nikolabojanic.exception.ScNotAuthorizedException;
 import com.nikolabojanic.exception.ScValidationException;
+import java.util.List;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,190 +21,89 @@ class UserValidationTest {
     private UserValidation userValidation;
 
     @Test
-    void validateNullUsernamePasswordRequestDtoTest() {
-        //given
-        String username = null;
-        UserPasswordChangeRequestDto requestDto = new UserPasswordChangeRequestDto();
-        //when
-        assertThatThrownBy(() -> userValidation.validatePasswordRequestDto(username, requestDto))
-            //then
-            .isInstanceOf(ScValidationException.class)
-            .hasMessage("Username path variable must be at least 4 characters long");
+    void validatePasswordRequestDtoTest() {
+        //arrange
+        String username = RandomStringUtils.randomAlphabetic(6);
+        UserPasswordChangeRequestDto requestDto = new UserPasswordChangeRequestDto(
+            RandomStringUtils.randomAlphabetic(5),
+            RandomStringUtils.randomAlphabetic(8),
+            RandomStringUtils.randomAlphabetic(8)
+        );
+        //act
+        //assert
+        assertDoesNotThrow(() -> userValidation.validatePasswordRequestDto(username, requestDto));
     }
 
     @Test
-    void validateBlankUsernamePasswordRequestDtoTest() {
-        //given
-        String username = "";
-        UserPasswordChangeRequestDto requestDto = new UserPasswordChangeRequestDto();
-        //when
-        assertThatThrownBy(() -> userValidation.validatePasswordRequestDto(username, requestDto))
-            //then
-            .isInstanceOf(ScValidationException.class)
-            .hasMessage("Username path variable must be at least 4 characters long");
-    }
-
-    @Test
-    void validateShortUsernamePasswordRequestDtoTest() {
-        //given
-        String username = RandomStringUtils.randomAlphabetic(3);
-        UserPasswordChangeRequestDto requestDto = new UserPasswordChangeRequestDto();
-        //when
-        assertThatThrownBy(() -> userValidation.validatePasswordRequestDto(username, requestDto))
-            //then
-            .isInstanceOf(ScValidationException.class)
-            .hasMessage("Username path variable must be at least 4 characters long");
-    }
-
-    @Test
-    void validateNullRequestDtoPasswordRequestDtoTest() {
-        //given
-        String username = RandomStringUtils.randomAlphabetic(5);
-        UserPasswordChangeRequestDto requestDto = null;
-        //when
-        assertThatThrownBy(() -> userValidation.validatePasswordRequestDto(username, requestDto))
-            //then
+    void validateNullRequestDtoTest() {
+        //act
+        assertThatThrownBy(() -> userValidation.validatePasswordRequestDto(null, null))
+            //assert
             .isInstanceOf(ScValidationException.class)
             .hasMessage("Cannot change user password with null request");
+
     }
 
     @Test
-    void validateNullUsernameRequestDtoPasswordRequestDtoTest() {
-        //given
-        String username = RandomStringUtils.randomAlphabetic(5);
+    void validateNullUsernameNullOldPasswordNullNewPasswordRequestDtoTest() {
+        //arrange
         UserPasswordChangeRequestDto requestDto = new UserPasswordChangeRequestDto();
-        //when
-        assertThatThrownBy(() -> userValidation.validatePasswordRequestDto(username, requestDto))
-            //then
+        List<String> message = List.of(
+            "Username path variable must be at least 4 characters long",
+            "Username must be at least 4 characters long",
+            "Old password must be at least 8 characters long",
+            "New password must be at least 8 characters long"
+        );
+        //act
+        assertThatThrownBy(() -> userValidation.validatePasswordRequestDto(null, requestDto))
+            //assert
             .isInstanceOf(ScValidationException.class)
-            .hasMessage("Username must be at least 4 characters long");
+            .hasMessage(message.toString());
     }
 
     @Test
-    void validateBlankUsernameRequestDtoPasswordRequestDtoTest() {
-        //given
-        String username = RandomStringUtils.randomAlphabetic(5);
-        UserPasswordChangeRequestDto requestDto = new UserPasswordChangeRequestDto();
-        requestDto.setUsername("");
-        //when
+    void validateBlankUsernameBlankOldPasswordBlankNewPasswordRequestDtoTest() {
+        //arrange
+        UserPasswordChangeRequestDto requestDto = new UserPasswordChangeRequestDto(
+            "     ",
+            " ",
+            " "
+        );
+        String username = "     ";
+        List<String> message = List.of(
+            "Username path variable must be at least 4 characters long",
+            "Username must be at least 4 characters long",
+            "Old password must be at least 8 characters long",
+            "New password must be at least 8 characters long",
+            "New password cannot be the same as old password"
+        );
+        //act
         assertThatThrownBy(() -> userValidation.validatePasswordRequestDto(username, requestDto))
-            //then
+            //assert
             .isInstanceOf(ScValidationException.class)
-            .hasMessage("Username must be at least 4 characters long");
+            .hasMessage(message.toString());
     }
 
     @Test
-    void validateShortUsernameRequestDtoPasswordRequestDtoTest() {
-        //given
-        String username = RandomStringUtils.randomAlphabetic(5);
-        UserPasswordChangeRequestDto requestDto = new UserPasswordChangeRequestDto();
-        requestDto.setUsername(RandomStringUtils.randomAlphabetic(3));
-        //when
+    void validateShortUsernameShortOldPasswordShortNewPasswordRequestDtoTest() {
+        //arrange
+        UserPasswordChangeRequestDto requestDto = new UserPasswordChangeRequestDto(
+            RandomStringUtils.randomAlphabetic(3),
+            RandomStringUtils.randomAlphabetic(7),
+            RandomStringUtils.randomAlphabetic(7)
+        );
+        String username = " ";
+        List<String> message = List.of(
+            "Username path variable must be at least 4 characters long",
+            "Username must be at least 4 characters long",
+            "Old password must be at least 8 characters long",
+            "New password must be at least 8 characters long"
+        );
+        //act
         assertThatThrownBy(() -> userValidation.validatePasswordRequestDto(username, requestDto))
-            //then
+            //assert
             .isInstanceOf(ScValidationException.class)
-            .hasMessage("Username must be at least 4 characters long");
-    }
-
-    @Test
-    void validateNullOldPasswordPasswordRequestDtoTest() {
-        //given
-        String username = RandomStringUtils.randomAlphabetic(5);
-        UserPasswordChangeRequestDto requestDto = new UserPasswordChangeRequestDto();
-        requestDto.setUsername(RandomStringUtils.randomAlphabetic(5));
-        //when
-        assertThatThrownBy(() -> userValidation.validatePasswordRequestDto(username, requestDto))
-            //then
-            .isInstanceOf(ScValidationException.class)
-            .hasMessage("Old password must be at least 8 characters long");
-    }
-
-    @Test
-    void validateBlankOldPasswordPasswordRequestDtoTest() {
-        //given
-        String username = RandomStringUtils.randomAlphabetic(5);
-        UserPasswordChangeRequestDto requestDto = new UserPasswordChangeRequestDto();
-        requestDto.setUsername(RandomStringUtils.randomAlphabetic(5));
-        requestDto.setOldPassword("");
-        //when
-        assertThatThrownBy(() -> userValidation.validatePasswordRequestDto(username, requestDto))
-            //then
-            .isInstanceOf(ScValidationException.class)
-            .hasMessage("Old password must be at least 8 characters long");
-    }
-
-    @Test
-    void validateShortOldPasswordPasswordRequestDtoTest() {
-        //given
-        String username = RandomStringUtils.randomAlphabetic(5);
-        UserPasswordChangeRequestDto requestDto = new UserPasswordChangeRequestDto();
-        requestDto.setUsername(RandomStringUtils.randomAlphabetic(5));
-        requestDto.setOldPassword(RandomStringUtils.randomAlphabetic(3));
-        //when
-        assertThatThrownBy(() -> userValidation.validatePasswordRequestDto(username, requestDto))
-            //then
-            .isInstanceOf(ScValidationException.class)
-            .hasMessage("Old password must be at least 8 characters long");
-    }
-
-    @Test
-    void validateNullNewPasswordPasswordRequestDtoTest() {
-        //given
-        String username = RandomStringUtils.randomAlphabetic(5);
-        UserPasswordChangeRequestDto requestDto = new UserPasswordChangeRequestDto();
-        requestDto.setUsername(RandomStringUtils.randomAlphabetic(5));
-        requestDto.setOldPassword(RandomStringUtils.randomAlphabetic(8));
-        //when
-        assertThatThrownBy(() -> userValidation.validatePasswordRequestDto(username, requestDto))
-            //then
-            .isInstanceOf(ScValidationException.class)
-            .hasMessage("New password must be at least 8 characters long");
-    }
-
-    @Test
-    void validateBlankNewPasswordPasswordRequestDtoTest() {
-        //given
-        String username = RandomStringUtils.randomAlphabetic(5);
-        UserPasswordChangeRequestDto requestDto = new UserPasswordChangeRequestDto();
-        requestDto.setUsername(RandomStringUtils.randomAlphabetic(5));
-        requestDto.setOldPassword(RandomStringUtils.randomAlphabetic(8));
-        requestDto.setNewPassword("");
-        //when
-        assertThatThrownBy(() -> userValidation.validatePasswordRequestDto(username, requestDto))
-            //then
-            .isInstanceOf(ScValidationException.class)
-            .hasMessage("New password must be at least 8 characters long");
-    }
-
-    @Test
-    void validateShortNewPasswordPasswordRequestDtoTest() {
-        //given
-        String username = RandomStringUtils.randomAlphabetic(5);
-        UserPasswordChangeRequestDto requestDto = new UserPasswordChangeRequestDto();
-        requestDto.setUsername(RandomStringUtils.randomAlphabetic(5));
-        requestDto.setOldPassword(RandomStringUtils.randomAlphabetic(8));
-        requestDto.setNewPassword(RandomStringUtils.randomAlphabetic(3));
-        //when
-        assertThatThrownBy(() -> userValidation.validatePasswordRequestDto(username, requestDto))
-            //then
-            .isInstanceOf(ScValidationException.class)
-            .hasMessage("New password must be at least 8 characters long");
-    }
-
-    @Test
-    void validateSameOldAndNewPasswordPasswordRequestDtoTest() {
-        //given
-        String password = RandomStringUtils.randomAlphabetic(8);
-        String username = RandomStringUtils.randomAlphabetic(5);
-        UserPasswordChangeRequestDto requestDto = new UserPasswordChangeRequestDto();
-        requestDto.setUsername(username);
-        requestDto.setOldPassword(password);
-        requestDto.setNewPassword(password);
-        //when
-        assertThatThrownBy(() -> userValidation.validatePasswordRequestDto(username, requestDto))
-            //then
-            .isInstanceOf(ScValidationException.class)
-            .hasMessage("New password cannot be the same as old password");
+            .hasMessage(message.toString());
     }
 
     @Test

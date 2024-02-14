@@ -48,7 +48,7 @@ class TraineeControllerTest {
     @Test
     void getTraineeTest() {
         //given
-        doNothing().when(traineeValidation).validateUsernameNotNull(any(String.class));
+        doNothing().when(traineeValidation).validateUsername(any(String.class));
         when(traineeService.findByUsername(any(String.class))).thenReturn(new TraineeEntity());
         when(traineeConverter.convertModelToResponse(any(TraineeEntity.class))).thenReturn(new TraineeResponseDto());
         //when
@@ -62,7 +62,7 @@ class TraineeControllerTest {
     @Test
     void updateTraineeTest() {
         //given
-        doNothing().when(traineeValidation).validateUsernameNotNull(any(String.class));
+        doNothing().when(traineeValidation).validateUsername(any(String.class));
         doNothing().when(traineeValidation).validateUpdateTraineeRequest(any(TraineeUpdateRequestDto.class));
         when(traineeConverter.convertUpdateRequestToModel(any(TraineeUpdateRequestDto.class)))
             .thenReturn(new TraineeEntity());
@@ -102,7 +102,7 @@ class TraineeControllerTest {
     @Test
     void deleteTraineeTest() {
         //given
-        doNothing().when(traineeValidation).validateUsernameNotNull(any(String.class));
+        doNothing().when(traineeValidation).validateUsername(any(String.class));
         when(traineeService.deleteByUsername(any(String.class))).thenReturn(new TraineeEntity());
         //when
         ResponseEntity<Void> response = traineeController.deleteTrainee(
@@ -118,7 +118,7 @@ class TraineeControllerTest {
         List<TrainerEntity> trainers = List.of(trainer);
         TraineeEntity trainee = new TraineeEntity();
         trainee.setTrainers(trainers);
-        doNothing().when(traineeValidation).validateUsernameNotNull(any(String.class));
+        doNothing().when(traineeValidation).validateUsername(any(String.class));
         doNothing().when(traineeValidation).validateUpdateTrainersRequest(any(List.class));
         when(traineeService.updateTraineeTrainers(any(String.class), any(List.class)))
             .thenReturn(trainee);
@@ -136,7 +136,7 @@ class TraineeControllerTest {
     @Test
     void changeActiveStatusTest() {
         //given
-        doNothing().when(traineeValidation).validateActiveStatusRequest(any(String.class), any(Boolean.class));
+        doNothing().when(traineeValidation).validateUsername(any(String.class));
         doNothing().when(traineeService).changeActiveStatus(any(String.class), any(Boolean.class));
         //when
         ResponseEntity<Void> response = traineeController.changeActiveStatus(

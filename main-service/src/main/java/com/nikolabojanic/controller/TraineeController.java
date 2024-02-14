@@ -86,7 +86,7 @@ public class TraineeController {
     })
     public ResponseEntity<TraineeResponseDto> getTrainee(@PathVariable("username") String username) {
         traineeEndpointsHitCounter.increment();
-        traineeValidation.validateUsernameNotNull(username);
+        traineeValidation.validateUsername(username);
         TraineeEntity trainee = traineeService.findByUsername(username);
         TraineeResponseDto responseDto = traineeConverter.convertModelToResponse(trainee);
         log.info("Successfully retrieved trainee with username {}. Status: {}", username, HttpStatus.OK.value());
@@ -116,7 +116,7 @@ public class TraineeController {
         @PathVariable("username") String username,
         @RequestBody TraineeUpdateRequestDto requestDto) {
         traineeEndpointsHitCounter.increment();
-        traineeValidation.validateUsernameNotNull(username);
+        traineeValidation.validateUsername(username);
         traineeValidation.validateUpdateTraineeRequest(requestDto);
         TraineeEntity trainee = traineeConverter.convertUpdateRequestToModel(requestDto);
         TraineeEntity updated = traineeService.updateTraineeProfile(username, trainee);
@@ -170,7 +170,7 @@ public class TraineeController {
     public ResponseEntity<Void> deleteTrainee(
         @PathVariable("username") String username) {
         traineeEndpointsHitCounter.increment();
-        traineeValidation.validateUsernameNotNull(username);
+        traineeValidation.validateUsername(username);
         traineeService.deleteByUsername(username);
         log.info("Successfully deleted trainee with username {}. Status: {}", username, HttpStatus.OK.value());
         return ResponseEntity.ok().build();
@@ -199,7 +199,7 @@ public class TraineeController {
         @PathVariable("username") String username,
         @RequestBody List<TraineeTrainerUpdateRequestDto> requestDto) {
         traineeEndpointsHitCounter.increment();
-        traineeValidation.validateUsernameNotNull(username);
+        traineeValidation.validateUsername(username);
         traineeValidation.validateUpdateTrainersRequest(requestDto);
         TraineeEntity updated = traineeService.updateTraineeTrainers(username, requestDto);
         List<TraineeTrainerResponseDto> responseDto = updated.getTrainers().stream()
@@ -232,7 +232,7 @@ public class TraineeController {
         @PathVariable("username") String username,
         @RequestParam("activeStatus") Boolean activeStatus) {
         traineeEndpointsHitCounter.increment();
-        traineeValidation.validateActiveStatusRequest(username, activeStatus);
+        traineeValidation.validateUsername(username);
         traineeService.changeActiveStatus(username, activeStatus);
         log.info("Successfully changed trainee active status. Trainee username {}. "
             + "Status: {}", username, HttpStatus.OK.value());

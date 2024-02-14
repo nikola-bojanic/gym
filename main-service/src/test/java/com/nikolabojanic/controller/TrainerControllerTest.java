@@ -43,7 +43,7 @@ class TrainerControllerTest {
     @Test
     void getTrainerTest() {
         //given
-        doNothing().when(trainerValidation).validateUsernameNotNull(any(String.class));
+        doNothing().when(trainerValidation).validateUsername(any(String.class));
         when(trainerService.findByUsername(any(String.class))).thenReturn(new TrainerEntity());
         when(trainerConverter.convertModelToResponseDto(any(TrainerEntity.class))).thenReturn(new TrainerResponseDto());
         //when
@@ -57,7 +57,7 @@ class TrainerControllerTest {
     @Test
     void updateTrainerTest() {
         //given
-        doNothing().when(trainerValidation).validateUsernameNotNull(any(String.class));
+        doNothing().when(trainerValidation).validateUsername(any(String.class));
         doNothing().when(trainerValidation).validateUpdateTrainerRequest(any(TrainerUpdateRequestDto.class));
         when(trainerConverter.convertUpdateRequestToModel(any(TrainerUpdateRequestDto.class)))
             .thenReturn(new TrainerEntity());
@@ -99,7 +99,7 @@ class TrainerControllerTest {
         //given
         TrainerEntity trainer = new TrainerEntity();
         List<TrainerEntity> trainers = List.of(trainer);
-        doNothing().when(trainerValidation).validateUsernameNotNull(any(String.class));
+        doNothing().when(trainerValidation).validateUsername(any(String.class));
         when(trainerService.findActiveForOtherTrainees(any(String.class)))
             .thenReturn(trainers);
         when(trainerConverter.convertModelToActiveTrainerResponse(any(TrainerEntity.class)))
@@ -116,7 +116,7 @@ class TrainerControllerTest {
     @Test
     void changeActiveStatusTest() {
         //given
-        doNothing().when(trainerValidation).validateActiveStatusRequest(any(String.class), any(Boolean.class));
+        doNothing().when(trainerValidation).validateUsername(any(String.class));
         doNothing().when(trainerService).changeActiveStatus(any(String.class), any(Boolean.class));
         //when
         ResponseEntity<Void> response = trainerController.changeActiveStatus(

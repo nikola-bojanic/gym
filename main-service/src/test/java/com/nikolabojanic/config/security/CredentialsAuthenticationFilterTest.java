@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.cache.LoadingCache;
 import com.nikolabojanic.dto.AuthDtoRequest;
+import com.nikolabojanic.dto.AuthDtoResponse;
 import com.nikolabojanic.entity.TokenEntity;
 import com.nikolabojanic.entity.UserEntity;
 import com.nikolabojanic.enumeration.UserRole;
@@ -46,6 +47,8 @@ class CredentialsAuthenticationFilterTest {
     private TokenService tokenService;
     @Mock
     private UserService userService;
+    @Mock
+    private ObjectMapper objectMapper;
     @InjectMocks
     private CredentialsAuthenticationFilter authenticationFilter;
 
@@ -98,6 +101,8 @@ class CredentialsAuthenticationFilterTest {
         when(userService.findByUsername(principal.getUsername())).thenReturn(user);
         doNothing().when(tokenService).deleteInvalidUserTokens(user.getId(), token);
         when(tokenService.save(any(TokenEntity.class))).thenReturn(new TokenEntity());
+        when(objectMapper.writeValueAsString(any(AuthDtoResponse.class)))
+            .thenReturn(RandomStringUtils.randomAlphabetic(5));
         FilterChain filterChain = mock(FilterChain.class);
         Authentication authentication = new UserPrincipalAuthenticationToken(principal);
         MockHttpServletRequest request = new MockHttpServletRequest();

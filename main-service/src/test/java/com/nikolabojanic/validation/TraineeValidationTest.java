@@ -31,27 +31,55 @@ class TraineeValidationTest {
     }
 
     @Test
-    void validateNoFirstNameRegisterRequestTest() {
+    void validateNoFirstNameNoLastNameRegisterRequestTest() {
         //given
+        List<String> message = List.of(
+            "First name must be at least two characters long",
+            "Last name must be at least two characters long");
         TraineeRegistrationRequestDto requestDto = new TraineeRegistrationRequestDto();
         //when
         assertThatThrownBy(() -> traineeValidation.validateRegisterRequest(requestDto))
             //then
             .isInstanceOf(ScValidationException.class)
-            .hasMessage("First name must be at least two characters long");
-
+            .hasMessage(message.toString());
     }
 
     @Test
-    void validateNoLastNameRegisterRequestTest() {
+    void validateBlankFirstNameBlankLastNameRegisterRequestTest() {
         //given
-        TraineeRegistrationRequestDto requestDto = new TraineeRegistrationRequestDto();
-        requestDto.setFirstName(RandomStringUtils.randomAlphabetic(5));
+        List<String> message = List.of(
+            "First name must be at least two characters long",
+            "Last name must be at least two characters long");
+        TraineeRegistrationRequestDto requestDto = new TraineeRegistrationRequestDto(
+            "    ",
+            "    ",
+            null,
+            null
+        );
         //when
         assertThatThrownBy(() -> traineeValidation.validateRegisterRequest(requestDto))
             //then
             .isInstanceOf(ScValidationException.class)
-            .hasMessage("Last name must be at least two characters long");
+            .hasMessage(message.toString());
+    }
+
+    @Test
+    void validateShortFirstNameShortLastNameRegisterRequestTest() {
+        //given
+        List<String> message = List.of(
+            "First name must be at least two characters long",
+            "Last name must be at least two characters long");
+        TraineeRegistrationRequestDto requestDto = new TraineeRegistrationRequestDto(
+            RandomStringUtils.randomAlphabetic(1),
+            RandomStringUtils.randomAlphabetic(1),
+            null,
+            null
+        );
+        //when
+        assertThatThrownBy(() -> traineeValidation.validateRegisterRequest(requestDto))
+            //then
+            .isInstanceOf(ScValidationException.class)
+            .hasMessage(message.toString());
     }
 
     @Test
@@ -76,53 +104,63 @@ class TraineeValidationTest {
     }
 
     @Test
-    void validateNullUsernameUpdateTraineeRequestTest() {
+    void validateNullUsernameNullFirstNameNullLastNameNullActiveStatusUpdateTraineeRequestTest() {
         //given
         TraineeUpdateRequestDto requestDto = new TraineeUpdateRequestDto();
+        List<String> message = List.of(
+            "Username must be at least 4 characters long",
+            "First name must be at least two characters long",
+            "Last name must be at least two characters long",
+            "Active status must not be null");
         //when
         assertThatThrownBy(() -> traineeValidation.validateUpdateTraineeRequest(requestDto))
             //then
             .isInstanceOf(ScValidationException.class)
-            .hasMessage("Username must be at least 4 characters long");
+            .hasMessage(message.toString());
     }
 
     @Test
-    void validateNullFirstNameUpdateTraineeRequestTest() {
+    void validateBlankUsernameBlankFirstNameBlankLastNameUpdateTraineeRequestTest() {
         //given
-        TraineeUpdateRequestDto requestDto = new TraineeUpdateRequestDto();
-        requestDto.setUsername(RandomStringUtils.randomAlphabetic(10));
+        TraineeUpdateRequestDto requestDto = new TraineeUpdateRequestDto(
+            " ",
+            " ",
+            " ",
+            null,
+            null,
+            true
+        );
+        List<String> message = List.of(
+            "Username must be at least 4 characters long",
+            "First name must be at least two characters long",
+            "Last name must be at least two characters long");
         //when
         assertThatThrownBy(() -> traineeValidation.validateUpdateTraineeRequest(requestDto))
             //then
             .isInstanceOf(ScValidationException.class)
-            .hasMessage("First name must be at least two characters long");
+            .hasMessage(message.toString());
     }
 
     @Test
-    void validateNullLastNameUpdateTraineeRequestTest() {
+    void validateShortUsernameShortFirstNameShortLastNameUpdateTraineeRequestTest() {
         //given
-        TraineeUpdateRequestDto requestDto = new TraineeUpdateRequestDto();
-        requestDto.setUsername(RandomStringUtils.randomAlphabetic(10));
-        requestDto.setFirstName(RandomStringUtils.randomAlphabetic(5));
+        TraineeUpdateRequestDto requestDto = new TraineeUpdateRequestDto(
+            RandomStringUtils.randomAlphabetic(3),
+            RandomStringUtils.randomAlphabetic(1),
+            RandomStringUtils.randomAlphabetic(1),
+            null,
+            null,
+            true
+        );
+        List<String> message = List.of(
+            "Username must be at least 4 characters long",
+            "First name must be at least two characters long",
+            "Last name must be at least two characters long");
         //when
         assertThatThrownBy(() -> traineeValidation.validateUpdateTraineeRequest(requestDto))
             //then
             .isInstanceOf(ScValidationException.class)
-            .hasMessage("Last name must be at least two characters long");
-    }
-
-    @Test
-    void validateNullIsActiveUpdateTraineeRequestTest() {
-        //given
-        TraineeUpdateRequestDto requestDto = new TraineeUpdateRequestDto();
-        requestDto.setUsername(RandomStringUtils.randomAlphabetic(10));
-        requestDto.setFirstName(RandomStringUtils.randomAlphabetic(5));
-        requestDto.setLastName(RandomStringUtils.randomAlphabetic(5));
-        //when
-        assertThatThrownBy(() -> traineeValidation.validateUpdateTraineeRequest(requestDto))
-            //then
-            .isInstanceOf(ScValidationException.class)
-            .hasMessage("Active status must not be null");
+            .hasMessage(message.toString());
     }
 
     @Test
@@ -151,14 +189,45 @@ class TraineeValidationTest {
     @Test
     void validateNullTrainersUsernameUpdateTrainersRequestTest() {
         //given
-        List<TraineeTrainerUpdateRequestDto> requestDto = List.of(
-            new TraineeTrainerUpdateRequestDto(),
-            new TraineeTrainerUpdateRequestDto());
+        TraineeTrainerUpdateRequestDto updateRequestDto = new TraineeTrainerUpdateRequestDto();
+        List<TraineeTrainerUpdateRequestDto> requestDto = List.of(updateRequestDto);
+        List<String> message = List.of(
+            "Username " + updateRequestDto.getUsername() + " invalid. Username must be at least 4 characters long");
         //when
         assertThatThrownBy(() -> traineeValidation.validateUpdateTrainersRequest(requestDto))
             //then
             .isInstanceOf(ScValidationException.class)
-            .hasMessage("Username must be at least 4 characters long");
+            .hasMessage(message.toString());
+    }
+
+    @Test
+    void validateBlankTrainersUsernameUpdateTrainersRequestTest() {
+        //given
+        TraineeTrainerUpdateRequestDto updateRequestDto = new TraineeTrainerUpdateRequestDto();
+        updateRequestDto.setUsername(" ");
+        List<TraineeTrainerUpdateRequestDto> requestDto = List.of(updateRequestDto);
+        List<String> message = List.of(
+            "Username " + updateRequestDto.getUsername() + " invalid. Username must be at least 4 characters long");
+        //when
+        assertThatThrownBy(() -> traineeValidation.validateUpdateTrainersRequest(requestDto))
+            //then
+            .isInstanceOf(ScValidationException.class)
+            .hasMessage(message.toString());
+    }
+
+    @Test
+    void validateShortTrainersUsernameUpdateTrainersRequestTest() {
+        //given
+        TraineeTrainerUpdateRequestDto updateRequestDto = new TraineeTrainerUpdateRequestDto();
+        updateRequestDto.setUsername(RandomStringUtils.randomAlphabetic(3));
+        List<TraineeTrainerUpdateRequestDto> requestDto = List.of(updateRequestDto);
+        List<String> message = List.of(
+            "Username " + updateRequestDto.getUsername() + " invalid. Username must be at least 4 characters long");
+        //when
+        assertThatThrownBy(() -> traineeValidation.validateUpdateTrainersRequest(requestDto))
+            //then
+            .isInstanceOf(ScValidationException.class)
+            .hasMessage(message.toString());
     }
 
     @Test
@@ -175,40 +244,44 @@ class TraineeValidationTest {
     }
 
     @Test
-    void validateNullUsernameUsernameNotNullTest() {
+    void validateNullUsernameTest() {
         //given
         String username = null;
         //when
-        assertThatThrownBy(() -> traineeValidation.validateUsernameNotNull(username))
+        assertThatThrownBy(() -> traineeValidation.validateUsername(username))
             //then
             .isInstanceOf(ScValidationException.class)
             .hasMessage("Username must be at least 4 characters long");
     }
 
     @Test
-    void validateUsernameNotNullTest() {
+    void validateBlankUsernameTest() {
+        //given
+        String username = " ";
+        //when
+        assertThatThrownBy(() -> traineeValidation.validateUsername(username))
+            //then
+            .isInstanceOf(ScValidationException.class)
+            .hasMessage("Username must be at least 4 characters long");
+    }
+
+    @Test
+    void validateShortUsernameTest() {
+        //given
+        String username = null;
+        //when
+        assertThatThrownBy(() -> traineeValidation.validateUsername(username))
+            //then
+            .isInstanceOf(ScValidationException.class)
+            .hasMessage("Username must be at least 4 characters long");
+    }
+
+    @Test
+    void validateUsernameTest() {
         //given
         String username = RandomStringUtils.randomAlphabetic(10);
         //then
-        assertDoesNotThrow(() -> traineeValidation.validateUsernameNotNull(username));
+        assertDoesNotThrow(() -> traineeValidation.validateUsername(username));
     }
 
-    @Test
-    void validateNullActiveStatusRequest() {
-        String username = RandomStringUtils.randomAlphabetic(10);
-        Boolean isActive = null;
-        //when
-        assertThatThrownBy(() -> traineeValidation.validateActiveStatusRequest(username, isActive))
-            //then
-            .isInstanceOf(ScValidationException.class)
-            .hasMessage("Active status must not be null");
-    }
-
-    @Test
-    void validateActiveStatusRequest() {
-        String username = RandomStringUtils.randomAlphabetic(10);
-        Boolean isActive = true;
-        //then
-        assertDoesNotThrow(() -> traineeValidation.validateActiveStatusRequest(username, isActive));
-    }
 }

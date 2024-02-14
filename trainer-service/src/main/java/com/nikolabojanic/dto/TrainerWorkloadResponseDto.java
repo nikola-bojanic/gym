@@ -15,6 +15,6 @@ public class TrainerWorkloadResponseDto {
     private String firstName;
     private String lastName;
     private Boolean isActive;
-    private List<YearDto> workload;
+    private List<YearDto> years;
 
 }

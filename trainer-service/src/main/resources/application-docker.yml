@@ -1,12 +1,13 @@
-server:
-  port: 8081
 app:
-  broker-host: "activemq-docker"
+  active-mq:
+    host: activemq-docker
+    workload-queue: workload.queue.docker
 spring:
   activemq:
-    broker-url: tcp://${app.broker-host}:61616
-    user: docker
-    password: docker
-    packages:
-      trust-all: false
-      trusted: com.nikolabojanic
+    broker-url: tcp://${app.active-mq.host}:61616
+    user: admin
+    password: admin
+    data:
+      mongodb:
+        host: mongodb
+        database: workload-dev

@@ -1,10 +1,8 @@
 package com.nikolabojanic.service.jms;
 
 import com.nikolabojanic.dto.TrainerWorkloadRequestDto;
-import com.nikolabojanic.entity.TrainerEntity;
-import com.nikolabojanic.entity.TrainingEntity;
 import com.nikolabojanic.enumeration.Action;
-import com.nikolabojanic.service.TrainingService;
+import com.nikolabojanic.service.TrainerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional("jmsTransactionManager")
 @RequiredArgsConstructor
 public class MessageProcessingService {
-    private final TrainingService trainingService;
+    private final TrainerService trainerService;
 
     /**
      * Processes the message based on the {@link Action}.
@@ -24,19 +22,10 @@ public class MessageProcessingService {
      */
     public void processMessage(TrainerWorkloadRequestDto requestDto) {
         if (requestDto.getAction() == Action.ADD) {
-            TrainerEntity trainer = TrainerEntity.builder()
-                .username(requestDto.getUsername())
-                .firstName(requestDto.getFirstName())
-                .lastName(requestDto.getLastName())
-                .isActive(requestDto.getIsActive())
-                .build();
-            trainingService.addTraining(TrainingEntity.builder()
-                .trainer(trainer)
-                .date(requestDto.getDate())
-                .duration(requestDto.getDuration()).build());
+            trainerService.addTraining(requestDto);
         } else {
-            trainingService.deleteTrainings(requestDto.getUsername(), requestDto.getDate());
+            trainerService.deleteTraining(requestDto.getUsername(), requestDto.getDate(), requestDto.getDuration());
         }
-        log.info("Successfully updated trainer workload.");
+        log.info("Successfully updated trainer's training summary.");
     }
 }

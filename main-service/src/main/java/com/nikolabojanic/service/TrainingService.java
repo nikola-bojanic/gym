@@ -34,10 +34,9 @@ public class TrainingService {
      * Creates a new training with the provided information.
      *
      * @param training The TrainingEntity object representing the new training.
-     * @param jwt      The JSON Web Token for authentication.
      * @return The created TrainingEntity.
      */
-    public TrainingEntity create(TrainingEntity training, String jwt) {
+    public TrainingEntity create(TrainingEntity training) {
         TrainerEntity trainer = new TrainerEntity();
         if (training.getTrainer() != null && training.getTrainer().getUser() != null
             && training.getTrainer().getUser().getUsername() != null) {
@@ -69,12 +68,11 @@ public class TrainingService {
     /**
      * Deletes a training with the specified ID.
      *
-     * @param id  The ID of the training to be deleted.
-     * @param jwt The JSON Web Token for authentication.
+     * @param id The ID of the training to be deleted.
      * @return The deleted TrainingEntity.
      * @throws ScEntityNotFoundException If the training with the specified ID is not found.
      */
-    public TrainingEntity deleteTraining(Long id, String jwt) {
+    public TrainingEntity deleteTraining(Long id) {
         totalTransactionsCounter.increment();
         Optional<TrainingEntity> deleted = trainingRepository.findById(id);
         if (deleted.isEmpty()) {

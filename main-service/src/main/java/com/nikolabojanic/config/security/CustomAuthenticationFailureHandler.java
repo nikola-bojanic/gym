@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CustomAuthenticationFailureHandler implements AuthenticationEntryPoint {
     private final LoginAttemptService loginAttemptService;
+    private final ObjectMapper objectMapper;
 
     @Override
     public void commence(
@@ -32,7 +33,6 @@ public class CustomAuthenticationFailureHandler implements AuthenticationEntryPo
         } else {
             message = "Username or password not correct";
         }
-        ObjectMapper objectMapper = new ObjectMapper();
         String jsonResponse = objectMapper.writeValueAsString(
             Collections.singletonMap("error", message));
         response.getWriter().write(jsonResponse);

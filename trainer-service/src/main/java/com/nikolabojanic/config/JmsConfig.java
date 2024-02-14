@@ -14,7 +14,6 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
 import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.jms.support.converter.MessageType;
-import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
@@ -23,6 +22,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 @RequiredArgsConstructor
 public class JmsConfig {
     private final ConnectionFactory connectionFactory;
+    private final ObjectMapper objectMapper;
+
 
     /**
      * Registers and configures a JSON converter bean used by active mq broker.
@@ -32,7 +33,6 @@ public class JmsConfig {
     @Bean
     public MessageConverter jsonMessageConverter() {
         MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
-        ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         converter.setObjectMapper(objectMapper);
         converter.setTargetType(MessageType.TEXT);
@@ -61,16 +61,13 @@ public class JmsConfig {
         return new JmsTransactionManager(connectionFactory);
     }
 
-    @Bean
-    public PlatformTransactionManager transactionManager() {
-        return new JpaTransactionManager();
-    }
 
     /**
      * Creates a {@link JmsTemplate} bean for sending and receiving JMS messages within a Spring application.
      *
      * @return A configured {@link JmsTemplate} bean.
      */
+
     @Bean
     public JmsTemplate jmsTemplate() {
         JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory);
@@ -79,4 +76,5 @@ public class JmsConfig {
         jmsTemplate.setSessionTransacted(true);
         return jmsTemplate;
     }
+
 }
