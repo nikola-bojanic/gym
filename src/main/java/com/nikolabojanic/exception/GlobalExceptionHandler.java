@@ -14,27 +14,27 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(value = SCValidationException.class)
+    @ExceptionHandler(value = ScValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<Object> handleSCValidationException(SCValidationException e, WebRequest request) {
+    public ResponseEntity<Object> handleSCValidationException(ScValidationException e, WebRequest request) {
         return handleExceptionInternal(e, e.getMessage(), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
 
-    @ExceptionHandler(value = SCAuthenticationException.class)
+    @ExceptionHandler(value = ScAuthenticationException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ResponseEntity<Object> handleSCAuthenticationException(SCAuthenticationException e, WebRequest request) {
+    public ResponseEntity<Object> handleSCAuthenticationException(ScAuthenticationException e, WebRequest request) {
         return handleExceptionInternal(e, e.getMessage(), new HttpHeaders(), HttpStatus.UNAUTHORIZED, request);
     }
 
-    @ExceptionHandler(value = SCEntityNotFoundException.class)
+    @ExceptionHandler(value = ScEntityNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<Object> handleSCEntityNotFoundException(SCEntityNotFoundException e, WebRequest request) {
+    public ResponseEntity<Object> handleSCEntityNotFoundException(ScEntityNotFoundException e, WebRequest request) {
         return handleExceptionInternal(e, e.getMessage(), new HttpHeaders(), HttpStatus.NOT_FOUND, request);
     }
 
-    @ExceptionHandler(value = SCNotAuthorizedException.class)
+    @ExceptionHandler(value = ScNotAuthorizedException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    public ResponseEntity<Object> handleSCNotAuthorizedException(SCNotAuthorizedException e, WebRequest request) {
+    public ResponseEntity<Object> handleSCNotAuthorizedException(ScNotAuthorizedException e, WebRequest request) {
         return handleExceptionInternal(e, e.getMessage(), new HttpHeaders(), HttpStatus.FORBIDDEN, request);
     }
 

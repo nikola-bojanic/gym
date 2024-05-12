@@ -6,19 +6,19 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-class AuthDTOTest {
+class AuthDTORequestTest {
 
     @Test
     void getterAndSetterTest() {
-        AuthDTO authDTO = new AuthDTO();
+        AuthDTORequest authDTORequest = new AuthDTORequest();
         String username = RandomStringUtils.randomAlphabetic(8, 10);
         String password = RandomStringUtils.randomAlphabetic(8, 10);
 
-        authDTO.setPassword(password);
-        authDTO.setUsername(username);
+        authDTORequest.setPassword(password);
+        authDTORequest.setUsername(username);
 
-        assertEquals(username, authDTO.getUsername());
-        assertEquals(password, authDTO.getPassword());
+        assertEquals(username, authDTORequest.getUsername());
+        assertEquals(password, authDTORequest.getPassword());
     }
 
     @Test
@@ -27,18 +27,18 @@ class AuthDTOTest {
         String username = RandomStringUtils.randomAlphabetic(8, 10);
         String password = RandomStringUtils.randomAlphabetic(8, 10);
         //when
-        AuthDTO authDTO = new AuthDTO(username, password);
+        AuthDTORequest authDTORequest = new AuthDTORequest(username, password);
         //then
-        assertEquals(username, authDTO.getUsername());
-        assertEquals(password, authDTO.getPassword());
+        assertEquals(username, authDTORequest.getUsername());
+        assertEquals(password, authDTORequest.getPassword());
 
     }
 
     @Test
     void noArgsConstructorTest() {
-        AuthDTO authDTO = new AuthDTO();
+        AuthDTORequest authDTORequest = new AuthDTORequest();
 
-        assertNull(authDTO.getUsername());
-        assertNull(authDTO.getPassword());
+        assertNull(authDTORequest.getUsername());
+        assertNull(authDTORequest.getPassword());
     }
 }

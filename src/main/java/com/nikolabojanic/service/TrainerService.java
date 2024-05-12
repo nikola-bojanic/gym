@@ -1,16 +1,19 @@
 package com.nikolabojanic.service;
 
 
-import com.nikolabojanic.exception.SCEntityNotFoundException;
-import com.nikolabojanic.model.TraineeEntity;
-import com.nikolabojanic.model.TrainerEntity;
-import com.nikolabojanic.model.UserEntity;
+import com.nikolabojanic.converter.TrainerConverter;
+import com.nikolabojanic.domain.TrainerDomain;
+import com.nikolabojanic.entity.TraineeEntity;
+import com.nikolabojanic.entity.TrainerEntity;
+import com.nikolabojanic.entity.UserEntity;
+import com.nikolabojanic.exception.ScEntityNotFoundException;
 import com.nikolabojanic.repository.TrainerRepository;
 import io.micrometer.core.instrument.Counter;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,16 +29,21 @@ public class TrainerService {
     private final TrainingTypeService trainingTypeService;
     private final TraineeService traineeService;
     private final Counter totalTransactionsCounter;
+    private final PasswordEncoder passwordEncoder;
+    private final TrainerConverter trainerConverter;
 
-    public TrainerEntity createTrainerProfile(TrainerEntity trainer) {
+    public TrainerDomain createTrainerProfile(TrainerEntity trainer) {
         UserEntity user = userService.generateUsernameAndPassword(trainer.getUser());
+        TrainerDomain domainModel = trainerConverter.convertEntityToDomainModel(user);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         trainer.setUser(user);
         if (trainer.getSpecialization() != null && trainer.getSpecialization().getId() != null) {
             trainer.setSpecialization(trainingTypeService.findById(trainer.getSpecialization().getId()));
         }
         log.info("Created trainer profile");
         totalTransactionsCounter.increment();
-        return trainerRepository.save(trainer);
+        trainerRepository.save(trainer);
+        return domainModel;
     }
 
     public TrainerEntity updateTrainerProfile(String username, TrainerEntity trainer) {
@@ -59,7 +67,7 @@ public class TrainerService {
         } else {
             log.error("Attempted to fetch trainer with non-existent username {}. " +
                     "Status: {}", username, HttpStatus.NOT_FOUND.value());
-            throw new SCEntityNotFoundException("Trainer with username " + username + " doesn't exist");
+            throw new ScEntityNotFoundException("Trainer with username " + username + " doesn't exist");
         }
     }
 

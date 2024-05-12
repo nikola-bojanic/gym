@@ -1,6 +1,6 @@
 package com.nikolabojanic.converter;
 
-import com.nikolabojanic.model.UserEntity;
+import com.nikolabojanic.entity.UserEntity;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

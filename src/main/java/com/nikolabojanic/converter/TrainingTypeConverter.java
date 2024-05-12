@@ -1,7 +1,7 @@
 package com.nikolabojanic.converter;
 
 import com.nikolabojanic.dto.TrainingTypeResponseDTO;
-import com.nikolabojanic.model.TrainingTypeEntity;
+import com.nikolabojanic.entity.TrainingTypeEntity;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

@@ -1,9 +1,11 @@
 package com.nikolabojanic.service;
 
+import com.nikolabojanic.converter.TraineeConverter;
+import com.nikolabojanic.domain.TraineeDomain;
 import com.nikolabojanic.dto.TraineeTrainerUpdateRequestDTO;
-import com.nikolabojanic.model.TraineeEntity;
-import com.nikolabojanic.model.TrainerEntity;
-import com.nikolabojanic.model.UserEntity;
+import com.nikolabojanic.entity.TraineeEntity;
+import com.nikolabojanic.entity.TrainerEntity;
+import com.nikolabojanic.entity.UserEntity;
 import com.nikolabojanic.repository.TraineeRepository;
 import io.micrometer.core.instrument.Counter;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -12,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +35,10 @@ class TraineeServiceTest {
     private TrainerService trainerService;
     @Mock
     private Counter totalTransactionsCounter;
+    @Mock
+    private TraineeConverter traineeConverter;
+    @Mock
+    private PasswordEncoder passwordEncoder;
     @InjectMocks
     private TraineeService traineeService;
 
@@ -39,12 +46,15 @@ class TraineeServiceTest {
     void createTraineeProfileTest() {
         //given
         UserEntity user = new UserEntity();
+        user.setPassword(RandomStringUtils.randomAlphabetic(5));
         TraineeEntity trainee = new TraineeEntity();
         trainee.setUser(user);
-        when(userService.generateUsernameAndPassword(any(UserEntity.class))).thenReturn(new UserEntity());
+        when(userService.generateUsernameAndPassword(any(UserEntity.class))).thenReturn(user);
+        when(traineeConverter.convertEntityToDomainModel(any(UserEntity.class))).thenReturn(new TraineeDomain());
+        when(passwordEncoder.encode(any(String.class))).thenReturn(RandomStringUtils.randomAlphabetic(5));
         when(traineeRepository.save(any(TraineeEntity.class))).thenReturn(new TraineeEntity());
         //when
-        TraineeEntity createdTrainee = traineeService.createTraineeProfile(trainee);
+        TraineeDomain createdTrainee = traineeService.createTraineeProfile(trainee);
         //then
         assertThat(createdTrainee).isNotNull();
     }

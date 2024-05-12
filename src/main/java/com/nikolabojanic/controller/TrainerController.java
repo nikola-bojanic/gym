@@ -1,10 +1,10 @@
 package com.nikolabojanic.controller;
 
 import com.nikolabojanic.converter.TrainerConverter;
+import com.nikolabojanic.domain.TrainerDomain;
 import com.nikolabojanic.dto.*;
-import com.nikolabojanic.model.TrainerEntity;
+import com.nikolabojanic.entity.TrainerEntity;
 import com.nikolabojanic.service.TrainerService;
-import com.nikolabojanic.service.UserService;
 import com.nikolabojanic.validation.TrainerValidation;
 import io.micrometer.core.instrument.Counter;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,19 +24,16 @@ import java.util.List;
 @RequestMapping(value = "api/v1/trainers")
 public class TrainerController {
     private final TrainerService trainerService;
-    private final UserService userService;
     private final TrainerConverter trainerConverter;
     private final TrainerValidation trainerValidation;
     private final Counter trainerEndpointsHitCounter;
 
     public TrainerController(
             TrainerService trainerService,
-            UserService userService,
             TrainerConverter trainerConverter,
             TrainerValidation trainerValidation,
             @Qualifier("trainerEndpointsHitCounter") Counter trainerEndpointsHitCounter) {
         this.trainerService = trainerService;
-        this.userService = userService;
         this.trainerConverter = trainerConverter;
         this.trainerValidation = trainerValidation;
         this.trainerEndpointsHitCounter = trainerEndpointsHitCounter;
@@ -55,11 +52,8 @@ public class TrainerController {
                     description = "Application failed to process the request")
     })
     public ResponseEntity<TrainerResponseDTO> getTrainer(
-            @PathVariable("username") String username,
-            @RequestHeader(name = "Auth-Username") String authUsername,
-            @RequestHeader(name = "Auth-Password") String authPassword) {
+            @PathVariable("username") String username) {
         trainerEndpointsHitCounter.increment();
-        userService.authentication(new AuthDTO(authUsername, authPassword));
         trainerValidation.validateUsernameNotNull(username);
         TrainerEntity trainer = trainerService.findByUsername(username);
         TrainerResponseDTO responseDTO = trainerConverter.convertModelToResponseDTO(trainer);
@@ -81,11 +75,8 @@ public class TrainerController {
     })
     public ResponseEntity<TrainerUpdateResponseDTO> updateTrainer(
             @PathVariable("username") String username,
-            @RequestHeader("Auth-Username") String authUsername,
-            @RequestHeader("Auth-Password") String authPassword,
             @RequestBody TrainerUpdateRequestDTO requestDTO) {
         trainerEndpointsHitCounter.increment();
-        userService.authentication(new AuthDTO(authUsername, authPassword));
         trainerValidation.validateUsernameNotNull(username);
         trainerValidation.validateUpdateTrainerRequest(requestDTO);
         TrainerEntity trainer = trainerConverter.convertUpdateRequestToModel(requestDTO);
@@ -106,10 +97,10 @@ public class TrainerController {
         trainerEndpointsHitCounter.increment();
         trainerValidation.validateRegisterRequest(requestDTO);
         TrainerEntity model = trainerConverter.convertRegistrationRequestToModel(requestDTO);
-        TrainerEntity registered = trainerService.createTrainerProfile(model);
+        TrainerDomain registered = trainerService.createTrainerProfile(model);
         RegistrationResponseDTO responseDTO = trainerConverter.convertModelToRegistrationResponse(registered);
         log.info("Successfully registered a trainer with username {}. " +
-                "Status: {}", registered.getUser().getUsername(), HttpStatus.OK.value());
+                "Status: {}", registered.getUsername(), HttpStatus.OK.value());
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
@@ -126,11 +117,8 @@ public class TrainerController {
                     description = "Application failed to process the request")
     })
     public ResponseEntity<List<ActiveTrainerResponseDTO>> getActiveTrainers(
-            @PathVariable("username") String username,
-            @RequestHeader("Auth-Username") String authUsername,
-            @RequestHeader("Auth-Password") String authPassword) {
+            @PathVariable("username") String username) {
         trainerEndpointsHitCounter.increment();
-        userService.authentication(new AuthDTO(authUsername, authPassword));
         trainerValidation.validateUsernameNotNull(username);
         List<TrainerEntity> trainers = trainerService.findActiveForOtherTrainees(username);
         List<ActiveTrainerResponseDTO> responseDTO = trainers.stream()
@@ -154,12 +142,9 @@ public class TrainerController {
     })
     public ResponseEntity<Void> changeActiveStatus(
             @PathVariable("username") String username,
-            @RequestHeader("Auth-Username") String authUsername,
-            @RequestHeader("Auth-Password") String authPassword,
             @RequestParam("activeStatus") Boolean activeStatus
     ) {
         trainerEndpointsHitCounter.increment();
-        userService.authentication(new AuthDTO(authUsername, authPassword));
         trainerValidation.validateActiveStatusRequest(username, activeStatus);
         trainerService.changeActiveStatus(username, activeStatus);
         log.info("Successfully changed trainer active status. Trainee username {}. " +

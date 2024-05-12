@@ -4,7 +4,7 @@ import com.nikolabojanic.dto.TraineeTrainingResponseDTO;
 import com.nikolabojanic.dto.TrainerTrainingResponseDTO;
 import com.nikolabojanic.dto.TrainingRequestDTO;
 import com.nikolabojanic.dto.TrainingResponseDTO;
-import com.nikolabojanic.model.TrainingEntity;
+import com.nikolabojanic.entity.TrainingEntity;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

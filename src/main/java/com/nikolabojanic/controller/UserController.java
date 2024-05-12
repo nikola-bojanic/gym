@@ -1,6 +1,6 @@
 package com.nikolabojanic.controller;
 
-import com.nikolabojanic.dto.AuthDTO;
+import com.nikolabojanic.config.security.UserPrincipal;
 import com.nikolabojanic.dto.UserPasswordChangeRequestDTO;
 import com.nikolabojanic.service.UserService;
 import com.nikolabojanic.validation.UserValidation;
@@ -14,7 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
@@ -26,28 +30,15 @@ public class UserController {
 
     @Autowired
     public UserController(
-            UserService userService, UserValidation userValidation,
+            UserService userService,
+            UserValidation userValidation,
             @Qualifier("userEndpointsHitCounter") Counter authenticationHitCounter) {
         this.userService = userService;
         this.userValidation = userValidation;
         this.userEndpointsHitCounter = authenticationHitCounter;
     }
 
-    @PostMapping(value = "/auth", consumes = "application/json")
-    @Operation(summary = "Login User")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully logged in", content = @Content),
-            @ApiResponse(responseCode = "401", description = "Application failed to authenticate user"),
-            @ApiResponse(responseCode = "500", description = "Application failed to process the request")
-    })
-    public ResponseEntity<Void> login(@RequestBody AuthDTO authDTO) {
-        userEndpointsHitCounter.increment();
-        userService.authentication(authDTO);
-        log.info("Successfully authenticated. Status: {}", HttpStatus.OK.value());
-        return ResponseEntity.ok().build();
-    }
-
-    @PutMapping(value = "/password/{username}", consumes = "application/json", produces = "application/json")
+    @PostMapping(value = "/password", consumes = "application/json", produces = "application/json")
     @Operation(summary = "change User Password")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully changed user password", content = @Content),
@@ -56,16 +47,13 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "Application failed to find a user with given username"),
             @ApiResponse(responseCode = "500", description = "Application failed to process the request")
     })
-    public ResponseEntity<Void> changePassword(@PathVariable("username") String username,
-                                               @RequestHeader("Auth-Username") String authUsername,
-                                               @RequestHeader("Auth-Password") String authPassword,
+    public ResponseEntity<Void> changePassword(@AuthenticationPrincipal UserPrincipal userPrincipal,
                                                @RequestBody UserPasswordChangeRequestDTO passwordChangeDTO) {
         userEndpointsHitCounter.increment();
-        userService.authentication(new AuthDTO(authUsername, authPassword));
-        userValidation.validatePasswordRequestDTO(username, passwordChangeDTO);
-        userValidation.validateUserPermissionToEdit(username, authUsername);
-        userService.changeUserPassword(username, passwordChangeDTO);
-        log.info("Successfully changed user's password. Username {}, Status {}", username, HttpStatus.OK);
+        userValidation.validatePasswordRequestDTO(passwordChangeDTO.getUsername(), passwordChangeDTO);
+        userValidation.validateUserPermissionToEdit(passwordChangeDTO.getUsername(), userPrincipal.getUsername());
+        userService.changeUserPassword(passwordChangeDTO.getUsername(), passwordChangeDTO);
+        log.info("Successfully changed user's password. Username {}, Status {}", passwordChangeDTO.getUsername(), HttpStatus.OK);
         return ResponseEntity.ok().build();
     }
 }

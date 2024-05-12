@@ -1,7 +1,7 @@
 package com.nikolabojanic.exception;
 
-public class SCRootException extends RuntimeException {
-    public SCRootException(String message) {
+public class ScRootException extends RuntimeException {
+    public ScRootException(String message) {
         super(message);
     }
 }

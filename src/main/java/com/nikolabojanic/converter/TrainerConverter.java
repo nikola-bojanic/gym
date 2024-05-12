@@ -1,7 +1,9 @@
 package com.nikolabojanic.converter;
 
+import com.nikolabojanic.domain.TrainerDomain;
 import com.nikolabojanic.dto.*;
-import com.nikolabojanic.model.TrainerEntity;
+import com.nikolabojanic.entity.TrainerEntity;
+import com.nikolabojanic.entity.UserEntity;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -28,11 +30,11 @@ public class TrainerConverter {
         return trainer;
     }
 
-    public RegistrationResponseDTO convertModelToRegistrationResponse(TrainerEntity trainer) {
+    public RegistrationResponseDTO convertModelToRegistrationResponse(TrainerDomain trainer) {
         RegistrationResponseDTO responseDTO = new RegistrationResponseDTO();
-        responseDTO.setUsername(trainer.getUser().getUsername());
-        responseDTO.setPassword(trainer.getUser().getPassword());
-        log.info("Successfully converted model to trainee registration response.");
+        responseDTO.setUsername(trainer.getUsername());
+        responseDTO.setPassword(trainer.getPassword());
+        log.info("Successfully converted domain model to trainee registration response.");
         return responseDTO;
     }
 
@@ -109,5 +111,12 @@ public class TrainerConverter {
         }
         log.info("Successfully converted trainer model to active trainer response.");
         return responseDTO;
+    }
+
+    public TrainerDomain convertEntityToDomainModel(UserEntity entity) {
+        TrainerDomain domain = new TrainerDomain();
+        domain.setUsername(entity.getUsername());
+        domain.setPassword(entity.getPassword());
+        return domain;
     }
 }

@@ -1,7 +1,7 @@
 package com.nikolabojanic.exception;
 
-public class SCValidationException extends SCRootException {
-    public SCValidationException(String message) {
+public class ScValidationException extends ScRootException {
+    public ScValidationException(String message) {
         super(message);
     }
 }

@@ -1,5 +1,6 @@
-package com.nikolabojanic.model;
+package com.nikolabojanic.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,6 +24,7 @@ public class UserEntity {
     @Column(nullable = false, unique = true)
     private String username;
     @Column(nullable = false)
+    @JsonIgnore
     private String password;
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;

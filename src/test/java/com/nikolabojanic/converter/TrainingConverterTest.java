@@ -4,7 +4,7 @@ import com.nikolabojanic.dto.TraineeTrainingResponseDTO;
 import com.nikolabojanic.dto.TrainerTrainingResponseDTO;
 import com.nikolabojanic.dto.TrainingRequestDTO;
 import com.nikolabojanic.dto.TrainingResponseDTO;
-import com.nikolabojanic.model.*;
+import com.nikolabojanic.entity.*;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

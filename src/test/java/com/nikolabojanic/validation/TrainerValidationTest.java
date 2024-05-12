@@ -2,7 +2,7 @@ package com.nikolabojanic.validation;
 
 import com.nikolabojanic.dto.TrainerRegistrationRequestDTO;
 import com.nikolabojanic.dto.TrainerUpdateRequestDTO;
-import com.nikolabojanic.exception.SCValidationException;
+import com.nikolabojanic.exception.ScValidationException;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,7 +25,7 @@ class TrainerValidationTest {
         //when
         assertThatThrownBy(() -> trainerValidation.validateRegisterRequest(requestDTO))
                 //then
-                .isInstanceOf(SCValidationException.class)
+                .isInstanceOf(ScValidationException.class)
                 .hasMessage("Cannot create trainer profile with null value");
     }
 
@@ -36,7 +36,7 @@ class TrainerValidationTest {
         //when
         assertThatThrownBy(() -> trainerValidation.validateRegisterRequest(requestDTO))
                 //then
-                .isInstanceOf(SCValidationException.class)
+                .isInstanceOf(ScValidationException.class)
                 .hasMessage("First name must be at least two characters long");
     }
 
@@ -48,7 +48,7 @@ class TrainerValidationTest {
         //when
         assertThatThrownBy(() -> trainerValidation.validateRegisterRequest(requestDTO))
                 //then
-                .isInstanceOf(SCValidationException.class)
+                .isInstanceOf(ScValidationException.class)
                 .hasMessage("Last name must be at least two characters long");
     }
 
@@ -61,7 +61,7 @@ class TrainerValidationTest {
         //then
         assertThatThrownBy(() -> trainerValidation.validateRegisterRequest(requestDTO))
                 //then
-                .isInstanceOf(SCValidationException.class)
+                .isInstanceOf(ScValidationException.class)
                 .hasMessage("Cannot create trainer profile with null specialization id");
     }
 
@@ -83,7 +83,7 @@ class TrainerValidationTest {
         //when
         assertThatThrownBy(() -> trainerValidation.validateUpdateTrainerRequest(requestDTO))
                 //then
-                .isInstanceOf(SCValidationException.class)
+                .isInstanceOf(ScValidationException.class)
                 .hasMessage("Cannot update trainer profile with null request");
     }
 
@@ -94,7 +94,7 @@ class TrainerValidationTest {
         //when
         assertThatThrownBy(() -> trainerValidation.validateUpdateTrainerRequest(requestDTO))
                 //then
-                .isInstanceOf(SCValidationException.class)
+                .isInstanceOf(ScValidationException.class)
                 .hasMessage("Username must be at least 4 characters long");
     }
 
@@ -106,7 +106,7 @@ class TrainerValidationTest {
         //when
         assertThatThrownBy(() -> trainerValidation.validateUpdateTrainerRequest(requestDTO))
                 //then
-                .isInstanceOf(SCValidationException.class)
+                .isInstanceOf(ScValidationException.class)
                 .hasMessage("First name must be at least two characters long");
     }
 
@@ -119,7 +119,7 @@ class TrainerValidationTest {
         //when
         assertThatThrownBy(() -> trainerValidation.validateUpdateTrainerRequest(requestDTO))
                 //then
-                .isInstanceOf(SCValidationException.class)
+                .isInstanceOf(ScValidationException.class)
                 .hasMessage("Last name must be at least two characters long");
     }
 
@@ -133,7 +133,7 @@ class TrainerValidationTest {
         //when
         assertThatThrownBy(() -> trainerValidation.validateUpdateTrainerRequest(requestDTO))
                 //then
-                .isInstanceOf(SCValidationException.class)
+                .isInstanceOf(ScValidationException.class)
                 .hasMessage("Active status must not be null");
     }
 
@@ -156,7 +156,7 @@ class TrainerValidationTest {
         //when
         assertThatThrownBy(() -> trainerValidation.validateUsernameNotNull(username))
                 //then
-                .isInstanceOf(SCValidationException.class)
+                .isInstanceOf(ScValidationException.class)
                 .hasMessage("Username must be at least 4 characters long");
     }
 
@@ -175,7 +175,7 @@ class TrainerValidationTest {
         //when
         assertThatThrownBy(() -> trainerValidation.validateActiveStatusRequest(username, isActive))
                 //then
-                .isInstanceOf(SCValidationException.class)
+                .isInstanceOf(ScValidationException.class)
                 .hasMessage("Active status must not be null");
     }
 

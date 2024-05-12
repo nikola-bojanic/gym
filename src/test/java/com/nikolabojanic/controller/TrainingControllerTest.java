@@ -1,10 +1,12 @@
 package com.nikolabojanic.controller;
 
 import com.nikolabojanic.converter.TrainingConverter;
-import com.nikolabojanic.dto.*;
-import com.nikolabojanic.model.TrainingEntity;
+import com.nikolabojanic.dto.TraineeTrainingResponseDTO;
+import com.nikolabojanic.dto.TrainerTrainingResponseDTO;
+import com.nikolabojanic.dto.TrainingRequestDTO;
+import com.nikolabojanic.dto.TrainingResponseDTO;
+import com.nikolabojanic.entity.TrainingEntity;
 import com.nikolabojanic.service.TrainingService;
-import com.nikolabojanic.service.UserService;
 import com.nikolabojanic.validation.TrainingValidation;
 import io.micrometer.core.instrument.Counter;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -30,8 +32,6 @@ class TrainingControllerTest {
     @Mock
     private TrainingService trainingService;
     @Mock
-    private UserService userService;
-    @Mock
     private TrainingConverter trainingConverter;
     @Mock
     private TrainingValidation trainingValidation;
@@ -43,7 +43,6 @@ class TrainingControllerTest {
     @Test
     void createTrainingTest() {
         //given
-        doNothing().when(userService).authentication(any(AuthDTO.class));
         doNothing().when(trainingValidation).validateCreateTrainingRequest(any(TrainingRequestDTO.class));
         when(trainingConverter.convertToEntity(any(TrainingRequestDTO.class)))
                 .thenReturn(new TrainingEntity());
@@ -53,8 +52,6 @@ class TrainingControllerTest {
                 .thenReturn(new TrainingResponseDTO());
         //when
         ResponseEntity<TrainingResponseDTO> response = trainingController.createTraining(
-                RandomStringUtils.randomAlphabetic(8, 10),
-                RandomStringUtils.randomAlphabetic(8, 10),
                 new TrainingRequestDTO());
         //then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -64,7 +61,6 @@ class TrainingControllerTest {
     @Test
     void getTrainingsByTrainerAndFilterTest() {
         //given
-        doNothing().when(userService).authentication(any(AuthDTO.class));
         doNothing().when(trainingValidation).validateUsernameNotNull(any(String.class));
         when(trainingService.findByTrainerAndFilter(
                 any(String.class),
@@ -74,8 +70,6 @@ class TrainingControllerTest {
                 .thenReturn(new ArrayList<>());
         //when
         ResponseEntity<List<TrainerTrainingResponseDTO>> response = trainingController.getTrainingsByTrainerAndFilter(
-                RandomStringUtils.randomAlphabetic(5),
-                RandomStringUtils.randomAlphabetic(5),
                 RandomStringUtils.randomAlphabetic(5),
                 LocalDate.now(),
                 LocalDate.now(),
@@ -88,7 +82,6 @@ class TrainingControllerTest {
     @Test
     void getTrainingsByTraineeAndFilterTest() {
         //given
-        doNothing().when(userService).authentication(any(AuthDTO.class));
         doNothing().when(trainingValidation).validateUsernameNotNull(any(String.class));
         when(trainingService.findByTraineeAndFilter(
                 any(String.class),
@@ -99,8 +92,6 @@ class TrainingControllerTest {
                 .thenReturn(new ArrayList<>());
         //when
         ResponseEntity<List<TraineeTrainingResponseDTO>> response = trainingController.getTrainingsByTraineeAndFilter(
-                RandomStringUtils.randomAlphabetic(5),
-                RandomStringUtils.randomAlphabetic(5),
                 RandomStringUtils.randomAlphabetic(5),
                 LocalDate.now(),
                 LocalDate.now(),

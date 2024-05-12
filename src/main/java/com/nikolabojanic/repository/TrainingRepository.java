@@ -1,6 +1,6 @@
 package com.nikolabojanic.repository;
 
-import com.nikolabojanic.model.TrainingEntity;
+import com.nikolabojanic.entity.TrainingEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

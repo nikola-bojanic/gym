@@ -14,10 +14,10 @@ java {
 
 sonar {
     properties {
-        property "sonar.projectKey", "springboot"
-        property "sonar.projectName", "springboot"
+        property "sonar.projectKey", "spring-security"
+        property "sonar.projectName", "spring-security"
         property "sonar.host.url", "http://localhost:9000"
-        property "sonar.token", "sqp_2bf881d6334206689ae62b91e76eedb7f72c29f7"
+        property "sonar.token", "sqp_b3399a6e2d29c7c6460bd3a070520843af88259a"
         property "sonar.jacoco.reportPaths", "build/reports/jacoco/test/jacocoTestReport.xml"
         property "sonar.login", "admin"
         property "sonar.password", "sonar"
@@ -32,6 +32,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web:3.2.1'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa:3.2.1'
     implementation 'org.springframework.boot:spring-boot-starter-actuator:3.2.1'
+    implementation 'org.springframework.boot:spring-boot-starter-security:3.2.1'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server:3.2.1'
     implementation 'org.liquibase:liquibase-core:4.25.1'
     implementation 'org.liquibase:liquibase-gradle-plugin:2.2.1'
     implementation 'org.postgresql:postgresql:42.7.1'
@@ -39,11 +41,13 @@ dependencies {
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-api:2.2.0'
     implementation 'ch.qos.logback:logback-classic:1.4.14'
     implementation 'io.micrometer:micrometer-registry-prometheus:1.12.1'
+    implementation 'com.google.guava:guava:33.0.0-jre'
     compileOnly 'org.projectlombok:lombok:1.18.30'
     annotationProcessor 'org.projectlombok:lombok:1.18.30'
     testCompileOnly 'org.projectlombok:lombok:1.18.30'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.30'
     testImplementation 'org.springframework.boot:spring-boot-starter-test:3.2.1'
+    testImplementation 'org.springframework.security:spring-security-test:6.2.1'
     testImplementation 'org.assertj:assertj-core:3.24.2'
 }
 

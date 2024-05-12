@@ -1,10 +1,11 @@
 package com.nikolabojanic.converter;
 
+import com.nikolabojanic.domain.TrainerDomain;
 import com.nikolabojanic.dto.*;
-import com.nikolabojanic.model.TraineeEntity;
-import com.nikolabojanic.model.TrainerEntity;
-import com.nikolabojanic.model.TrainingTypeEntity;
-import com.nikolabojanic.model.UserEntity;
+import com.nikolabojanic.entity.TraineeEntity;
+import com.nikolabojanic.entity.TrainerEntity;
+import com.nikolabojanic.entity.TrainingTypeEntity;
+import com.nikolabojanic.entity.UserEntity;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -69,16 +70,16 @@ class TrainerConverterTest {
     @Test
     void convertModelToRegistrationResponse() {
         //given
-        UserEntity user = new UserEntity();
-        user.setUsername(RandomStringUtils.randomAlphabetic(5));
-        user.setPassword(RandomStringUtils.randomAlphabetic(5));
-        TrainerEntity trainer = new TrainerEntity();
-        trainer.setUser(user);
+        String username = RandomStringUtils.randomAlphabetic(5);
+        String password = RandomStringUtils.randomAlphabetic(5);
+        TrainerDomain trainer = new TrainerDomain();
+        trainer.setUsername(username);
+        trainer.setPassword(password);
         //when
         RegistrationResponseDTO responseDTO = trainerConverter.convertModelToRegistrationResponse(trainer);
         //then
-        assertThat(responseDTO.getUsername()).isEqualTo(trainer.getUser().getUsername());
-        assertThat(responseDTO.getPassword()).isEqualTo(trainer.getUser().getPassword());
+        assertThat(responseDTO.getUsername()).isEqualTo(trainer.getUsername());
+        assertThat(responseDTO.getPassword()).isEqualTo(trainer.getPassword());
     }
 
     @Test

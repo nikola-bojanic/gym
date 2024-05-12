@@ -2,12 +2,11 @@ package com.nikolabojanic.controller;
 
 import com.nikolabojanic.converter.TraineeConverter;
 import com.nikolabojanic.converter.TrainerConverter;
+import com.nikolabojanic.domain.TraineeDomain;
 import com.nikolabojanic.dto.*;
-import com.nikolabojanic.model.TraineeEntity;
-import com.nikolabojanic.model.TrainerEntity;
-import com.nikolabojanic.model.UserEntity;
+import com.nikolabojanic.entity.TraineeEntity;
+import com.nikolabojanic.entity.TrainerEntity;
 import com.nikolabojanic.service.TraineeService;
-import com.nikolabojanic.service.UserService;
 import com.nikolabojanic.validation.TraineeValidation;
 import io.micrometer.core.instrument.Counter;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -32,8 +31,6 @@ class TraineeControllerTest {
     @Mock
     private TraineeService traineeService;
     @Mock
-    private UserService userService;
-    @Mock
     private TraineeConverter traineeConverter;
     @Mock
     private TrainerConverter trainerConverter;
@@ -47,14 +44,11 @@ class TraineeControllerTest {
     @Test
     void getTraineeTest() {
         //given
-        doNothing().when(userService).authentication(any(AuthDTO.class));
         doNothing().when(traineeValidation).validateUsernameNotNull(any(String.class));
         when(traineeService.findByUsername(any(String.class))).thenReturn(new TraineeEntity());
         when(traineeConverter.convertModelToResponse(any(TraineeEntity.class))).thenReturn(new TraineeResponseDTO());
         //when
         ResponseEntity<TraineeResponseDTO> response = traineeController.getTrainee(
-                RandomStringUtils.randomAlphabetic(10),
-                RandomStringUtils.randomAlphabetic(10),
                 RandomStringUtils.randomAlphabetic(10));
         //then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -64,7 +58,6 @@ class TraineeControllerTest {
     @Test
     void updateTraineeTest() {
         //given
-        doNothing().when(userService).authentication(any(AuthDTO.class));
         doNothing().when(traineeValidation).validateUsernameNotNull(any(String.class));
         doNothing().when(traineeValidation).validateUpdateTraineeRequest(any(TraineeUpdateRequestDTO.class));
         when(traineeConverter.convertUpdateRequestToModel(any(TraineeUpdateRequestDTO.class)))
@@ -76,8 +69,6 @@ class TraineeControllerTest {
         //when
         ResponseEntity<TraineeUpdateResponseDTO> response = traineeController.updateTrainee(
                 RandomStringUtils.randomAlphabetic(10),
-                RandomStringUtils.randomAlphabetic(10),
-                RandomStringUtils.randomAlphabetic(10),
                 new TraineeUpdateRequestDTO());
         //then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -87,15 +78,14 @@ class TraineeControllerTest {
     @Test
     void registerTraineeTest() {
         //given
-        UserEntity user = new UserEntity();
-        user.setUsername(RandomStringUtils.randomAlphabetic(10));
-        TraineeEntity registered = new TraineeEntity();
-        registered.setUser(user);
+        String username = RandomStringUtils.randomAlphabetic(10);
+        TraineeDomain registered = new TraineeDomain();
+        registered.setUsername(username);
         doNothing().when(traineeValidation).validateRegisterRequest(any(TraineeRegistrationRequestDTO.class));
         when(traineeConverter.convertRegistrationRequestToModel(any(TraineeRegistrationRequestDTO.class)))
                 .thenReturn(new TraineeEntity());
         when(traineeService.createTraineeProfile(any(TraineeEntity.class))).thenReturn(registered);
-        when(traineeConverter.convertModelToRegistrationResponse(any(TraineeEntity.class)))
+        when(traineeConverter.convertModelToRegistrationResponse(any(TraineeDomain.class)))
                 .thenReturn(new RegistrationResponseDTO());
         //when
         ResponseEntity<RegistrationResponseDTO> response = traineeController
@@ -108,13 +98,10 @@ class TraineeControllerTest {
     @Test
     void deleteTraineeTest() {
         //given
-        doNothing().when(userService).authentication(any(AuthDTO.class));
         doNothing().when(traineeValidation).validateUsernameNotNull(any(String.class));
         when(traineeService.deleteByUsername(any(String.class))).thenReturn(new TraineeEntity());
         //when
         ResponseEntity<Void> response = traineeController.deleteTrainee(
-                RandomStringUtils.randomAlphabetic(10),
-                RandomStringUtils.randomAlphabetic(10),
                 RandomStringUtils.randomAlphabetic(10));
         //then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -127,7 +114,6 @@ class TraineeControllerTest {
         List<TrainerEntity> trainers = List.of(trainer);
         TraineeEntity trainee = new TraineeEntity();
         trainee.setTrainers(trainers);
-        doNothing().when(userService).authentication(any(AuthDTO.class));
         doNothing().when(traineeValidation).validateUsernameNotNull(any(String.class));
         doNothing().when(traineeValidation).validateUpdateTrainersRequest(any(List.class));
         when(traineeService.updateTraineeTrainers(any(String.class), any(List.class)))
@@ -135,8 +121,6 @@ class TraineeControllerTest {
         when(trainerConverter.convertModelToTraineeTrainer(trainer)).thenReturn(new TraineeTrainerResponseDTO());
         //when
         ResponseEntity<List<TraineeTrainerResponseDTO>> response = traineeController.updateTraineesTrainers(
-                RandomStringUtils.randomAlphabetic(10),
-                RandomStringUtils.randomAlphabetic(10),
                 RandomStringUtils.randomAlphabetic(10),
                 new ArrayList<>()
         );
@@ -148,13 +132,10 @@ class TraineeControllerTest {
     @Test
     void changeActiveStatusTest() {
         //given
-        doNothing().when(userService).authentication(any(AuthDTO.class));
         doNothing().when(traineeValidation).validateActiveStatusRequest(any(String.class), any(Boolean.class));
         doNothing().when(traineeService).changeActiveStatus(any(String.class), any(Boolean.class));
         //when
         ResponseEntity<Void> response = traineeController.changeActiveStatus(
-                RandomStringUtils.randomAlphabetic(10),
-                RandomStringUtils.randomAlphabetic(10),
                 RandomStringUtils.randomAlphabetic(10),
                 true
         );

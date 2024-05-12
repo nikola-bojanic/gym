@@ -1,6 +1,6 @@
 package com.nikolabojanic.converter;
 
-import com.nikolabojanic.model.UserEntity;
+import com.nikolabojanic.entity.UserEntity;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

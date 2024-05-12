@@ -1,7 +1,7 @@
 package com.nikolabojanic.converter;
 
 import com.nikolabojanic.dto.TrainingTypeResponseDTO;
-import com.nikolabojanic.model.TrainingTypeEntity;
+import com.nikolabojanic.entity.TrainingTypeEntity;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

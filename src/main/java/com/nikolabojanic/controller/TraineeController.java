@@ -2,10 +2,10 @@ package com.nikolabojanic.controller;
 
 import com.nikolabojanic.converter.TraineeConverter;
 import com.nikolabojanic.converter.TrainerConverter;
+import com.nikolabojanic.domain.TraineeDomain;
 import com.nikolabojanic.dto.*;
-import com.nikolabojanic.model.TraineeEntity;
+import com.nikolabojanic.entity.TraineeEntity;
 import com.nikolabojanic.service.TraineeService;
-import com.nikolabojanic.service.UserService;
 import com.nikolabojanic.validation.TraineeValidation;
 import io.micrometer.core.instrument.Counter;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,7 +25,6 @@ import java.util.List;
 @RequestMapping(value = "api/v1/trainees")
 public class TraineeController {
     private final TraineeService traineeService;
-    private final UserService userService;
     private final TraineeConverter traineeConverter;
     private final TrainerConverter trainerConverter;
     private final TraineeValidation traineeValidation;
@@ -33,13 +32,11 @@ public class TraineeController {
 
     public TraineeController(
             TraineeService traineeService,
-            UserService userService,
             TraineeConverter traineeConverter,
             TrainerConverter trainerConverter,
             TraineeValidation traineeValidation,
             @Qualifier("traineeEndpointsHitCounter") Counter traineeEndpointsHitCounter) {
         this.traineeService = traineeService;
-        this.userService = userService;
         this.traineeConverter = traineeConverter;
         this.trainerConverter = trainerConverter;
         this.traineeValidation = traineeValidation;
@@ -58,13 +55,8 @@ public class TraineeController {
             @ApiResponse(responseCode = "500",
                     description = "Application failed to process the request")
     })
-    public ResponseEntity<TraineeResponseDTO> getTrainee(
-            @PathVariable("username") String username,
-            @RequestHeader("Auth-Username") String authUsername,
-            @RequestHeader("Auth-Password") String authPassword
-    ) {
+    public ResponseEntity<TraineeResponseDTO> getTrainee(@PathVariable("username") String username) {
         traineeEndpointsHitCounter.increment();
-        userService.authentication(new AuthDTO(authUsername, authPassword));
         traineeValidation.validateUsernameNotNull(username);
         TraineeEntity trainee = traineeService.findByUsername(username);
         TraineeResponseDTO responseDTO = traineeConverter.convertModelToResponse(trainee);
@@ -86,11 +78,8 @@ public class TraineeController {
     })
     public ResponseEntity<TraineeUpdateResponseDTO> updateTrainee(
             @PathVariable("username") String username,
-            @RequestHeader("Auth-Username") String authUsername,
-            @RequestHeader("Auth-Password") String authPassword,
             @RequestBody TraineeUpdateRequestDTO requestDTO) {
         traineeEndpointsHitCounter.increment();
-        userService.authentication(new AuthDTO(authUsername, authPassword));
         traineeValidation.validateUsernameNotNull(username);
         traineeValidation.validateUpdateTraineeRequest(requestDTO);
         TraineeEntity trainee = traineeConverter.convertUpdateRequestToModel(requestDTO);
@@ -111,10 +100,10 @@ public class TraineeController {
         traineeEndpointsHitCounter.increment();
         traineeValidation.validateRegisterRequest(requestDTO);
         TraineeEntity model = traineeConverter.convertRegistrationRequestToModel(requestDTO);
-        TraineeEntity registered = traineeService.createTraineeProfile(model);
+        TraineeDomain registered = traineeService.createTraineeProfile(model);
         RegistrationResponseDTO responseDTO = traineeConverter.convertModelToRegistrationResponse(registered);
         log.info("Successfully registered a trainee with username {}. " +
-                "Status: {}", registered.getUser().getUsername(), HttpStatus.OK.value());
+                "Status: {}", registered.getUsername(), HttpStatus.OK.value());
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
@@ -131,11 +120,8 @@ public class TraineeController {
                     description = "Application failed to process the request")
     })
     public ResponseEntity<Void> deleteTrainee(
-            @PathVariable("username") String username,
-            @RequestHeader("Auth-Username") String authUsername,
-            @RequestHeader("Auth-Password") String authPassword) {
+            @PathVariable("username") String username) {
         traineeEndpointsHitCounter.increment();
-        userService.authentication(new AuthDTO(authUsername, authPassword));
         traineeValidation.validateUsernameNotNull(username);
         traineeService.deleteByUsername(username);
         log.info("Successfully deleted trainee with username {}. Status: {}", username, HttpStatus.OK.value());
@@ -156,11 +142,8 @@ public class TraineeController {
     })
     public ResponseEntity<List<TraineeTrainerResponseDTO>> updateTraineesTrainers(
             @PathVariable("username") String username,
-            @RequestHeader("Auth-Username") String authUsername,
-            @RequestHeader("Auth-Password") String authPassword,
             @RequestBody List<TraineeTrainerUpdateRequestDTO> requestDTO) {
         traineeEndpointsHitCounter.increment();
-        userService.authentication(new AuthDTO(authUsername, authPassword));
         traineeValidation.validateUsernameNotNull(username);
         traineeValidation.validateUpdateTrainersRequest(requestDTO);
         TraineeEntity updated = traineeService.updateTraineeTrainers(username, requestDTO);
@@ -185,11 +168,8 @@ public class TraineeController {
     })
     public ResponseEntity<Void> changeActiveStatus(
             @PathVariable("username") String username,
-            @RequestHeader("Auth-Username") String authUsername,
-            @RequestHeader("Auth-Password") String authPassword,
             @RequestParam("activeStatus") Boolean activeStatus) {
         traineeEndpointsHitCounter.increment();
-        userService.authentication(new AuthDTO(authUsername, authPassword));
         traineeValidation.validateActiveStatusRequest(username, activeStatus);
         traineeService.changeActiveStatus(username, activeStatus);
         log.info("Successfully changed trainee active status. Trainee username {}. " +

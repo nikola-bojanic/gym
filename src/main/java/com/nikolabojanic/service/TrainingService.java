@@ -1,6 +1,6 @@
 package com.nikolabojanic.service;
 
-import com.nikolabojanic.model.TrainingEntity;
+import com.nikolabojanic.entity.TrainingEntity;
 import com.nikolabojanic.repository.TrainingRepository;
 import io.micrometer.core.instrument.Counter;
 import jakarta.transaction.Transactional;

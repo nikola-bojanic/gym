@@ -1,7 +1,9 @@
 package com.nikolabojanic.converter;
 
+import com.nikolabojanic.domain.TraineeDomain;
 import com.nikolabojanic.dto.*;
-import com.nikolabojanic.model.TraineeEntity;
+import com.nikolabojanic.entity.TraineeEntity;
+import com.nikolabojanic.entity.UserEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -34,11 +36,11 @@ public class TraineeConverter {
         return trainee;
     }
 
-    public RegistrationResponseDTO convertModelToRegistrationResponse(TraineeEntity trainee) {
+    public RegistrationResponseDTO convertModelToRegistrationResponse(TraineeDomain trainee) {
         RegistrationResponseDTO responseDTO = new RegistrationResponseDTO();
-        responseDTO.setUsername(trainee.getUser().getUsername());
-        responseDTO.setPassword(trainee.getUser().getPassword());
-        log.info("Successfully converted trainee model to registration response.");
+        responseDTO.setUsername(trainee.getUsername());
+        responseDTO.setPassword(trainee.getPassword());
+        log.info("Successfully converted trainee domain model to registration response.");
         return responseDTO;
     }
 
@@ -93,5 +95,12 @@ public class TraineeConverter {
         responseDTO.setUsername(trainee.getUser().getUsername());
         log.info("Successfully converted trainee model to trainer's trainee response");
         return responseDTO;
+    }
+
+    public TraineeDomain convertEntityToDomainModel(UserEntity entity) {
+        TraineeDomain domainModel = new TraineeDomain();
+        domainModel.setUsername(entity.getUsername());
+        domainModel.setPassword(entity.getPassword());
+        return domainModel;
     }
 }

@@ -1,7 +1,7 @@
 package com.nikolabojanic.exception;
 
-public class SCAuthenticationException extends SCRootException {
-    public SCAuthenticationException(String message) {
+public class ScAuthenticationException extends ScRootException {
+    public ScAuthenticationException(String message) {
         super(message);
     }
 }

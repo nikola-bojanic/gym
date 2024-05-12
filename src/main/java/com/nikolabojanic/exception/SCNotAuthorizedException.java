@@ -1,7 +1,8 @@
 package com.nikolabojanic.exception;
 
-public class SCNotAuthorizedException extends SCRootException {
-    public SCNotAuthorizedException(String message) {
+//@SuppressWarnings({"AbbreviationAsWordInName", "AbbreviationAsWordInName"})
+public class ScNotAuthorizedException extends ScRootException {
+    public ScNotAuthorizedException(String message) {
         super(message);
     }
 }

@@ -1,7 +1,7 @@
 package com.nikolabojanic.service;
 
-import com.nikolabojanic.exception.SCEntityNotFoundException;
-import com.nikolabojanic.model.TrainingTypeEntity;
+import com.nikolabojanic.entity.TrainingTypeEntity;
+import com.nikolabojanic.exception.ScEntityNotFoundException;
 import com.nikolabojanic.repository.TrainingTypeRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +29,7 @@ public class TrainingTypeService {
         } else {
             log.error("Attempted to fetch training type with non-existent id {}." +
                     " Status: {}", id, HttpStatus.NOT_FOUND.value());
-            throw new SCEntityNotFoundException("TrainingType with id " + id + " doesn't exist");
+            throw new ScEntityNotFoundException("TrainingType with id " + id + " doesn't exist");
         }
     }
 }

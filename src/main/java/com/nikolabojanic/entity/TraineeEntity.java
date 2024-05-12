@@ -1,4 +1,4 @@
-package com.nikolabojanic.model;
+package com.nikolabojanic.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

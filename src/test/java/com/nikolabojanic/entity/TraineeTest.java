@@ -1,4 +1,4 @@
-package com.nikolabojanic.model;
+package com.nikolabojanic.entity;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;

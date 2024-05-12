@@ -1,10 +1,12 @@
 package com.nikolabojanic.controller;
 
 import com.nikolabojanic.converter.TrainingConverter;
-import com.nikolabojanic.dto.*;
-import com.nikolabojanic.model.TrainingEntity;
+import com.nikolabojanic.dto.TraineeTrainingResponseDTO;
+import com.nikolabojanic.dto.TrainerTrainingResponseDTO;
+import com.nikolabojanic.dto.TrainingRequestDTO;
+import com.nikolabojanic.dto.TrainingResponseDTO;
+import com.nikolabojanic.entity.TrainingEntity;
 import com.nikolabojanic.service.TrainingService;
-import com.nikolabojanic.service.UserService;
 import com.nikolabojanic.validation.TrainingValidation;
 import io.micrometer.core.instrument.Counter;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,19 +27,16 @@ import java.util.List;
 @RequestMapping(value = "/api/v1/trainings")
 public class TrainingController {
     private final TrainingService trainingService;
-    private final UserService userService;
     private final TrainingConverter trainingConverter;
     private final TrainingValidation trainingValidation;
     private final Counter trainingEndpointsHitCounter;
 
     public TrainingController(
             TrainingService trainingService,
-            UserService userService,
             TrainingConverter trainingConverter,
             TrainingValidation trainingValidation,
             @Qualifier("trainingEndpointsHitCounter") Counter trainingEndpointsHitCounter) {
         this.trainingService = trainingService;
-        this.userService = userService;
         this.trainingConverter = trainingConverter;
         this.trainingValidation = trainingValidation;
         this.trainingEndpointsHitCounter = trainingEndpointsHitCounter;
@@ -50,11 +49,8 @@ public class TrainingController {
             @ApiResponse(responseCode = "401", description = "Application failed to authenticate user"),
             @ApiResponse(responseCode = "500", description = "Application failed to process the request")
     })
-    public ResponseEntity<TrainingResponseDTO> createTraining(@RequestHeader("Auth-Username") String authUsername,
-                                                              @RequestHeader("Auth-Password") String authPassword,
-                                                              @RequestBody TrainingRequestDTO trainingDTO) {
+    public ResponseEntity<TrainingResponseDTO> createTraining(@RequestBody TrainingRequestDTO trainingDTO) {
         trainingEndpointsHitCounter.increment();
-        userService.authentication(new AuthDTO(authUsername, authPassword));
         trainingValidation.validateCreateTrainingRequest(trainingDTO);
         TrainingEntity domainModel = trainingConverter.convertToEntity(trainingDTO);
         TrainingEntity created = trainingService.create(domainModel);
@@ -77,13 +73,10 @@ public class TrainingController {
     })
     public ResponseEntity<List<TrainerTrainingResponseDTO>> getTrainingsByTrainerAndFilter(
             @PathVariable("username") String username,
-            @RequestHeader("Auth-Username") String authUsername,
-            @RequestHeader("Auth-Password") String authPassword,
             @RequestParam(value = "dateFrom", defaultValue = "1900-01-01") LocalDate from,
             @RequestParam(value = "dateTo", defaultValue = "9999-12-31") LocalDate to,
             @RequestParam(value = "traineeName", defaultValue = "") String traineeName) {
         trainingEndpointsHitCounter.increment();
-        userService.authentication(new AuthDTO(authUsername, authPassword));
         trainingValidation.validateUsernameNotNull(username);
         List<TrainingEntity> trainings = trainingService.findByTrainerAndFilter(username, from, to, traineeName);
         List<TrainerTrainingResponseDTO> responseDTO = trainings.stream()
@@ -107,14 +100,11 @@ public class TrainingController {
     })
     public ResponseEntity<List<TraineeTrainingResponseDTO>> getTrainingsByTraineeAndFilter(
             @PathVariable("username") String username,
-            @RequestHeader("Auth-Username") String authUsername,
-            @RequestHeader("Auth-Password") String authPassword,
             @RequestParam(value = "dateFrom", defaultValue = "0000-01-01") LocalDate from,
             @RequestParam(value = "dateTo", defaultValue = "9999-12-31") LocalDate to,
             @RequestParam(value = "trainerName", defaultValue = "") String trainerName,
             @RequestParam(value = "typeId", required = false) Long typeId) {
         trainingEndpointsHitCounter.increment();
-        userService.authentication(new AuthDTO(authUsername, authPassword));
         trainingValidation.validateUsernameNotNull(username);
         List<TrainingEntity> trainings = trainingService.findByTraineeAndFilter(
                 username, from, to, trainerName, typeId);

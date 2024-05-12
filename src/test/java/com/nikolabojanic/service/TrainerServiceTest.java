@@ -1,8 +1,10 @@
 package com.nikolabojanic.service;
 
-import com.nikolabojanic.model.TraineeEntity;
-import com.nikolabojanic.model.TrainerEntity;
-import com.nikolabojanic.model.UserEntity;
+import com.nikolabojanic.converter.TrainerConverter;
+import com.nikolabojanic.domain.TrainerDomain;
+import com.nikolabojanic.entity.TraineeEntity;
+import com.nikolabojanic.entity.TrainerEntity;
+import com.nikolabojanic.entity.UserEntity;
 import com.nikolabojanic.repository.TrainerRepository;
 import io.micrometer.core.instrument.Counter;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -11,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +35,10 @@ class TrainerServiceTest {
     @Mock
     private TrainingTypeService trainingTypeService;
     @Mock
+    private PasswordEncoder passwordEncoder;
+    @Mock
+    private TrainerConverter trainerConverter;
+    @Mock
     private Counter totalTransactionsCounter;
     @InjectMocks
     private TrainerService trainerService;
@@ -40,12 +47,15 @@ class TrainerServiceTest {
     void createTrainerProfileTest() {
         //given
         UserEntity user = new UserEntity();
+        user.setPassword(RandomStringUtils.randomAlphabetic(5));
         TrainerEntity trainer = new TrainerEntity();
         trainer.setUser(user);
-        when(userService.generateUsernameAndPassword(any(UserEntity.class))).thenReturn(new UserEntity());
+        when(userService.generateUsernameAndPassword(any(UserEntity.class))).thenReturn(user);
+        when(trainerConverter.convertEntityToDomainModel(any(UserEntity.class))).thenReturn(new TrainerDomain());
+        when(passwordEncoder.encode(any(String.class))).thenReturn(RandomStringUtils.randomAlphabetic(5));
         when(trainerRepository.save(any(TrainerEntity.class))).thenReturn(new TrainerEntity());
         //when
-        TrainerEntity createdTrainer = trainerService.createTrainerProfile(trainer);
+        TrainerDomain createdTrainer = trainerService.createTrainerProfile(trainer);
         //then
         assertThat(createdTrainer).isNotNull();
     }

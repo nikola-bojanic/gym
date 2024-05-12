@@ -1,9 +1,9 @@
 package com.nikolabojanic.validation;
 
-import com.nikolabojanic.dto.AuthDTO;
+import com.nikolabojanic.dto.AuthDTORequest;
 import com.nikolabojanic.dto.UserPasswordChangeRequestDTO;
-import com.nikolabojanic.exception.SCNotAuthorizedException;
-import com.nikolabojanic.exception.SCValidationException;
+import com.nikolabojanic.exception.ScNotAuthorizedException;
+import com.nikolabojanic.exception.ScValidationException;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,7 +27,7 @@ class UserValidationTest {
         //when
         assertThatThrownBy(() -> userValidation.validatePasswordRequestDTO(username, requestDTO))
                 //then
-                .isInstanceOf(SCValidationException.class)
+                .isInstanceOf(ScValidationException.class)
                 .hasMessage("Username path variable must be at least 4 characters long");
     }
 
@@ -39,7 +39,7 @@ class UserValidationTest {
         //when
         assertThatThrownBy(() -> userValidation.validatePasswordRequestDTO(username, requestDTO))
                 //then
-                .isInstanceOf(SCValidationException.class)
+                .isInstanceOf(ScValidationException.class)
                 .hasMessage("Username path variable must be at least 4 characters long");
     }
 
@@ -51,7 +51,7 @@ class UserValidationTest {
         //when
         assertThatThrownBy(() -> userValidation.validatePasswordRequestDTO(username, requestDTO))
                 //then
-                .isInstanceOf(SCValidationException.class)
+                .isInstanceOf(ScValidationException.class)
                 .hasMessage("Username path variable must be at least 4 characters long");
     }
 
@@ -63,7 +63,7 @@ class UserValidationTest {
         //when
         assertThatThrownBy(() -> userValidation.validatePasswordRequestDTO(username, requestDTO))
                 //then
-                .isInstanceOf(SCValidationException.class)
+                .isInstanceOf(ScValidationException.class)
                 .hasMessage("Cannot change user password with null request");
     }
 
@@ -75,7 +75,7 @@ class UserValidationTest {
         //when
         assertThatThrownBy(() -> userValidation.validatePasswordRequestDTO(username, requestDTO))
                 //then
-                .isInstanceOf(SCValidationException.class)
+                .isInstanceOf(ScValidationException.class)
                 .hasMessage("Username must be at least 4 characters long");
     }
 
@@ -88,7 +88,7 @@ class UserValidationTest {
         //when
         assertThatThrownBy(() -> userValidation.validatePasswordRequestDTO(username, requestDTO))
                 //then
-                .isInstanceOf(SCValidationException.class)
+                .isInstanceOf(ScValidationException.class)
                 .hasMessage("Username must be at least 4 characters long");
     }
 
@@ -101,7 +101,7 @@ class UserValidationTest {
         //when
         assertThatThrownBy(() -> userValidation.validatePasswordRequestDTO(username, requestDTO))
                 //then
-                .isInstanceOf(SCValidationException.class)
+                .isInstanceOf(ScValidationException.class)
                 .hasMessage("Username must be at least 4 characters long");
     }
 
@@ -114,7 +114,7 @@ class UserValidationTest {
         //when
         assertThatThrownBy(() -> userValidation.validatePasswordRequestDTO(username, requestDTO))
                 //then
-                .isInstanceOf(SCValidationException.class)
+                .isInstanceOf(ScValidationException.class)
                 .hasMessage("Old password must be at least 8 characters long");
     }
 
@@ -128,7 +128,7 @@ class UserValidationTest {
         //when
         assertThatThrownBy(() -> userValidation.validatePasswordRequestDTO(username, requestDTO))
                 //then
-                .isInstanceOf(SCValidationException.class)
+                .isInstanceOf(ScValidationException.class)
                 .hasMessage("Old password must be at least 8 characters long");
     }
 
@@ -142,7 +142,7 @@ class UserValidationTest {
         //when
         assertThatThrownBy(() -> userValidation.validatePasswordRequestDTO(username, requestDTO))
                 //then
-                .isInstanceOf(SCValidationException.class)
+                .isInstanceOf(ScValidationException.class)
                 .hasMessage("Old password must be at least 8 characters long");
     }
 
@@ -156,7 +156,7 @@ class UserValidationTest {
         //when
         assertThatThrownBy(() -> userValidation.validatePasswordRequestDTO(username, requestDTO))
                 //then
-                .isInstanceOf(SCValidationException.class)
+                .isInstanceOf(ScValidationException.class)
                 .hasMessage("New password must be at least 8 characters long");
     }
 
@@ -171,7 +171,7 @@ class UserValidationTest {
         //when
         assertThatThrownBy(() -> userValidation.validatePasswordRequestDTO(username, requestDTO))
                 //then
-                .isInstanceOf(SCValidationException.class)
+                .isInstanceOf(ScValidationException.class)
                 .hasMessage("New password must be at least 8 characters long");
     }
 
@@ -186,7 +186,7 @@ class UserValidationTest {
         //when
         assertThatThrownBy(() -> userValidation.validatePasswordRequestDTO(username, requestDTO))
                 //then
-                .isInstanceOf(SCValidationException.class)
+                .isInstanceOf(ScValidationException.class)
                 .hasMessage("New password must be at least 8 characters long");
     }
 
@@ -202,27 +202,27 @@ class UserValidationTest {
         //when
         assertThatThrownBy(() -> userValidation.validatePasswordRequestDTO(username, requestDTO))
                 //then
-                .isInstanceOf(SCValidationException.class)
+                .isInstanceOf(ScValidationException.class)
                 .hasMessage("New password cannot be the same as old password");
     }
 
     @Test
     void validateNullAuthDTOTest() {
         //given
-        AuthDTO authDTO = null;
+        AuthDTORequest authDTORequest = null;
         //when
-        assertThatThrownBy(() -> userValidation.validateAuthDto(authDTO))
+        assertThatThrownBy(() -> userValidation.validateAuthDto(authDTORequest))
                 //then
-                .isInstanceOf(SCValidationException.class)
+                .isInstanceOf(ScValidationException.class)
                 .hasMessage("Login request cannot be null");
     }
 
     @Test
     void validateAuthDTOTest() {
         //given
-        AuthDTO authDTO = new AuthDTO();
+        AuthDTORequest authDTORequest = new AuthDTORequest();
         //then
-        assertDoesNotThrow(() -> userValidation.validateAuthDto(authDTO));
+        assertDoesNotThrow(() -> userValidation.validateAuthDto(authDTORequest));
     }
 
     @Test
@@ -233,7 +233,7 @@ class UserValidationTest {
         //then
         assertDoesNotThrow(() -> userValidation.validateUserPermissionToEdit(username, username));
         assertThatThrownBy(() -> userValidation.validateUserPermissionToEdit(username, domainUsername))
-                .isInstanceOf(SCNotAuthorizedException.class)
+                .isInstanceOf(ScNotAuthorizedException.class)
                 .hasMessage("Cannot change other user's password");
     }
 

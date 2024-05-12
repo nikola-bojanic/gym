@@ -1,6 +1,6 @@
 package com.nikolabojanic.repository;
 
-import com.nikolabojanic.model.TraineeEntity;
+import com.nikolabojanic.entity.TraineeEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

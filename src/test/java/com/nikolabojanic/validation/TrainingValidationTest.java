@@ -1,7 +1,7 @@
 package com.nikolabojanic.validation;
 
 import com.nikolabojanic.dto.TrainingRequestDTO;
-import com.nikolabojanic.exception.SCValidationException;
+import com.nikolabojanic.exception.ScValidationException;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,7 +26,7 @@ class TrainingValidationTest {
         //when
         assertThatThrownBy(() -> trainingValidation.validateUsernameNotNull(username))
                 //then
-                .isInstanceOf(SCValidationException.class)
+                .isInstanceOf(ScValidationException.class)
                 .hasMessage("Username must be at least 4 characters long");
     }
 
@@ -45,7 +45,7 @@ class TrainingValidationTest {
         //when
         assertThatThrownBy(() -> trainingValidation.validateCreateTrainingRequest(training))
                 //then
-                .isInstanceOf(SCValidationException.class)
+                .isInstanceOf(ScValidationException.class)
                 .hasMessage("Cannot create training with null");
     }
 
@@ -56,7 +56,7 @@ class TrainingValidationTest {
         //when
         assertThatThrownBy(() -> trainingValidation.validateCreateTrainingRequest(training))
                 //then
-                .isInstanceOf(SCValidationException.class)
+                .isInstanceOf(ScValidationException.class)
                 .hasMessage("Cannot create training without a name");
     }
 
@@ -68,7 +68,7 @@ class TrainingValidationTest {
         //when
         assertThatThrownBy(() -> trainingValidation.validateCreateTrainingRequest(training))
                 //then
-                .isInstanceOf(SCValidationException.class)
+                .isInstanceOf(ScValidationException.class)
                 .hasMessage("Cannot create training without a date");
     }
 
@@ -81,7 +81,7 @@ class TrainingValidationTest {
         //when
         assertThatThrownBy(() -> trainingValidation.validateCreateTrainingRequest(training))
                 //then
-                .isInstanceOf(SCValidationException.class)
+                .isInstanceOf(ScValidationException.class)
                 .hasMessage("Cannot create training without a duration");
     }
 
@@ -95,7 +95,7 @@ class TrainingValidationTest {
         //when
         assertThatThrownBy(() -> trainingValidation.validateCreateTrainingRequest(training))
                 //then
-                .isInstanceOf(SCValidationException.class)
+                .isInstanceOf(ScValidationException.class)
                 .hasMessage("Cannot create training without a trainee username");
     }
 
@@ -110,7 +110,7 @@ class TrainingValidationTest {
         //when
         assertThatThrownBy(() -> trainingValidation.validateCreateTrainingRequest(training))
                 //then
-                .isInstanceOf(SCValidationException.class)
+                .isInstanceOf(ScValidationException.class)
                 .hasMessage("Cannot create training without a trainer username");
     }
 

@@ -1,17 +1,19 @@
 package com.nikolabojanic.service;
 
+import com.nikolabojanic.converter.TraineeConverter;
+import com.nikolabojanic.domain.TraineeDomain;
 import com.nikolabojanic.dto.TraineeTrainerUpdateRequestDTO;
-import com.nikolabojanic.exception.SCEntityNotFoundException;
-import com.nikolabojanic.model.TraineeEntity;
-import com.nikolabojanic.model.TrainerEntity;
-import com.nikolabojanic.model.UserEntity;
+import com.nikolabojanic.entity.TraineeEntity;
+import com.nikolabojanic.entity.TrainerEntity;
+import com.nikolabojanic.entity.UserEntity;
+import com.nikolabojanic.exception.ScEntityNotFoundException;
 import com.nikolabojanic.repository.TraineeRepository;
 import io.micrometer.core.instrument.Counter;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -25,26 +27,37 @@ public class TraineeService {
     private final TraineeRepository traineeRepository;
     private final UserService userService;
     private final TrainerService trainerService;
+    private final PasswordEncoder passwordEncoder;
+    private final TraineeConverter traineeConverter;
     private final Counter totalTransactionsCounter;
 
-    @Autowired
+
     public TraineeService(
             TraineeRepository traineeRepository,
             UserService userService,
             @Lazy TrainerService trainerService,
+            PasswordEncoder passwordEncoder,
+            TraineeConverter traineeConverter,
             Counter totalTransactionsCounter) {
         this.traineeRepository = traineeRepository;
         this.userService = userService;
         this.trainerService = trainerService;
+        this.passwordEncoder = passwordEncoder;
+        this.traineeConverter = traineeConverter;
         this.totalTransactionsCounter = totalTransactionsCounter;
     }
 
-    public TraineeEntity createTraineeProfile(TraineeEntity trainee) {
+    public TraineeDomain createTraineeProfile(TraineeEntity trainee) {
         UserEntity user = userService.generateUsernameAndPassword(trainee.getUser());
+        TraineeDomain domainModel = traineeConverter.convertEntityToDomainModel(user);
+        String rawPw = user.getPassword();
+        user.setPassword(passwordEncoder.encode(rawPw));
         trainee.setUser(user);
         log.info("Created trainee profile");
         totalTransactionsCounter.increment();
-        return traineeRepository.save(trainee);
+        traineeRepository.save(trainee);
+
+        return domainModel;
     }
 
     public TraineeEntity updateTraineeProfile(String username, TraineeEntity trainee) {
@@ -74,7 +87,7 @@ public class TraineeService {
         } else {
             log.error("Attempted to fetch trainee with non-existent username {}. " +
                     "Status: {}", username, HttpStatus.NOT_FOUND.value());
-            throw new SCEntityNotFoundException("Trainee with username " + username + " doesn't exist");
+            throw new ScEntityNotFoundException("Trainee with username " + username + " doesn't exist");
         }
     }
 
@@ -85,7 +98,7 @@ public class TraineeService {
         if (deleted.isEmpty()) {
             log.error("Attempted to delete trainee with non-existent username {}. " +
                     "Status: {}", username, HttpStatus.NOT_FOUND.value());
-            throw new SCEntityNotFoundException("Trainee with username " + username + " doesn't exist");
+            throw new ScEntityNotFoundException("Trainee with username " + username + " doesn't exist");
         } else {
             totalTransactionsCounter.increment();
             traineeRepository.deleteByUsername(username);

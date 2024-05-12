@@ -1,7 +1,7 @@
 package com.nikolabojanic.exception;
 
-public class SCEntityNotFoundException extends SCRootException {
-    public SCEntityNotFoundException(String message) {
+public class ScEntityNotFoundException extends ScRootException {
+    public ScEntityNotFoundException(String message) {
         super(message);
     }
 }
