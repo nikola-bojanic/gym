@@ -1,6 +1,7 @@
 package com.nikolabojanic.validation;
 
-import com.nikolabojanic.model.TrainingEntity;
+import com.nikolabojanic.dto.TrainingRequestDTO;
+import com.nikolabojanic.exception.SCValidationException;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,96 +10,120 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 @ExtendWith(MockitoExtension.class)
 class TrainingValidationTest {
+
     @InjectMocks
     private TrainingValidation trainingValidation;
 
     @Test
-    void validateCreateTrainingRequestWithNullTest() {
-
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            trainingValidation.validateCreateTrainingRequest(null);
-        });
-
-        assertEquals("Cannot create training with null", exception.getMessage());
+    void validateNullUsernameNotNullTest() {
+        //given
+        String username = null;
+        //when
+        assertThatThrownBy(() -> trainingValidation.validateUsernameNotNull(username))
+                //then
+                .isInstanceOf(SCValidationException.class)
+                .hasMessage("Username must be at least 4 characters long");
     }
 
     @Test
-    void validateCreateTrainingRequestWithIdTest() {
-        TrainingEntity training = new TrainingEntity();
-        training.setId(Long.parseLong(RandomStringUtils.randomNumeric(4, 6)));
-
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            trainingValidation.validateCreateTrainingRequest(training);
-        });
-
-        assertEquals("Cannot create training with an id", exception.getMessage());
+    void validateUsernameNotNullTest() {
+        //given
+        String username = RandomStringUtils.randomAlphabetic(10);
+        //then
+        assertDoesNotThrow(() -> trainingValidation.validateUsernameNotNull(username));
     }
 
     @Test
-    void validateCreateTrainingRequestWithNullNameTest() {
-        TrainingEntity training = new TrainingEntity();
-
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            trainingValidation.validateCreateTrainingRequest(training);
-        });
-
-        assertEquals("Cannot create training without a name", exception.getMessage());
+    void validateNullCreateTrainingRequestTest() {
+        //given
+        TrainingRequestDTO training = null;
+        //when
+        assertThatThrownBy(() -> trainingValidation.validateCreateTrainingRequest(training))
+                //then
+                .isInstanceOf(SCValidationException.class)
+                .hasMessage("Cannot create training with null");
     }
 
     @Test
-    void validateCreateTrainingRequestWithNullDateTest() {
-        TrainingEntity training = new TrainingEntity();
-        training.setName(RandomStringUtils.randomAlphabetic(4, 7));
-
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            trainingValidation.validateCreateTrainingRequest(training);
-        });
-
-        assertEquals("Cannot create training without a date", exception.getMessage());
+    void validateNullNameCreateTrainingRequestTest() {
+        //given
+        TrainingRequestDTO training = new TrainingRequestDTO();
+        //when
+        assertThatThrownBy(() -> trainingValidation.validateCreateTrainingRequest(training))
+                //then
+                .isInstanceOf(SCValidationException.class)
+                .hasMessage("Cannot create training without a name");
     }
 
     @Test
-    void validateCreateTrainingRequestWithNullDurationTest() {
-        TrainingEntity training = new TrainingEntity();
-        training.setName(RandomStringUtils.randomAlphabetic(4, 7));
+    void validateNullDateCreateTrainingRequestTest() {
+        //given
+        TrainingRequestDTO training = new TrainingRequestDTO();
+        training.setName(RandomStringUtils.randomAlphabetic(5));
+        //when
+        assertThatThrownBy(() -> trainingValidation.validateCreateTrainingRequest(training))
+                //then
+                .isInstanceOf(SCValidationException.class)
+                .hasMessage("Cannot create training without a date");
+    }
+
+    @Test
+    void validateNullDurationCreateTrainingRequestTest() {
+        //given
+        TrainingRequestDTO training = new TrainingRequestDTO();
+        training.setName(RandomStringUtils.randomAlphabetic(5));
         training.setDate(LocalDate.now());
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            trainingValidation.validateCreateTrainingRequest(training);
-        });
-
-        assertEquals("Cannot create training without a duration", exception.getMessage());
+        //when
+        assertThatThrownBy(() -> trainingValidation.validateCreateTrainingRequest(training))
+                //then
+                .isInstanceOf(SCValidationException.class)
+                .hasMessage("Cannot create training without a duration");
     }
 
     @Test
-    void validateDateBeginNotNull() {
+    void validateNullTraineeUsernameCreateTrainingRequestTest() {
         //given
-        LocalDate end = LocalDate.now();
-
+        TrainingRequestDTO training = new TrainingRequestDTO();
+        training.setName(RandomStringUtils.randomAlphabetic(5));
+        training.setDate(LocalDate.now());
+        training.setDuration(Double.parseDouble(RandomStringUtils.randomNumeric(5)));
         //when
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            trainingValidation.validateDate(null, end);
-        });
-
-        //then
-        assertEquals("Date values must not be null", exception.getMessage());
+        assertThatThrownBy(() -> trainingValidation.validateCreateTrainingRequest(training))
+                //then
+                .isInstanceOf(SCValidationException.class)
+                .hasMessage("Cannot create training without a trainee username");
     }
 
     @Test
-    void validateDateEndNotNull() {
+    void validateNullTrainerUsernameCreateTrainingRequestTest() {
         //given
-        LocalDate begin = LocalDate.now();
-
+        TrainingRequestDTO training = new TrainingRequestDTO();
+        training.setName(RandomStringUtils.randomAlphabetic(5));
+        training.setDate(LocalDate.now());
+        training.setDuration(Double.parseDouble(RandomStringUtils.randomNumeric(5)));
+        training.setTraineeUsername(RandomStringUtils.randomAlphabetic(10));
         //when
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            trainingValidation.validateDate(begin, null);
-        });
+        assertThatThrownBy(() -> trainingValidation.validateCreateTrainingRequest(training))
+                //then
+                .isInstanceOf(SCValidationException.class)
+                .hasMessage("Cannot create training without a trainer username");
+    }
 
+    @Test
+    void validateCreateTrainingRequestTest() {
+        //given
+        TrainingRequestDTO training = new TrainingRequestDTO();
+        training.setName(RandomStringUtils.randomAlphabetic(5));
+        training.setDate(LocalDate.now());
+        training.setDuration(Double.parseDouble(RandomStringUtils.randomNumeric(5)));
+        training.setTraineeUsername(RandomStringUtils.randomAlphabetic(10));
+        training.setTrainerUsername(RandomStringUtils.randomAlphabetic(10));
         //then
-        assertEquals("Date values must not be null", exception.getMessage());
+        assertDoesNotThrow(() -> trainingValidation.validateCreateTrainingRequest(training));
     }
 }

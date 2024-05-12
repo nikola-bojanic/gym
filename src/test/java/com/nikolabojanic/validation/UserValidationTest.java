@@ -1,139 +1,240 @@
 package com.nikolabojanic.validation;
 
-import com.nikolabojanic.model.UserEntity;
+import com.nikolabojanic.dto.AuthDTO;
+import com.nikolabojanic.dto.UserPasswordChangeRequestDTO;
+import com.nikolabojanic.exception.SCNotAuthorizedException;
+import com.nikolabojanic.exception.SCValidationException;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 @ExtendWith(MockitoExtension.class)
 class UserValidationTest {
+
     @InjectMocks
     private UserValidation userValidation;
 
     @Test
-    void validateUsernameTest() {
-        //when
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            userValidation.validateUsername(null);
-        });
-        //then
-        assertEquals("Username cannot be null", exception.getMessage());
-    }
-
-    @Test
-    void validateAuthDtoTest() {
-        //when
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            userValidation.validateAuthDto(null);
-        });
-        //then
-        assertEquals("Login request cannot be null", exception.getMessage());
-    }
-
-    @Test
-    void validateUserFieldsNullUser() {
-        //when
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            userValidation.validateUserFields(null);
-        });
-        //then
-        assertEquals("Cannot create/update user profile with null value", exception.getMessage());
-    }
-
-    @Test
-    void validateUserFieldsFirstNameNull() {
+    void validateNullUsernamePasswordRequestDTOTest() {
         //given
-        UserEntity user = new UserEntity();
-
+        String username = null;
+        UserPasswordChangeRequestDTO requestDTO = new UserPasswordChangeRequestDTO();
         //when
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            userValidation.validateUserFields(user);
-        });
-
-        //then
-        assertEquals("Cannot create/update user profile without a first name", exception.getMessage());
-
+        assertThatThrownBy(() -> userValidation.validatePasswordRequestDTO(username, requestDTO))
+                //then
+                .isInstanceOf(SCValidationException.class)
+                .hasMessage("Username path variable must be at least 4 characters long");
     }
 
     @Test
-    void validateUserFieldsLastNameNull() {
+    void validateBlankUsernamePasswordRequestDTOTest() {
         //given
-        UserEntity user = new UserEntity();
-        user.setFirstName(RandomStringUtils.randomAlphabetic(3, 8));
-
+        String username = "";
+        UserPasswordChangeRequestDTO requestDTO = new UserPasswordChangeRequestDTO();
         //when
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            userValidation.validateUserFields(user);
-        });
-
-        //then
-        assertEquals("Cannot create/update user profile without a last name", exception.getMessage());
-
-
+        assertThatThrownBy(() -> userValidation.validatePasswordRequestDTO(username, requestDTO))
+                //then
+                .isInstanceOf(SCValidationException.class)
+                .hasMessage("Username path variable must be at least 4 characters long");
     }
 
     @Test
-    void validateUserFieldsIsActiveNull() {
+    void validateShortUsernamePasswordRequestDTOTest() {
         //given
-        UserEntity user = new UserEntity();
-        user.setFirstName(RandomStringUtils.randomAlphabetic(3, 8));
-        user.setLastName(RandomStringUtils.randomAlphabetic(3, 8));
-
+        String username = RandomStringUtils.randomAlphabetic(3);
+        UserPasswordChangeRequestDTO requestDTO = new UserPasswordChangeRequestDTO();
         //when
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            userValidation.validateUserFields(user);
-        });
+        assertThatThrownBy(() -> userValidation.validatePasswordRequestDTO(username, requestDTO))
+                //then
+                .isInstanceOf(SCValidationException.class)
+                .hasMessage("Username path variable must be at least 4 characters long");
+    }
 
+    @Test
+    void validateNullRequestDTOPasswordRequestDTOTest() {
+        //given
+        String username = RandomStringUtils.randomAlphabetic(5);
+        UserPasswordChangeRequestDTO requestDTO = null;
+        //when
+        assertThatThrownBy(() -> userValidation.validatePasswordRequestDTO(username, requestDTO))
+                //then
+                .isInstanceOf(SCValidationException.class)
+                .hasMessage("Cannot change user password with null request");
+    }
+
+    @Test
+    void validateNullUsernameRequestDTOPasswordRequestDTOTest() {
+        //given
+        String username = RandomStringUtils.randomAlphabetic(5);
+        UserPasswordChangeRequestDTO requestDTO = new UserPasswordChangeRequestDTO();
+        //when
+        assertThatThrownBy(() -> userValidation.validatePasswordRequestDTO(username, requestDTO))
+                //then
+                .isInstanceOf(SCValidationException.class)
+                .hasMessage("Username must be at least 4 characters long");
+    }
+
+    @Test
+    void validateBlankUsernameRequestDTOPasswordRequestDTOTest() {
+        //given
+        String username = RandomStringUtils.randomAlphabetic(5);
+        UserPasswordChangeRequestDTO requestDTO = new UserPasswordChangeRequestDTO();
+        requestDTO.setUsername("");
+        //when
+        assertThatThrownBy(() -> userValidation.validatePasswordRequestDTO(username, requestDTO))
+                //then
+                .isInstanceOf(SCValidationException.class)
+                .hasMessage("Username must be at least 4 characters long");
+    }
+
+    @Test
+    void validateShortUsernameRequestDTOPasswordRequestDTOTest() {
+        //given
+        String username = RandomStringUtils.randomAlphabetic(5);
+        UserPasswordChangeRequestDTO requestDTO = new UserPasswordChangeRequestDTO();
+        requestDTO.setUsername(RandomStringUtils.randomAlphabetic(3));
+        //when
+        assertThatThrownBy(() -> userValidation.validatePasswordRequestDTO(username, requestDTO))
+                //then
+                .isInstanceOf(SCValidationException.class)
+                .hasMessage("Username must be at least 4 characters long");
+    }
+
+    @Test
+    void validateNullOldPasswordPasswordRequestDTOTest() {
+        //given
+        String username = RandomStringUtils.randomAlphabetic(5);
+        UserPasswordChangeRequestDTO requestDTO = new UserPasswordChangeRequestDTO();
+        requestDTO.setUsername(RandomStringUtils.randomAlphabetic(5));
+        //when
+        assertThatThrownBy(() -> userValidation.validatePasswordRequestDTO(username, requestDTO))
+                //then
+                .isInstanceOf(SCValidationException.class)
+                .hasMessage("Old password must be at least 8 characters long");
+    }
+
+    @Test
+    void validateBlankOldPasswordPasswordRequestDTOTest() {
+        //given
+        String username = RandomStringUtils.randomAlphabetic(5);
+        UserPasswordChangeRequestDTO requestDTO = new UserPasswordChangeRequestDTO();
+        requestDTO.setUsername(RandomStringUtils.randomAlphabetic(5));
+        requestDTO.setOldPassword("");
+        //when
+        assertThatThrownBy(() -> userValidation.validatePasswordRequestDTO(username, requestDTO))
+                //then
+                .isInstanceOf(SCValidationException.class)
+                .hasMessage("Old password must be at least 8 characters long");
+    }
+
+    @Test
+    void validateShortOldPasswordPasswordRequestDTOTest() {
+        //given
+        String username = RandomStringUtils.randomAlphabetic(5);
+        UserPasswordChangeRequestDTO requestDTO = new UserPasswordChangeRequestDTO();
+        requestDTO.setUsername(RandomStringUtils.randomAlphabetic(5));
+        requestDTO.setOldPassword(RandomStringUtils.randomAlphabetic(3));
+        //when
+        assertThatThrownBy(() -> userValidation.validatePasswordRequestDTO(username, requestDTO))
+                //then
+                .isInstanceOf(SCValidationException.class)
+                .hasMessage("Old password must be at least 8 characters long");
+    }
+
+    @Test
+    void validateNullNewPasswordPasswordRequestDTOTest() {
+        //given
+        String username = RandomStringUtils.randomAlphabetic(5);
+        UserPasswordChangeRequestDTO requestDTO = new UserPasswordChangeRequestDTO();
+        requestDTO.setUsername(RandomStringUtils.randomAlphabetic(5));
+        requestDTO.setOldPassword(RandomStringUtils.randomAlphabetic(8));
+        //when
+        assertThatThrownBy(() -> userValidation.validatePasswordRequestDTO(username, requestDTO))
+                //then
+                .isInstanceOf(SCValidationException.class)
+                .hasMessage("New password must be at least 8 characters long");
+    }
+
+    @Test
+    void validateBlankNewPasswordPasswordRequestDTOTest() {
+        //given
+        String username = RandomStringUtils.randomAlphabetic(5);
+        UserPasswordChangeRequestDTO requestDTO = new UserPasswordChangeRequestDTO();
+        requestDTO.setUsername(RandomStringUtils.randomAlphabetic(5));
+        requestDTO.setOldPassword(RandomStringUtils.randomAlphabetic(8));
+        requestDTO.setNewPassword("");
+        //when
+        assertThatThrownBy(() -> userValidation.validatePasswordRequestDTO(username, requestDTO))
+                //then
+                .isInstanceOf(SCValidationException.class)
+                .hasMessage("New password must be at least 8 characters long");
+    }
+
+    @Test
+    void validateShortNewPasswordPasswordRequestDTOTest() {
+        //given
+        String username = RandomStringUtils.randomAlphabetic(5);
+        UserPasswordChangeRequestDTO requestDTO = new UserPasswordChangeRequestDTO();
+        requestDTO.setUsername(RandomStringUtils.randomAlphabetic(5));
+        requestDTO.setOldPassword(RandomStringUtils.randomAlphabetic(8));
+        requestDTO.setNewPassword(RandomStringUtils.randomAlphabetic(3));
+        //when
+        assertThatThrownBy(() -> userValidation.validatePasswordRequestDTO(username, requestDTO))
+                //then
+                .isInstanceOf(SCValidationException.class)
+                .hasMessage("New password must be at least 8 characters long");
+    }
+
+    @Test
+    void validateSameOldAndNewPasswordPasswordRequestDTOTest() {
+        //given
+        String password = RandomStringUtils.randomAlphabetic(8);
+        String username = RandomStringUtils.randomAlphabetic(5);
+        UserPasswordChangeRequestDTO requestDTO = new UserPasswordChangeRequestDTO();
+        requestDTO.setUsername(username);
+        requestDTO.setOldPassword(password);
+        requestDTO.setNewPassword(password);
+        //when
+        assertThatThrownBy(() -> userValidation.validatePasswordRequestDTO(username, requestDTO))
+                //then
+                .isInstanceOf(SCValidationException.class)
+                .hasMessage("New password cannot be the same as old password");
+    }
+
+    @Test
+    void validateNullAuthDTOTest() {
+        //given
+        AuthDTO authDTO = null;
+        //when
+        assertThatThrownBy(() -> userValidation.validateAuthDto(authDTO))
+                //then
+                .isInstanceOf(SCValidationException.class)
+                .hasMessage("Login request cannot be null");
+    }
+
+    @Test
+    void validateAuthDTOTest() {
+        //given
+        AuthDTO authDTO = new AuthDTO();
         //then
-        assertEquals("Cannot create/update user profile without an active status", exception.getMessage());
+        assertDoesNotThrow(() -> userValidation.validateAuthDto(authDTO));
     }
 
     @Test
     void validateUserPermissionToEditTest() {
         //given
-        String username = RandomStringUtils.randomAlphabetic(8, 10);
-        String otherUserUsername = RandomStringUtils.randomAlphabetic(8, 10);
-
-        //when
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            userValidation.validateUserPermissionToEdit(username, otherUserUsername);
-        });
-
+        String username = RandomStringUtils.randomAlphabetic(5);
+        String domainUsername = RandomStringUtils.randomAlphabetic(5);
         //then
-        assertEquals("No hacking allowed!", exception.getMessage());
-
+        assertDoesNotThrow(() -> userValidation.validateUserPermissionToEdit(username, username));
+        assertThatThrownBy(() -> userValidation.validateUserPermissionToEdit(username, domainUsername))
+                .isInstanceOf(SCNotAuthorizedException.class)
+                .hasMessage("Cannot change other user's password");
     }
 
-    @Test
-    void validateUsernameAndPasswordUsernameNullTest() {
-        //given
-        String password = RandomStringUtils.randomAlphabetic(8, 10);
-
-        //when
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            userValidation.validateUsernameAndPassword(null, password);
-        });
-
-        //then
-        assertEquals("Username must be at least 4 characters long", exception.getMessage());
-    }
-
-    @Test
-    void validateUsernameAndPasswordPasswordNullTest() {
-        //given
-        String username = RandomStringUtils.randomAlphabetic(8, 10);
-
-        //when
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            userValidation.validateUsernameAndPassword(username, null);
-        });
-
-        //then
-        assertEquals("Password must be at least 8 characters long", exception.getMessage());
-    }
 }

@@ -6,13 +6,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TrainerDAO {
-    Optional<TrainerEntity> findById(Long id);
-
     TrainerEntity save(TrainerEntity trainer);
 
-    Optional<TrainerEntity> findByUserId(Long id);
+    Optional<TrainerEntity> findByUsername(String username);
 
     List<TrainerEntity> findActiveForOtherTrainees(Long traineeId);
-
-    void changeActiveStatus(TrainerEntity trainer);
 }

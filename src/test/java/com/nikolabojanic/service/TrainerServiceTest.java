@@ -2,10 +2,9 @@ package com.nikolabojanic.service;
 
 import com.nikolabojanic.dao.TrainerDAO;
 import com.nikolabojanic.dto.AuthDTO;
+import com.nikolabojanic.model.TraineeEntity;
 import com.nikolabojanic.model.TrainerEntity;
 import com.nikolabojanic.model.UserEntity;
-import com.nikolabojanic.validation.TrainerValidation;
-import com.nikolabojanic.validation.UserValidation;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,8 +16,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -30,121 +31,85 @@ class TrainerServiceTest {
     @Mock
     private TrainingTypeService trainingTypeService;
     @Mock
-    private TrainerValidation trainerValidation;
-    @Mock
-    private UserValidation userValidation;
+    private TraineeService traineeService;
     @InjectMocks
     private TrainerService trainerService;
 
     @Test
     void createTrainerProfileTest() {
-        String firstName = RandomStringUtils.randomAlphabetic(5, 10);
-        String lastName = RandomStringUtils.randomAlphabetic(5, 10);
-        UserEntity user = new UserEntity(null, firstName, lastName, null, null, false);
-        TrainerEntity mockedTrainer = new TrainerEntity();
-        mockedTrainer.setUser(user);
-        when(trainerDAO.save(mockedTrainer)).thenReturn(mockedTrainer);
-        when(userService.generateUsernameAndPassword(user)).thenReturn(user);
-
-        TrainerEntity createdTrainer = trainerService.createTrainerProfile(mockedTrainer);
-
-        assertEquals(mockedTrainer, createdTrainer);
+        //given
+        UserEntity user = new UserEntity();
+        TrainerEntity trainer = new TrainerEntity();
+        trainer.setUser(user);
+        when(userService.generateUsernameAndPassword(any(UserEntity.class))).thenReturn(new UserEntity());
+        when(trainerDAO.save(any(TrainerEntity.class))).thenReturn(new TrainerEntity());
+        //when
+        TrainerEntity createdTrainer = trainerService.createTrainerProfile(trainer);
+        //then
+        assertThat(createdTrainer).isNotNull();
     }
 
 
     @Test
     void updateTrainerProfileTest() {
-        Long userId = Long.parseLong(RandomStringUtils.randomNumeric(3, 6));
-        String firstName = RandomStringUtils.randomAlphabetic(5, 10);
-        String lastName = RandomStringUtils.randomAlphabetic(5, 10);
-        String username = RandomStringUtils.randomAlphabetic(8, 10);
-        String password = RandomStringUtils.randomAlphabetic(8, 10);
-        UserEntity user = new UserEntity(userId, firstName, lastName, username, password, false);
-        Long trainerId = Long.parseLong(RandomStringUtils.randomNumeric(3, 6));
-        TrainerEntity mockedTrainer = new TrainerEntity();
-        mockedTrainer.setUser(user);
-        mockedTrainer.setId(trainerId);
-        AuthDTO authDTO = new AuthDTO(username, password);
-        when(userService.findByUsername(username)).thenReturn(user);
-        when(trainerDAO.findById(mockedTrainer.getId())).thenReturn(Optional.of(mockedTrainer));
-        when(trainerDAO.save(mockedTrainer)).thenReturn(mockedTrainer);
-
-        TrainerEntity updatedTrainer = trainerService.updateTrainerProfile(authDTO, mockedTrainer);
-
-        assertEquals(mockedTrainer, updatedTrainer);
-    }
-
-
-    @Test
-    void findByIdTest() {
-        Long trainerId = Long.parseLong(RandomStringUtils.randomNumeric(3, 6));
-        when(trainerDAO.findById(trainerId)).thenReturn(Optional.of(new TrainerEntity()));
-
-        TrainerEntity fetchedTrainer = trainerService.findById(trainerId);
-
-        assertNotNull(fetchedTrainer);
+        //given
+        UserEntity user = new UserEntity();
+        TrainerEntity trainer = new TrainerEntity();
+        trainer.setUser(user);
+        when(trainerDAO.findByUsername(any(String.class))).thenReturn(Optional.of(trainer));
+        doNothing().when(userService).authentication(any(AuthDTO.class));
+        when(trainerDAO.save(any(TrainerEntity.class))).thenReturn(new TrainerEntity());
+        //when
+        TrainerEntity updatedTrainer = trainerService.updateTrainerProfile(
+                new AuthDTO(),
+                RandomStringUtils.randomAlphabetic(10),
+                trainer);
+        //then
+        assertThat(updatedTrainer).isNotNull();
     }
 
     @Test
     void findByUsernameTest() {
-        Long userId = Long.parseLong(RandomStringUtils.randomNumeric(3, 6));
-        String firstName = RandomStringUtils.randomAlphabetic(5, 10);
-        String lastName = RandomStringUtils.randomAlphabetic(5, 10);
-        String username = RandomStringUtils.randomAlphabetic(8, 10);
-        String password = RandomStringUtils.randomAlphabetic(8, 10);
-        UserEntity user = new UserEntity(userId, firstName, lastName, username, password, false);
-        AuthDTO authDTO = new AuthDTO(username, password);
-        TrainerEntity mockedTrainer = new TrainerEntity();
-        when(userService.findByUsername(username)).thenReturn(user);
-        when(trainerDAO.findByUserId(userId)).thenReturn(Optional.of(mockedTrainer));
-
-        TrainerEntity trainer = trainerService.findByUsername(authDTO, username);
-
-        assertEquals(mockedTrainer, trainer);
-    }
-
-    @Test
-    void changeTrainerPasswordTest() {
-        Long userId = Long.parseLong(RandomStringUtils.randomNumeric(3, 6));
-        String firstName = RandomStringUtils.randomAlphabetic(5, 10);
-        String lastName = RandomStringUtils.randomAlphabetic(5, 10);
-        String username = RandomStringUtils.randomAlphabetic(8, 10);
-        String password = RandomStringUtils.randomAlphabetic(8, 10);
-        UserEntity user = new UserEntity(userId, firstName, lastName, username, password, false);
-        AuthDTO authDTO = new AuthDTO(username, password);
-        Long trainerId = Long.parseLong(RandomStringUtils.randomNumeric(3, 6));
-        TrainerEntity mockedTrainer = new TrainerEntity();
-        mockedTrainer.setId(trainerId);
-        mockedTrainer.setUser(user);
-        String newPw = RandomStringUtils.randomAlphabetic(8, 10);
-        when(userService.findByUsername(username)).thenReturn(user);
-        when(trainerDAO.findById(trainerId)).thenReturn(Optional.of(mockedTrainer));
-
-        trainerService.changeTrainerPassword(authDTO, mockedTrainer, newPw);
-    }
-
-    @Test
-    void findActiveForOtherTraineesTest() {
-        String username = RandomStringUtils.randomAlphabetic(8, 10);
-        String password = RandomStringUtils.randomAlphabetic(8, 10);
-        AuthDTO authDTO = new AuthDTO(username, password);
-        Long traineeId = Long.parseLong(RandomStringUtils.randomNumeric(3, 6));
-        when(trainerDAO.findActiveForOtherTrainees(traineeId)).thenReturn(new ArrayList<>());
-
-        List<TrainerEntity> receivedTrainers = trainerService.findActiveForOtherTrainees(authDTO, traineeId);
-
-        assertNotNull(receivedTrainers);
+        //given
+        doNothing().when(userService).authentication(any(AuthDTO.class));
+        when(trainerDAO.findByUsername(any(String.class))).thenReturn(Optional.of(new TrainerEntity()));
+        //when
+        TrainerEntity trainer = trainerService.findByUsername(
+                new AuthDTO(),
+                RandomStringUtils.randomAlphabetic(10));
+        //then
+        assertThat(trainer).isNotNull();
     }
 
     @Test
     void changeActiveStatusTest() {
-        String username = RandomStringUtils.randomAlphabetic(8, 10);
-        String password = RandomStringUtils.randomAlphabetic(8, 10);
-        AuthDTO authDTO = new AuthDTO(username, password);
-        Long trainerId = Long.parseLong(RandomStringUtils.randomNumeric(3, 6));
-        when(trainerDAO.findById(trainerId)).thenReturn(Optional.of(new TrainerEntity()));
+        //given
+        UserEntity user = new UserEntity();
+        TrainerEntity trainer = new TrainerEntity();
+        trainer.setUser(user);
+        doNothing().when(userService).authentication(any(AuthDTO.class));
+        when(trainerDAO.findByUsername(any(String.class))).thenReturn(Optional.of(trainer));
+        when(trainerDAO.save(any(TrainerEntity.class))).thenReturn(new TrainerEntity());
+        //then
+        assertDoesNotThrow(() -> trainerService.changeActiveStatus(
+                new AuthDTO(),
+                RandomStringUtils.randomAlphabetic(10), true));
+    }
 
-        trainerService.changeActiveStatus(authDTO, trainerId);
+    @Test
+    void findActiveForOtherTraineesTest() {
+        //given
+        TraineeEntity trainee = new TraineeEntity();
+        trainee.setId(Long.parseLong(RandomStringUtils.randomNumeric(5)));
+        when(traineeService.findByUsername(any(AuthDTO.class), any(String.class))).thenReturn(trainee);
+        when(trainerDAO.findActiveForOtherTrainees(any(Long.class))).thenReturn(new ArrayList<>());
+        //when
+        List<TrainerEntity> activeTrainers = trainerService.findActiveForOtherTrainees(
+                new AuthDTO(),
+                RandomStringUtils.randomNumeric(10));
+
+        //then
+        assertThat(activeTrainers).isNotNull();
     }
 
 }

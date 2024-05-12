@@ -1,69 +1,69 @@
 package com.nikolabojanic.validation;
 
-import com.nikolabojanic.model.TrainerEntity;
+import com.nikolabojanic.dto.TrainerRegistrationRequestDTO;
+import com.nikolabojanic.dto.TrainerUpdateRequestDTO;
+import com.nikolabojanic.exception.SCValidationException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
 public class TrainerValidation {
+    Integer badRequest = HttpStatus.BAD_REQUEST.value();
 
-    public void validateCreateTrainerRequest(TrainerEntity trainer) {
-        if (trainer == null) {
-            log.error("Attempted to create a trainer profile with null");
-            throw new IllegalArgumentException("Cannot create trainer profile with null value");
-        } else if (trainer.getUser() == null) {
-            log.error("Attempted to create trainer profile with null user");
-            throw new IllegalArgumentException("Cannot create trainer profile with null user");
-        } else if (trainer.getId() != null) {
-            log.error("Attempted to create trainer profile with an ID");
-            throw new IllegalArgumentException("Cannot create trainer profile with an ID");
-        } else if (trainer.getUser().getId() != null) {
-            log.error("Attempted to create trainer profile with an user ID");
-            throw new IllegalArgumentException("Cannot create trainer profile with an user ID");
+    public void validateRegisterRequest(TrainerRegistrationRequestDTO requestDTO) {
+        if (requestDTO == null) {
+            log.error("Attempted to create a trainer profile with null. Status: {}", badRequest);
+            throw new SCValidationException("Cannot create trainer profile with null value");
+        } else if (requestDTO.getFirstName() == null || requestDTO.getFirstName().isBlank()
+                || requestDTO.getFirstName().length() < 2) {
+            log.error("Attempted to create trainer profile with bad first name. Status: {}", badRequest);
+            throw new SCValidationException("First name must be at least two characters long");
+        } else if (requestDTO.getLastName() == null || requestDTO.getLastName().isBlank()
+                || requestDTO.getLastName().length() < 2) {
+            log.error("Attempted to create trainer profile with bad last name. Status: {}", badRequest);
+            throw new SCValidationException("Last name must be at least two characters long");
+        } else if (requestDTO.getSpecializationId() == null) {
+            log.error("Attempted to create trainer profile with no specialization id. Status: {}", badRequest);
+            throw new SCValidationException("Cannot create trainer profile with null specialization id");
         }
     }
 
-    public void validateUpdateTrainerRequest(TrainerEntity trainer) {
-        if (trainer == null) {
-            log.error("Attempted to update trainer profile with null");
-            throw new IllegalArgumentException("Cannot update trainer profile with null value");
-        } else if (trainer.getId() == null) {
-            log.error("Attempted to update trainer profile with null id");
-            throw new IllegalArgumentException("Cannot update trainer profile with null id");
-        } else if (trainer.getUser() == null) {
-            log.error("Attempted to update trainer profile with null user ");
-            throw new IllegalArgumentException("Cannot update trainer profile with null user");
-        } else if (trainer.getUser().getId() == null) {
-            log.error("Attempted to update trainer profile with null user ID");
-            throw new IllegalArgumentException("Cannot update trainer profile without user id");
+    public void validateUpdateTrainerRequest(TrainerUpdateRequestDTO requestDTO) {
+        if (requestDTO == null) {
+            log.error("Attempted to update trainer profile with null. Status: {}", badRequest);
+            throw new SCValidationException("Cannot update trainer profile with null request");
+        } else if (requestDTO.getUsername() == null || requestDTO.getUsername().isBlank()
+                || requestDTO.getUsername().length() < 4) {
+            log.error("Attempted to update trainer profile with bad username. Status: {}", badRequest);
+            throw new SCValidationException("Username must be at least 4 characters long");
+        } else if (requestDTO.getFirstName() == null || requestDTO.getFirstName().isBlank()
+                || requestDTO.getFirstName().length() < 2) {
+            log.error("Attempted to update trainer profile with bad first name. Status: {}", badRequest);
+            throw new SCValidationException("First name must be at least two characters long");
+        } else if (requestDTO.getLastName() == null || requestDTO.getLastName().isBlank()
+                || requestDTO.getLastName().length() < 2) {
+            log.error("Attempted to update trainer profile with bad last name. Status: {}", badRequest);
+            throw new SCValidationException("Last name must be at least two characters long");
+        } else if (requestDTO.getIsActive() == null) {
+            log.error("Attempted to update trainer profile with null active status. Status: {}", badRequest);
+            throw new SCValidationException("Active status must not be null");
         }
     }
 
-    public void validateIdNotNull(Long id) {
-        if (id == null) {
-            log.error("Attempted to fetch trainer with null ID");
-            throw new IllegalArgumentException("ID cannot be null");
+    public void validateUsernameNotNull(String username) {
+        if (username == null || username.isBlank() || username.length() < 4) {
+            log.error("Attempted to fetch trainee with bad username. Status: {}", badRequest);
+            throw new SCValidationException("Username must be at least 4 characters long");
         }
     }
 
-    public void validateTrainerPasswordChange(TrainerEntity trainer, String password) {
-        if (trainer == null) {
-            log.error("Attempted to change null trainer's password");
-            throw new IllegalArgumentException("Trainer cannot be null");
-        } else if (trainer.getUser() == null) {
-            log.error("Attempted to change trainer's password with null user");
-            throw new IllegalArgumentException("User cannot be null");
-        } else if (trainer.getUser().getPassword().equals(password)) {
-            log.error("Attempted to change trainer's password with the same password");
-            throw new IllegalArgumentException("New password is the same as the old one");
-        }
-    }
-
-    public void validateTraineeId(Long id) {
-        if (id == null) {
-            log.error("Attempted to fetch trainers with null trainee id");
-            throw new IllegalArgumentException("Trainee id cannot be null");
+    public void validateActiveStatusRequest(String username, Boolean isActive) {
+        validateUsernameNotNull(username);
+        if (isActive == null) {
+            log.error("Attempted to change trainer's active status with null value. Status: {}", badRequest);
+            throw new SCValidationException("Active status must not be null");
         }
     }
 }

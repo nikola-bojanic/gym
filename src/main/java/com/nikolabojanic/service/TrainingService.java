@@ -2,10 +2,7 @@ package com.nikolabojanic.service;
 
 import com.nikolabojanic.dao.TrainingDAO;
 import com.nikolabojanic.dto.AuthDTO;
-import com.nikolabojanic.model.TraineeEntity;
-import com.nikolabojanic.model.TrainerEntity;
 import com.nikolabojanic.model.TrainingEntity;
-import com.nikolabojanic.validation.TrainingValidation;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,27 +21,44 @@ public class TrainingService {
     private final TraineeService traineeService;
     private final TrainerService trainerService;
     private final UserService userService;
-    private final TrainingValidation trainingValidation;
 
-    public TrainingEntity create(TrainingEntity training) {
-        trainingValidation.validateCreateTrainingRequest(training);
-        training.setType(trainingTypeService.findById(training.getType().getId()));
+    public TrainingEntity create(AuthDTO authDTO, TrainingEntity training) {
+        userService.authentication(authDTO);
+        if (training.getTrainer() != null && training.getTrainer().getUser() != null
+                && training.getTrainer().getUser().getUsername() != null) {
+            training.setTrainer(trainerService.findByUsername(authDTO, training.getTrainer().getUser().getUsername()));
+        }
+        if (training.getTrainee() != null && training.getTrainee().getUser() != null
+                && training.getTrainee().getUser().getUsername() != null) {
+            training.setTrainee(traineeService.findByUsername(authDTO, training.getTrainee().getUser().getUsername()));
+        }
+        if (training.getType() != null) {
+            training.setType(trainingTypeService.findById(training.getType().getId()));
+        }
         log.info("Created a new training");
         return trainingDAO.save(training);
     }
 
-    public List<TrainingEntity> findTrainingsByTraineeUsernameAndTime(AuthDTO authDTO, String username, LocalDate begin, LocalDate end) {
+    public List<TrainingEntity> findByTraineeAndFilter(
+            AuthDTO authDTO,
+            String username,
+            LocalDate begin,
+            LocalDate end,
+            String trainerName,
+            Long typeId) {
         userService.authentication(authDTO);
-        trainingValidation.validateDate(begin, end);
-        TraineeEntity trainee = traineeService.findByUsername(authDTO, username);
-        return trainingDAO.findByTraineeIdAndDate(trainee.getId(), begin, end);
+        log.info("Retrieved trainings by trainee username and filter.");
+        return trainingDAO.findByTraineeAndFilter(username, begin, end, trainerName, typeId);
     }
 
-    public List<TrainingEntity> findTrainingsByTrainerUsernameAndTime(AuthDTO authDTO, String username, LocalDate begin, LocalDate end) {
+    public List<TrainingEntity> findByTrainerAndFilter(
+            AuthDTO authDTO,
+            String username,
+            LocalDate begin,
+            LocalDate end,
+            String traineeName) {
         userService.authentication(authDTO);
-        trainingValidation.validateDate(begin, end);
-        TrainerEntity trainer = trainerService.findByUsername(authDTO, username);
-        return trainingDAO.findByTrainerIdAndDate(trainer.getId(), begin, end);
+        log.info("Retrieved trainings by trainer username and filter.");
+        return trainingDAO.findByTrainerAndFilter(username, begin, end, traineeName);
     }
-
 }

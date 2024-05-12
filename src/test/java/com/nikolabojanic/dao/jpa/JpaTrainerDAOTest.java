@@ -12,11 +12,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -28,92 +29,85 @@ class JpaTrainerDAOTest {
     private JpaTrainerDAO jpaTrainerDAO;
 
     @Test
-    void findByIdTest() {
-        Long trainerId = Long.parseLong(RandomStringUtils.randomNumeric(3, 6));
-        when(entityManager.find(TrainerEntity.class, trainerId)).thenReturn(new TrainerEntity());
-
-        Optional<TrainerEntity> receivedTrainer = jpaTrainerDAO.findById(trainerId);
-
-        assertTrue(receivedTrainer.isPresent());
+    void findByUsernameTest() {
+        //given
+        TypedQuery<TrainerEntity> query = mock(TypedQuery.class);
+        TrainerEntity trainer = new TrainerEntity();
+        String username = RandomStringUtils.randomAlphabetic(10);
+        when(entityManager.createQuery("select t from TrainerEntity t where t.user.username = :username",
+                TrainerEntity.class)).thenReturn(query);
+        when(query.setParameter("username", username)).thenReturn(query);
+        when(query.getSingleResult()).thenReturn(trainer);
+        //when
+        Optional<TrainerEntity> receivedTrainer = jpaTrainerDAO.findByUsername(username);
+        //then
+        assertThat(receivedTrainer).hasValue(trainer);
     }
 
     @Test
-    void findByNonExistingIdTest() {
-        Long trainerId = Long.parseLong(RandomStringUtils.randomNumeric(3, 6));
-        when(entityManager.find(TrainerEntity.class, trainerId)).thenReturn(null);
-
-        Optional<TrainerEntity> receivedTrainer = jpaTrainerDAO.findById(trainerId);
-
-        assertTrue(receivedTrainer.isEmpty());
+    void findByNonExistingUsernameTest() {
+        //given
+        TypedQuery<TrainerEntity> query = mock(TypedQuery.class);
+        String username = RandomStringUtils.randomAlphabetic(10);
+        when(entityManager.createQuery("select t from TrainerEntity t where t.user.username = :username",
+                TrainerEntity.class)).thenReturn(query);
+        when(query.setParameter("username", username)).thenReturn(query);
+        when(query.getSingleResult()).thenThrow(NoResultException.class);
+        //when
+        Optional<TrainerEntity> receivedTrainer = jpaTrainerDAO.findByUsername(username);
+        //then
+        assertThat(receivedTrainer).isEmpty();
     }
 
     @Test
     void saveTest() {
+        //given
         TrainerEntity trainer = new TrainerEntity();
         UserEntity user = new UserEntity();
         trainer.setUser(user);
         when(entityManager.merge(user)).thenReturn(user);
         when(entityManager.merge(trainer)).thenReturn(trainer);
-
+        //when
         TrainerEntity receivedTrainer = jpaTrainerDAO.save(trainer);
-
+        //then
         assertEquals(trainer, receivedTrainer);
     }
 
     @Test
-    void findByUserIdTest() {
-        TypedQuery<TrainerEntity> query = mock(TypedQuery.class);
-        Long userId = Long.parseLong(RandomStringUtils.randomNumeric(3, 6));
-        when(entityManager.createQuery("from TrainerEntity where user.id = :userId", TrainerEntity.class)).thenReturn(query);
-        when(query.setParameter("userId", userId)).thenReturn(query);
-        when(query.getSingleResult()).thenReturn(new TrainerEntity());
-
-        Optional<TrainerEntity> receivedTrainer = jpaTrainerDAO.findByUserId(userId);
-
-        assertTrue(receivedTrainer.isPresent());
-    }
-
-    @Test
-    void findByNonExistingUserIdTest() {
-        TypedQuery<TrainerEntity> query = mock(TypedQuery.class);
-        Long userId = Long.parseLong(RandomStringUtils.randomNumeric(3, 6));
-        when(entityManager.createQuery("from TrainerEntity where user.id = :userId", TrainerEntity.class)).thenReturn(query);
-        when(query.setParameter("userId", userId)).thenReturn(query);
-        when(query.getSingleResult()).thenThrow(NoResultException.class);
-
-        Optional<TrainerEntity> receivedTrainer = jpaTrainerDAO.findByUserId(userId);
-
-        assertTrue(receivedTrainer.isEmpty());
-    }
-
-    @Test
     void findActiveForOtherTraineesTest() {
+        //given
         TypedQuery<TrainerEntity> query = mock(TypedQuery.class);
         Long traineeId = Long.parseLong(RandomStringUtils.randomNumeric(3, 6));
         when(entityManager.createQuery("from TrainerEntity t where " +
                         "t.user.isActive = true and " +
-                        "(t.id not in(select tt.id from TrainerEntity tt left join tt.trainees trainee WHERE trainee.id = :traineeId))",
+                        "(t.id not in(select tt.id from TrainerEntity tt left join tt.trainees trainee " +
+                        "WHERE trainee.id = :traineeId))",
                 TrainerEntity.class)).thenReturn(query);
         when(query.setParameter("traineeId", traineeId)).thenReturn(query);
         List<TrainerEntity> trainers = List.of(new TrainerEntity(), new TrainerEntity());
         when(query.getResultList()).thenReturn(trainers);
-
+        //when
         List<TrainerEntity> receivedTrainers = jpaTrainerDAO.findActiveForOtherTrainees(traineeId);
-
+        //then
         assertEquals(trainers, receivedTrainers);
     }
 
-
     @Test
-    void changeActiveStatusTest() {
-        UserEntity user = new UserEntity();
-        user.setId(Long.parseLong(RandomStringUtils.randomNumeric(3, 6)));
-        user.setIsActive(true);
-        TrainerEntity trainer = new TrainerEntity();
-        trainer.setUser(user);
-        when(entityManager.find(UserEntity.class, trainer.getUser().getId())).thenReturn(user);
-
-        jpaTrainerDAO.changeActiveStatus(trainer);
+    void findNoneActiveForOtherTraineesTest() {
+        //given
+        TypedQuery<TrainerEntity> query = mock(TypedQuery.class);
+        Long traineeId = Long.parseLong(RandomStringUtils.randomNumeric(3, 6));
+        when(entityManager.createQuery("from TrainerEntity t where " +
+                        "t.user.isActive = true and " +
+                        "(t.id not in(select tt.id from TrainerEntity tt left join tt.trainees trainee" +
+                        " WHERE trainee.id = :traineeId))",
+                TrainerEntity.class)).thenReturn(query);
+        when(query.setParameter("traineeId", traineeId)).thenReturn(query);
+        List<TrainerEntity> trainers = List.of(new TrainerEntity(), new TrainerEntity());
+        when(query.getResultList()).thenThrow(NoResultException.class);
+        //when
+        List<TrainerEntity> receivedTrainers = jpaTrainerDAO.findActiveForOtherTrainees(traineeId);
+        //then
+        assertEquals(new ArrayList<>(), receivedTrainers);
     }
-
 }

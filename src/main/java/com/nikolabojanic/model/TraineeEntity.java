@@ -22,7 +22,7 @@ public class TraineeEntity {
     @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
     private String address;
-    @OneToOne
+    @OneToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_id")
     private UserEntity user;
     @ManyToMany

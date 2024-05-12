@@ -2,41 +2,65 @@ package com.nikolabojanic.service;
 
 import com.nikolabojanic.dao.UserDAO;
 import com.nikolabojanic.dto.AuthDTO;
+import com.nikolabojanic.dto.UserPasswordChangeRequestDTO;
+import com.nikolabojanic.exception.SCAuthenticationException;
+import com.nikolabojanic.exception.SCEntityNotFoundException;
 import com.nikolabojanic.model.UserEntity;
 import com.nikolabojanic.validation.UserValidation;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
 @AllArgsConstructor
+@Transactional
 @Slf4j
 public class UserService {
     private final UserDAO userDAO;
     private final UserValidation userValidation;
 
     public UserEntity findByUsername(String username) {
-        userValidation.validateUsername(username);
         Optional<UserEntity> exists = userDAO.findByUsername(username);
-        return exists.orElseThrow(() -> {
-            log.error("Attempted to fetch non-existing element with username: {}", username);
-            return new NoSuchElementException("User with that username cannot be found");
-        });
+        if (exists.isPresent()) {
+            log.info("Successfully retrieved user with username {}.", username);
+            return exists.get();
+        } else {
+            log.error("Attempted to fetch user with non-existent username {}. " +
+                    "Status: {}", username, HttpStatus.NOT_FOUND.value());
+            throw new SCEntityNotFoundException("User with username " + username + " doesn't exist");
+        }
     }
 
     public void authentication(AuthDTO authDTO) {
         userValidation.validateAuthDto(authDTO);
-        UserEntity domainModel = findByUsername(authDTO.getUsername());
-        if (!authDTO.getPassword().equals(domainModel.getPassword()))
-            throw new IllegalArgumentException("Passwords do not match");
+        Optional<UserEntity> exists = userDAO.findByUsername(authDTO.getUsername());
+        if (exists.isEmpty()) {
+            log.error("Attempted to login with non-existing username: {}," +
+                    " Status: {}", authDTO.getUsername(), HttpStatus.UNAUTHORIZED.value());
+            throw new SCAuthenticationException("Provided authentication username doesn't exist");
+        }
+        UserEntity domainModel = exists.get();
+        if (!authDTO.getPassword().equals(domainModel.getPassword())) {
+            log.error("Attempted to login with bad password. Status: {}", HttpStatus.UNAUTHORIZED.value());
+            throw new SCAuthenticationException("Passwords do not match");
+        }
+    }
+
+    public UserEntity changeUserPassword(AuthDTO authDTO, String username, UserPasswordChangeRequestDTO requestDTO) {
+        authentication(authDTO);
+        UserEntity user = findByUsername(username);
+        userValidation.validateUserPermissionToEdit(username, authDTO.getUsername());
+        user.setPassword(requestDTO.getNewPassword());
+        log.warn("Changed password for user with username {}", username);
+        return userDAO.save(user);
     }
 
     public UserEntity generateUsernameAndPassword(UserEntity user) {
-        userValidation.validateUserFields(user);
         Long count = userDAO.countUsersWithSameName(user.getFirstName(), user.getLastName());
         if (count == 0) {
             user.setUsername(user.getFirstName() + "." + user.getLastName());
@@ -44,7 +68,7 @@ public class UserService {
             user.setUsername(user.getFirstName() + "." + user.getLastName() + ++count);
         }
         user.setPassword(generateRandomPassword());
-        log.info("Generated username and password for user.");
+        log.info("Generated username and password for user. Username: {}", user.getUsername());
         return user;
     }
 

@@ -11,9 +11,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -28,24 +28,12 @@ class JpaUserDAOTest {
     private JpaUserDAO jpaUserDAO;
 
     @Test
-    void getAllTest() {
-        TypedQuery<UserEntity> typedQuery = mock(TypedQuery.class);
-        List<UserEntity> userList = List.of(new UserEntity(), new UserEntity());
-        when(entityManager.createQuery("from UserEntity", UserEntity.class)).thenReturn(typedQuery);
-        when(typedQuery.getResultList())
-                .thenReturn(userList);
-
-        List<UserEntity> result = jpaUserDAO.getAll();
-
-        assertEquals(userList, result);
-    }
-
-    @Test
     void findByUsernameTest() {
         TypedQuery<UserEntity> typedQuery = mock(TypedQuery.class);
         UserEntity user = new UserEntity();
         String username = RandomStringUtils.randomAlphabetic(3, 6);
-        when(entityManager.createQuery("from UserEntity where username = :username", UserEntity.class)).thenReturn(typedQuery);
+        when(entityManager.createQuery("from UserEntity where username = :username",
+                UserEntity.class)).thenReturn(typedQuery);
         when(typedQuery.setParameter("username", username)).thenReturn(typedQuery);
         when(typedQuery.getSingleResult()).thenReturn(user);
 
@@ -59,7 +47,8 @@ class JpaUserDAOTest {
         TypedQuery<UserEntity> typedQuery = mock(TypedQuery.class);
         UserEntity user = new UserEntity();
         String username = RandomStringUtils.randomAlphabetic(3, 6);
-        when(entityManager.createQuery("from UserEntity where username = :username", UserEntity.class)).thenReturn(typedQuery);
+        when(entityManager.createQuery("from UserEntity where username = :username",
+                UserEntity.class)).thenReturn(typedQuery);
         when(typedQuery.setParameter("username", username)).thenReturn(typedQuery);
         when(typedQuery.getSingleResult()).thenThrow(NoResultException.class);
 
@@ -69,12 +58,23 @@ class JpaUserDAOTest {
     }
 
     @Test
+    void saveTest() {
+        //given
+        UserEntity user = new UserEntity();
+        when(entityManager.merge(user)).thenReturn(user);
+        //when
+        UserEntity savedUser = jpaUserDAO.save(user);
+        assertThat(savedUser).isEqualTo(user);
+    }
+
+    @Test
     void countUsersWithSameNameTest() {
         TypedQuery<Long> query = mock(TypedQuery.class);
         String firstName = RandomStringUtils.randomAlphabetic(4, 7);
         String lastName = RandomStringUtils.randomAlphabetic(4, 7);
         Long count = Long.parseLong(RandomStringUtils.randomNumeric(4, 7));
-        when(entityManager.createQuery("select count(u) from UserEntity u where u.firstName = :firstName and u.lastName = :lastName", Long.class)).thenReturn(query);
+        when(entityManager.createQuery("select coalesce(count(u), 0) from UserEntity u where u.firstName " +
+                "= :firstName and u.lastName = :lastName", Long.class)).thenReturn(query);
         when(query.setParameter("firstName", firstName)).thenReturn(query);
         when(query.setParameter("lastName", lastName)).thenReturn(query);
         when(query.getSingleResult()).thenReturn(count);

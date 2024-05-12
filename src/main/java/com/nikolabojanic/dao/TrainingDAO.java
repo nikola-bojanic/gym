@@ -9,7 +9,16 @@ public interface TrainingDAO {
 
     TrainingEntity save(TrainingEntity training);
 
-    List<TrainingEntity> findByTraineeIdAndDate(Long id, LocalDate beginDate, LocalDate endDate);
+    List<TrainingEntity> findByTraineeAndFilter(
+            String username,
+            LocalDate beginDate,
+            LocalDate endDate,
+            String trainerName,
+            Long typeId);
 
-    List<TrainingEntity> findByTrainerIdAndDate(Long id, LocalDate beginDate, LocalDate endDate);
+    List<TrainingEntity> findByTrainerAndFilter(
+            String username,
+            LocalDate beginDate,
+            LocalDate endDate,
+            String traineeName);
 }

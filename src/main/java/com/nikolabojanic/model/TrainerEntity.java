@@ -18,7 +18,7 @@ public class TrainerEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @OneToOne
+    @OneToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_id")
     private UserEntity user;
     @ManyToOne

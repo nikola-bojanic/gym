@@ -1,0 +1,21 @@
+version: '3'
+services:
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: spring-rest
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - 5433:5432
+    volumes:
+      - ./init-scripts:/docker-entrypoint-initdb.d
+
+  spring-rest:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres

@@ -8,15 +8,12 @@ import java.util.Optional;
 
 public interface TraineeDAO {
 
-    Optional<TraineeEntity> findById(Long id);
-
-    void delete(Long id);
+    Optional<TraineeEntity> deleteByUsername(String username);
 
     TraineeEntity save(TraineeEntity trainee);
 
-    Optional<TraineeEntity> findByUserId(Long id);
+    Optional<TraineeEntity> findByUsername(String username);
 
-    TraineeEntity saveTrainers(TraineeEntity trainee, List<TrainerEntity> trainers);
+    List<TrainerEntity> saveTrainers(TraineeEntity trainee, List<TrainerEntity> trainers);
 
-    void changeActiveStatus(TraineeEntity trainee);
 }

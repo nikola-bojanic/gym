@@ -2,11 +2,10 @@ package com.nikolabojanic.service;
 
 import com.nikolabojanic.dao.TraineeDAO;
 import com.nikolabojanic.dto.AuthDTO;
+import com.nikolabojanic.dto.TraineeTrainerUpdateRequestDTO;
 import com.nikolabojanic.model.TraineeEntity;
 import com.nikolabojanic.model.TrainerEntity;
 import com.nikolabojanic.model.UserEntity;
-import com.nikolabojanic.validation.TraineeValidation;
-import com.nikolabojanic.validation.UserValidation;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,8 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -30,249 +31,101 @@ class TraineeServiceTest {
     private UserService userService;
     @Mock
     private TrainerService trainerService;
-    @Mock
-    private TraineeValidation traineeValidation;
-    @Mock
-    private UserValidation userValidation;
     @InjectMocks
     private TraineeService traineeService;
 
     @Test
     void createTraineeProfileTest() {
-        String firstName = RandomStringUtils.randomAlphabetic(5, 10);
-        String lastName = RandomStringUtils.randomAlphabetic(5, 10);
-        UserEntity user = new UserEntity(null, firstName, lastName, null, null, false);
-        TraineeEntity mockedTrainee = new TraineeEntity();
-        mockedTrainee.setUser(user);
-        when(userService.generateUsernameAndPassword(user)).thenReturn(user);
-        when(traineeDAO.save(mockedTrainee)).thenReturn(mockedTrainee);
-
-        TraineeEntity createdTrainee = traineeService.createTraineeProfile(mockedTrainee);
-
-        assertEquals(mockedTrainee, createdTrainee);
+        //given
+        UserEntity user = new UserEntity();
+        TraineeEntity trainee = new TraineeEntity();
+        trainee.setUser(user);
+        when(userService.generateUsernameAndPassword(any(UserEntity.class))).thenReturn(new UserEntity());
+        when(traineeDAO.save(any(TraineeEntity.class))).thenReturn(new TraineeEntity());
+        //when
+        TraineeEntity createdTrainee = traineeService.createTraineeProfile(trainee);
+        //then
+        assertThat(createdTrainee).isNotNull();
     }
-
-//    @Test
-//    void createTraineeProfileWithNullTest() {
-//        TraineeEntity trainee = null;
-//
-//        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-//            traineeService.createTraineeProfile(trainee);
-//        });
-//
-//        assertEquals("Cannot create trainee profile with null value", exception.getMessage());
-//    }
-//
-//    @Test
-//    void createTraineeProfileWithIdTest() {
-//        TraineeEntity trainee = new TraineeEntity();
-//        trainee.setId(Long.parseLong(RandomStringUtils.randomNumeric(4, 5)));
-//
-//        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-//            traineeService.createTraineeProfile(trainee);
-//        });
-//
-//        assertEquals("Cannot create trainee profile with an ID", exception.getMessage());
-//    }
-
-//    @Test
-//    void createTraineeProfileWithNullUserTest() {
-//        TraineeEntity trainee = new TraineeEntity();
-//
-//        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-//            traineeService.createTraineeProfile(trainee);
-//        });
-//
-//        assertEquals("Cannot create trainee profile with null user", exception.getMessage());
-//    }
-
-//    @Test
-//    void createTraineeProfileWithUserIdTest() {
-//        TraineeEntity trainee = new TraineeEntity();
-//        UserEntity user = new UserEntity();
-//        user.setId(Long.parseLong(RandomStringUtils.randomNumeric(4, 7)));
-//        trainee.setUser(user);
-//        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-//            traineeService.createTraineeProfile(trainee);
-//        });
-//
-//        assertEquals("Cannot create trainee profile with an user ID", exception.getMessage());
-//    }
 
     @Test
     void updateTraineeProfileTest() {
-        Long userId = Long.parseLong(RandomStringUtils.randomNumeric(3, 6));
-        String firstName = RandomStringUtils.randomAlphabetic(5, 10);
-        String lastName = RandomStringUtils.randomAlphabetic(5, 10);
-        String username = RandomStringUtils.randomAlphabetic(8, 10);
-        String password = RandomStringUtils.randomAlphabetic(8, 10);
-        UserEntity user = new UserEntity(userId, firstName, lastName, username, password, false);
-        Long traineeId = Long.parseLong(RandomStringUtils.randomNumeric(3, 6));
-        TraineeEntity mockedTrainee = new TraineeEntity();
-        mockedTrainee.setUser(user);
-        mockedTrainee.setId(traineeId);
-        AuthDTO authDTO = new AuthDTO(username, password);
-        when(userService.findByUsername(username)).thenReturn(user);
-        when(traineeDAO.findById(mockedTrainee.getId())).thenReturn(Optional.of(mockedTrainee));
-        when(traineeDAO.save(mockedTrainee)).thenReturn(mockedTrainee);
-
-        TraineeEntity updatedTrainee = traineeService.updateTraineeProfile(authDTO, mockedTrainee);
-
-        assertEquals(mockedTrainee, updatedTrainee);
-    }
-
-//    @Test
-//    void updateTraineeProfileWithNullTest() {
-//        AuthDTO authDTO = new AuthDTO(RandomStringUtils.randomAlphabetic(8, 10), RandomStringUtils.randomAlphabetic(8, 10));
-//        TraineeEntity trainee = null;
-//
-//        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-//            traineeService.updateTraineeProfile(authDTO, trainee);
-//        });
-//
-//        assertEquals("Cannot update a trainee with null value", exception.getMessage());
-//    }
-//
-//    @Test
-//    void updateTraineeProfileWithoutIdTest() {
-//        AuthDTO authDTO = new AuthDTO(RandomStringUtils.randomAlphabetic(8, 10), RandomStringUtils.randomAlphabetic(8, 10));
-//        TraineeEntity trainee = new TraineeEntity();
-//        UserEntity user = new UserEntity();
-//        trainee.setUser(user);
-//
-//
-//        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-//            traineeService.updateTraineeProfile(authDTO, trainee);
-//        });
-//
-//        assertEquals("Cannot update trainee with null id", exception.getMessage());
-//    }
-//
-//    @Test
-//    void updateTraineeProfileWithNullUserTest() {
-//        AuthDTO authDTO = new AuthDTO(RandomStringUtils.randomAlphabetic(8, 10), RandomStringUtils.randomAlphabetic(8, 10));
-//        TraineeEntity trainee = new TraineeEntity();
-//
-//        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-//            traineeService.updateTraineeProfile(authDTO, trainee);
-//        });
-//
-//        assertEquals("Cannot update trainee profile with null user", exception.getMessage());
-//    }
-//
-//    @Test
-//    void updateTraineeProfileWithoutUserIdTest() {
-//        AuthDTO authDTO = new AuthDTO(RandomStringUtils.randomAlphabetic(8, 10), RandomStringUtils.randomAlphabetic(8, 10));
-//        TraineeEntity trainee = new TraineeEntity();
-//        trainee.setId(Long.parseLong(RandomStringUtils.randomNumeric(4, 5)));
-//        UserEntity user = new UserEntity();
-//        trainee.setUser(user);
-//
-//        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-//            traineeService.updateTraineeProfile(authDTO, trainee);
-//        });
-//
-//        assertEquals("Cannot update user without an ID", exception.getMessage());
-//    }
-
-    @Test
-    void findByIdTest() {
-        Long traineeId = Long.parseLong(RandomStringUtils.randomNumeric(3, 6));
-        when(traineeDAO.findById(traineeId)).thenReturn(Optional.of(new TraineeEntity()));
-
-        TraineeEntity fetchedTrainee = traineeService.findById(traineeId);
-
-        assertNotNull(fetchedTrainee);
+        //given
+        UserEntity user = new UserEntity();
+        TraineeEntity trainee = new TraineeEntity();
+        trainee.setUser(user);
+        when(traineeDAO.findByUsername(any(String.class))).thenReturn(Optional.of(trainee));
+        doNothing().when(userService).authentication(any(AuthDTO.class));
+        when(traineeDAO.save(any(TraineeEntity.class))).thenReturn(new TraineeEntity());
+        //when
+        TraineeEntity updatedTrainee = traineeService.updateTraineeProfile(
+                new AuthDTO(),
+                RandomStringUtils.randomAlphabetic(10),
+                trainee);
+        //then
+        assertThat(updatedTrainee).isNotNull();
     }
 
     @Test
     void findByUsernameTest() {
-        Long userId = Long.parseLong(RandomStringUtils.randomNumeric(3, 6));
-        String firstName = RandomStringUtils.randomAlphabetic(5, 10);
-        String lastName = RandomStringUtils.randomAlphabetic(5, 10);
-        String username = RandomStringUtils.randomAlphabetic(8, 10);
-        String password = RandomStringUtils.randomAlphabetic(8, 10);
-        UserEntity user = new UserEntity(userId, firstName, lastName, username, password, false);
-        AuthDTO authDTO = new AuthDTO(username, password);
-        TraineeEntity mockedTrainee = new TraineeEntity();
-        when(userService.findByUsername(username)).thenReturn(user);
-        when(traineeDAO.findByUserId(userId)).thenReturn(Optional.of(mockedTrainee));
-
-        TraineeEntity trainee = traineeService.findByUsername(authDTO, username);
-
-        assertEquals(mockedTrainee, trainee);
-    }
-
-    @Test
-    void changeTraineePasswordTest() {
-        Long userId = Long.parseLong(RandomStringUtils.randomNumeric(3, 6));
-        String firstName = RandomStringUtils.randomAlphabetic(5, 10);
-        String lastName = RandomStringUtils.randomAlphabetic(5, 10);
-        String username = RandomStringUtils.randomAlphabetic(8, 10);
-        String password = RandomStringUtils.randomAlphabetic(8, 10);
-        UserEntity user = new UserEntity(userId, firstName, lastName, username, password, false);
-        AuthDTO authDTO = new AuthDTO(username, password);
-        Long traineeId = Long.parseLong(RandomStringUtils.randomNumeric(3, 6));
-        TraineeEntity mockedTrainee = new TraineeEntity();
-        mockedTrainee.setId(traineeId);
-        mockedTrainee.setUser(user);
-        String newPw = RandomStringUtils.randomAlphabetic(8, 10);
-        when(userService.findByUsername(username)).thenReturn(user);
-        when(traineeDAO.findById(mockedTrainee.getId())).thenReturn(Optional.of(mockedTrainee));
-
-        traineeService.changeTraineePassword(authDTO, mockedTrainee, newPw);
+        //given
+        doNothing().when(userService).authentication(any(AuthDTO.class));
+        when(traineeDAO.findByUsername(any(String.class))).thenReturn(Optional.of(new TraineeEntity()));
+        //when
+        TraineeEntity trainee = traineeService.findByUsername(
+                new AuthDTO(),
+                RandomStringUtils.randomAlphabetic(10));
+        //then
+        assertThat(trainee).isNotNull();
     }
 
     @Test
     void deleteByUsernameTest() {
-        Long userId = Long.parseLong(RandomStringUtils.randomNumeric(3, 6));
-        String firstName = RandomStringUtils.randomAlphabetic(5, 10);
-        String lastName = RandomStringUtils.randomAlphabetic(5, 10);
-        String username = RandomStringUtils.randomAlphabetic(8, 10);
-        String password = RandomStringUtils.randomAlphabetic(8, 10);
-        UserEntity user = new UserEntity(userId, firstName, lastName, username, password, false);
-        AuthDTO authDTO = new AuthDTO(username, password);
-        Long traineeId = Long.parseLong(RandomStringUtils.randomNumeric(3, 6));
-        TraineeEntity mockedTrainee = new TraineeEntity();
-        mockedTrainee.setId(traineeId);
-        mockedTrainee.setUser(user);
-        when(userService.findByUsername(username)).thenReturn(user);
-        when(traineeDAO.findByUserId(user.getId())).thenReturn(Optional.of(mockedTrainee));
-
-        traineeService.deleteByUsername(authDTO, username);
+        //given
+        doNothing().when(userService).authentication(any(AuthDTO.class));
+        when(traineeDAO.deleteByUsername(any(String.class))).thenReturn(Optional.of(new TraineeEntity()));
+        //when
+        TraineeEntity deleted = traineeService.deleteByUsername(
+                new AuthDTO(),
+                RandomStringUtils.randomAlphabetic(10));
+        //then
+        assertThat(deleted).isNotNull();
     }
 
     @Test
     void updateTraineeTrainersTest() {
-        String username = RandomStringUtils.randomAlphabetic(8, 10);
-        String password = RandomStringUtils.randomAlphabetic(8, 10);
-        AuthDTO authDTO = new AuthDTO(username, password);
-        Long traineeId = Long.parseLong(RandomStringUtils.randomNumeric(3, 6));
-        TraineeEntity mockedTrainee = new TraineeEntity();
-        mockedTrainee.setId(traineeId);
-        Long trainerId = Long.parseLong(RandomStringUtils.randomNumeric(3, 6));
-        TrainerEntity mockedTrainer = new TrainerEntity();
-        mockedTrainer.setId(trainerId);
-        List<TrainerEntity> trainers = new ArrayList<>();
-        trainers.add(mockedTrainer);
-        when(trainerService.findById(mockedTrainer.getId())).thenReturn(mockedTrainer);
-        when(traineeDAO.findById(mockedTrainee.getId())).thenReturn(Optional.of(mockedTrainee));
-        when(traineeDAO.saveTrainers(mockedTrainee, trainers)).thenReturn(mockedTrainee);
-
-        TraineeEntity updatedTrainee = traineeService.updateTraineeTrainers(authDTO, mockedTrainee, trainers);
-
-        assertEquals(mockedTrainee, updatedTrainee);
+        //given
+        TraineeTrainerUpdateRequestDTO requestDTO = new TraineeTrainerUpdateRequestDTO();
+        requestDTO.setUsername(RandomStringUtils.randomAlphabetic(10));
+        UserEntity user = new UserEntity();
+        TrainerEntity trainer = new TrainerEntity();
+        trainer.setUser(user);
+        doNothing().when(userService).authentication(any(AuthDTO.class));
+        when(traineeDAO.findByUsername(any(String.class))).thenReturn(Optional.of(new TraineeEntity()));
+        when(trainerService.findByUsername(any(AuthDTO.class), any(String.class))).thenReturn(trainer);
+        when(traineeDAO.saveTrainers(any(TraineeEntity.class), any(List.class))).thenReturn(new ArrayList<>());
+        //when
+        List<TrainerEntity> trainers = traineeService.updateTraineeTrainers(
+                new AuthDTO(),
+                RandomStringUtils.randomAlphabetic(10),
+                List.of(requestDTO));
+        //then
+        assertThat(trainers).isNotNull();
     }
 
     @Test
     void changeActiveStatusTest() {
-        String username = RandomStringUtils.randomAlphabetic(8, 10);
-        String password = RandomStringUtils.randomAlphabetic(8, 10);
-        AuthDTO authDTO = new AuthDTO(username, password);
-        Long traineeId = Long.parseLong(RandomStringUtils.randomNumeric(3, 6));
-        when(traineeDAO.findById(traineeId)).thenReturn(Optional.of(new TraineeEntity()));
-
-        traineeService.changeActiveStatus(authDTO, traineeId);
+        //given
+        UserEntity user = new UserEntity();
+        TraineeEntity trainee = new TraineeEntity();
+        trainee.setUser(user);
+        doNothing().when(userService).authentication(any(AuthDTO.class));
+        when(traineeDAO.findByUsername(any(String.class))).thenReturn(Optional.of(trainee));
+        when(traineeDAO.save(any(TraineeEntity.class))).thenReturn(new TraineeEntity());
+        //then
+        assertDoesNotThrow(() -> traineeService.changeActiveStatus(
+                new AuthDTO(),
+                RandomStringUtils.randomAlphabetic(10), true));
     }
 
 }

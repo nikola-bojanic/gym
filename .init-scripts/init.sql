@@ -1,0 +1,4 @@
+CREATE DATABASE spring-rest;
+CREATE USER user WITH PASSWORD 'password';
+ALTER USER user WITH SUPERUSER;
+

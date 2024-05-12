@@ -1,37 +1,43 @@
 package com.nikolabojanic.validation;
 
-import com.nikolabojanic.model.TrainingEntity;
+import com.nikolabojanic.dto.TrainingRequestDTO;
+import com.nikolabojanic.exception.SCValidationException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-
-import java.time.LocalDate;
 
 @Slf4j
 @Component
 public class TrainingValidation {
-    public void validateCreateTrainingRequest(TrainingEntity training) {
-        if (training == null) {
-            log.error("Attempted to create training with null");
-            throw new IllegalArgumentException("Cannot create training with null");
-        } else if (training.getId() != null) {
-            log.error("Attempted to create training with an ID");
-            throw new IllegalArgumentException("Cannot create training with an id");
-        } else if (training.getName() == null || training.getName().isBlank()) {
-            log.error("Attempted to create training with missing name");
-            throw new IllegalArgumentException("Cannot create training without a name");
-        } else if (training.getDate() == null) {
-            log.error("Attempted to create training with missing date");
-            throw new IllegalArgumentException("Cannot create training without a date");
-        } else if (training.getDuration() == null) {
-            log.error("Attempted to create training with missing duration");
-            throw new IllegalArgumentException("Cannot create training without a duration");
+
+    Integer badRequest = HttpStatus.BAD_REQUEST.value();
+
+    public void validateUsernameNotNull(String username) {
+        if (username == null || username.isBlank() || username.length() < 4) {
+            log.error("Attempted to fetch user with bad username. Status: {}", badRequest);
+            throw new SCValidationException("Username must be at least 4 characters long");
         }
     }
 
-    public void validateDate(LocalDate begin, LocalDate end) {
-        if (begin == null || end == null) {
-            log.error("Attempted to fetch trainees' trainings with null date values");
-            throw new IllegalArgumentException("Date values must not be null");
+    public void validateCreateTrainingRequest(TrainingRequestDTO training) {
+        if (training == null) {
+            log.error("Attempted to create training with null. Status: {}", badRequest);
+            throw new SCValidationException("Cannot create training with null");
+        } else if (training.getName() == null || training.getName().isBlank()) {
+            log.error("Attempted to create training with missing name. Status: {}", badRequest);
+            throw new SCValidationException("Cannot create training without a name");
+        } else if (training.getDate() == null) {
+            log.error("Attempted to create training with missing date. Status: {}", badRequest);
+            throw new SCValidationException("Cannot create training without a date");
+        } else if (training.getDuration() == null) {
+            log.error("Attempted to create training with missing duration. Status: {}", badRequest);
+            throw new SCValidationException("Cannot create training without a duration");
+        } else if (training.getTraineeUsername() == null) {
+            log.error("Attempted to create training with missing trainee username. Status: {}", badRequest);
+            throw new SCValidationException("Cannot create training without a trainee username");
+        } else if (training.getTrainerUsername() == null) {
+            log.error("Attempted to create training with missing trainer username. Status: {}", badRequest);
+            throw new SCValidationException("Cannot create training without a trainer username");
         }
     }
 }

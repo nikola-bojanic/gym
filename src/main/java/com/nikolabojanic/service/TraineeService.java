@@ -2,114 +2,108 @@ package com.nikolabojanic.service;
 
 import com.nikolabojanic.dao.TraineeDAO;
 import com.nikolabojanic.dto.AuthDTO;
+import com.nikolabojanic.dto.TraineeTrainerUpdateRequestDTO;
+import com.nikolabojanic.exception.SCEntityNotFoundException;
 import com.nikolabojanic.model.TraineeEntity;
 import com.nikolabojanic.model.TrainerEntity;
 import com.nikolabojanic.model.UserEntity;
 import com.nikolabojanic.validation.TraineeValidation;
-import com.nikolabojanic.validation.UserValidation;
 import jakarta.transaction.Transactional;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Slf4j
-@AllArgsConstructor
 @Transactional
 @Service
 public class TraineeService {
-
     private final TraineeDAO traineeDAO;
     private final UserService userService;
     private final TrainerService trainerService;
-    private final UserValidation userValidation;
-    private final TraineeValidation traineeValidation;
+
+    @Autowired
+    public TraineeService(
+            TraineeDAO traineeDAO,
+            UserService userService,
+            @Lazy TrainerService trainerService,
+            TraineeValidation traineeValidation) {
+        this.traineeDAO = traineeDAO;
+        this.userService = userService;
+        this.trainerService = trainerService;
+    }
 
     public TraineeEntity createTraineeProfile(TraineeEntity trainee) {
-        traineeValidation.validateCreateTraineeRequest(trainee);
         UserEntity user = userService.generateUsernameAndPassword(trainee.getUser());
         trainee.setUser(user);
         log.info("Created trainee profile");
         return traineeDAO.save(trainee);
     }
 
-    public TraineeEntity updateTraineeProfile(AuthDTO authDTO, TraineeEntity trainee) {
-        userService.authentication(authDTO);
-        traineeValidation.validateUpdateTraineeRequest(trainee);
-        TraineeEntity managedTrainee = findById(trainee.getId());
+    public TraineeEntity updateTraineeProfile(AuthDTO authDTO, String username, TraineeEntity trainee) {
+        TraineeEntity managedTrainee = findByUsername(authDTO, username);
         UserEntity inputUser = trainee.getUser();
-        userValidation.validateUserFields(inputUser);
-        UserEntity user = userService.findByUsername(inputUser.getUsername());
-        userValidation.validateUserPermissionToEdit(user.getUsername(), inputUser.getUsername());
-        user.setIsActive(inputUser.getIsActive());
-        user.setFirstName(inputUser.getFirstName());
-        user.setLastName(inputUser.getLastName());
-        managedTrainee.setUser(user);
+        UserEntity managedUser = managedTrainee.getUser();
+        managedUser.setIsActive(inputUser.getIsActive());
+        managedUser.setFirstName(inputUser.getFirstName());
+        managedUser.setLastName(inputUser.getLastName());
         if (trainee.getAddress() != null) {
             managedTrainee.setAddress(trainee.getAddress());
         }
         if (trainee.getDateOfBirth() != null) {
             managedTrainee.setDateOfBirth(trainee.getDateOfBirth());
         }
-        log.info("Updating trainee profile");
+        log.info("Updated trainee profile");
         return traineeDAO.save(managedTrainee);
-    }
-
-
-    public TraineeEntity findById(Long id) {
-        traineeValidation.validateIdNotNull(id);
-        return traineeDAO.findById(id)
-                .orElseThrow(() -> {
-                    log.error("Attempted to fetch trainee with non-existent ID {}", id);
-                    return new NoSuchElementException("Trainee with ID " + id + " doesn't exist");
-                });
     }
 
     public TraineeEntity findByUsername(AuthDTO authDTO, String username) {
         userService.authentication(authDTO);
-        UserEntity user = userService.findByUsername(username);
-        Long userId = user.getId();
-        return traineeDAO.findByUserId(userId).orElseThrow(() -> {
-            log.error("Attempted to fetch trainee with non-existent user ID {}", userId);
-            return new NoSuchElementException("Trainee with user ID " + userId + " doesn't exist");
-        });
+        Optional<TraineeEntity> exists = traineeDAO.findByUsername(username);
+        if (exists.isPresent()) {
+            log.info("Successfully retrieved trainee with username {}.", username);
+            return exists.get();
+        } else {
+            log.error("Attempted to fetch trainee with non-existent username {}. Status: {}", username, HttpStatus.NOT_FOUND.value());
+            throw new SCEntityNotFoundException("Trainee with username " + username + " doesn't exist");
+        }
     }
 
-    public void changeTraineePassword(AuthDTO authDTO, TraineeEntity trainee, String password) {
-        userService.authentication(authDTO);
-        traineeValidation.validateTraineePasswordChange(trainee, password);
-        userValidation.validateUsernameAndPassword(trainee.getUser().getUsername(), password);
-        UserEntity user = userService.findByUsername(trainee.getUser().getUsername());
-        TraineeEntity check = findById(trainee.getId());
-        userValidation.validateUserPermissionToEdit(check.getUser().getUsername(), trainee.getUser().getUsername());
-        user.setPassword(password);
-        check.setUser(user);
-        log.warn("Changing password for trainee.");
-        traineeDAO.save(check);
-    }
 
     public TraineeEntity deleteByUsername(AuthDTO authDTO, String username) {
         userService.authentication(authDTO);
+        Optional<TraineeEntity> deleted = traineeDAO.deleteByUsername(username);
+        if (deleted.isEmpty()) {
+            log.error("Attempted to delete trainee with non-existent username {}. " +
+                    "Status: {}", username, HttpStatus.NOT_FOUND.value());
+            throw new SCEntityNotFoundException("Trainee with username " + username + " doesn't exist");
+        } else {
+            log.warn("Deleted trainee with username: {}", username);
+            return deleted.get();
+        }
+    }
+
+    public List<TrainerEntity> updateTraineeTrainers(
+            AuthDTO authDTO,
+            String username,
+            List<TraineeTrainerUpdateRequestDTO> inputTrainers) {
         TraineeEntity trainee = findByUsername(authDTO, username);
-        log.warn("Deleting trainee with id: {}", trainee.getId());
-        traineeDAO.delete(trainee.getId());
-        return trainee;
+        List<TrainerEntity> trainers = new ArrayList<>();
+        inputTrainers.forEach(trainer -> trainers.add(trainerService.findByUsername(authDTO, trainer.getUsername())));
+        log.info("Updated trainee trainer list");
+        return traineeDAO.saveTrainers(trainee, trainers);
     }
 
-    public TraineeEntity updateTraineeTrainers(AuthDTO authDTO, TraineeEntity trainee, List<TrainerEntity> inputTrainers) {
-        userService.authentication(authDTO);
-        traineeValidation.validateTraineeNotNull(trainee);
-        findById(trainee.getId());
-        inputTrainers.forEach(trainer -> trainerService.findById(trainer.getId()));
-        return traineeDAO.saveTrainers(trainee, inputTrainers);
-    }
-
-    public void changeActiveStatus(AuthDTO authDTO, Long traineeId) {
-        userService.authentication(authDTO);
-        TraineeEntity trainee = findById(traineeId);
-        log.info("Changed active status");
-        traineeDAO.changeActiveStatus(trainee);
+    public void changeActiveStatus(AuthDTO authDTO, String username, Boolean isActive) {
+        TraineeEntity trainee = findByUsername(authDTO, username);
+        UserEntity managedUser = trainee.getUser();
+        managedUser.setIsActive(isActive);
+        log.info("Changed trainee active status");
+        traineeDAO.save(trainee);
     }
 }

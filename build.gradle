@@ -2,10 +2,10 @@ plugins {
     id 'java'
     id 'jacoco'
     id "org.sonarqube" version "4.4.1.3373"
+    id 'war'
 }
 
-group = 'org.example'
-version = '1.0-SNAPSHOT'
+group = 'com.nikolabojanic'
 
 java {
     sourceCompatibility = '17'
@@ -13,10 +13,10 @@ java {
 
 sonar {
     properties {
-        property "sonar.projectKey", "spring-hibernate"
-        property "sonar.projectName", "spring-hibernate"
+        property "sonar.projectKey", "spring-rest"
+        property "sonar.projectName", "spring-rest"
         property "sonar.host.url", "http://localhost:9002"
-        property "sonar.token", "sqp_dac6f85f4b1511783cdfc0cc9e534163c028933b"
+        property "sonar.token", "sqp_f765f580854c9675a85df520cf009d3bd33531d4"
         property "sonar.jacoco.reportPaths", "build/reports/jacoco/test/jacocoTestReport.xml"
         property "sonar.login", "admin"
         property "sonar.password", "sonar"
@@ -28,23 +28,27 @@ repositories {
 }
 
 dependencies {
-    testImplementation 'org.apache.commons:commons-lang3:3.14.0'
-    testImplementation 'org.springframework:spring-test:6.1.0'
-    implementation 'org.springframework:spring-context:6.1.0'
-    implementation 'javax.annotation:javax.annotation-api:1.3.2'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.1'
+    implementation 'org.hibernate:hibernate-core:6.4.0.Final'
+    implementation 'org.springframework:spring-orm:6.1.1'
+    implementation 'org.postgresql:postgresql:42.7.1'
+    implementation 'org.springframework:spring-webmvc:6.1.2'
+    implementation 'jakarta.servlet:jakarta.servlet-api:6.0.0'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.16.0'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.16.0'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-api:2.2.0'
+    implementation 'ch.qos.logback:logback-classic:1.4.14'
     implementation 'org.junit.jupiter:junit-jupiter-engine:5.10.1'
-    testImplementation 'org.mockito:mockito-core:5.7.0'
-    testImplementation 'org.mockito:mockito-junit-jupiter:5.7.0'
     compileOnly 'org.projectlombok:lombok:1.18.30'
     annotationProcessor 'org.projectlombok:lombok:1.18.30'
     testCompileOnly 'org.projectlombok:lombok:1.18.30'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.30'
-    implementation 'org.slf4j:slf4j-api:1.7.32'
-    implementation 'org.slf4j:slf4j-simple:1.7.32'
-    implementation 'org.hibernate:hibernate-core:6.4.0.Final'
-    implementation 'org.postgresql:postgresql:42.7.0'
-    implementation 'org.springframework:spring-orm:6.1.1'
+    testImplementation 'org.springframework:spring-test:6.1.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.1'
+    testImplementation 'org.mockito:mockito-core:5.7.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.7.0'
+    testImplementation 'org.apache.commons:commons-lang3:3.14.0'
+    testImplementation 'org.assertj:assertj-core:3.24.2'
 }
 
 test {
