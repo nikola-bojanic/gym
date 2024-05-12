@@ -3,11 +3,11 @@ package com.nikolabojanic.service.security;
 import com.nikolabojanic.entity.TokenEntity;
 import com.nikolabojanic.exception.ScEntityNotFoundException;
 import com.nikolabojanic.repository.TokenRepository;
-import jakarta.transaction.Transactional;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service

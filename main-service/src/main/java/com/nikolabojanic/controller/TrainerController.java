@@ -80,7 +80,7 @@ public class TrainerController {
     public ResponseEntity<TrainerResponseDto> getTrainer(
         @PathVariable("username") String username) {
         trainerEndpointsHitCounter.increment();
-        trainerValidation.validateUsernameNotNull(username);
+        trainerValidation.validateUsername(username);
         TrainerEntity trainer = trainerService.findByUsername(username);
         TrainerResponseDto responseDto = trainerConverter.convertModelToResponseDto(trainer);
         log.info("Successfully retrieved trainer with username {}. Status: {}", username, HttpStatus.OK.value());
@@ -110,7 +110,7 @@ public class TrainerController {
         @PathVariable("username") String username,
         @RequestBody TrainerUpdateRequestDto requestDto) {
         trainerEndpointsHitCounter.increment();
-        trainerValidation.validateUsernameNotNull(username);
+        trainerValidation.validateUsername(username);
         trainerValidation.validateUpdateTrainerRequest(requestDto);
         TrainerEntity trainer = trainerConverter.convertUpdateRequestToModel(requestDto);
         TrainerEntity updated = trainerService.updateTrainerProfile(username, trainer);
@@ -164,7 +164,7 @@ public class TrainerController {
     public ResponseEntity<List<ActiveTrainerResponseDto>> getActiveTrainers(
         @PathVariable("username") String username) {
         trainerEndpointsHitCounter.increment();
-        trainerValidation.validateUsernameNotNull(username);
+        trainerValidation.validateUsername(username);
         List<TrainerEntity> trainers = trainerService.findActiveForOtherTrainees(username);
         List<ActiveTrainerResponseDto> responseDto = trainers.stream()
             .map(trainerConverter::convertModelToActiveTrainerResponse)
@@ -197,7 +197,7 @@ public class TrainerController {
         @RequestParam("activeStatus") Boolean activeStatus
     ) {
         trainerEndpointsHitCounter.increment();
-        trainerValidation.validateActiveStatusRequest(username, activeStatus);
+        trainerValidation.validateUsername(username);
         trainerService.changeActiveStatus(username, activeStatus);
         log.info("Successfully changed trainer active status. Trainee username {}. "
             + "Status: {}", username, HttpStatus.OK.value());

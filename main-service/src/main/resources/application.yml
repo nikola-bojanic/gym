@@ -1,17 +1,26 @@
 app:
-  db-host: localhost
+  active-mq:
+    host: localhost
+    workload-queue: workload.queue
+  postgres:
+    host: localhost
   jwt:
     key: 5pAq6zRyX8bC3dV2wS7gN1mK9jF0hL4tUoP6iBvE3nG8xZaQrY7cW2fA
     algorithm: HS256
     issuer: main-service
-    expiresIn: 1d
+cors:
+  allowed-urls: http://localhost:8081
+  allowed-methods: OPTIONS, HEAD, GET, PUT, POST, DELETE, PATCH
+  allowed-headers: Authorization
 spring:
+  profiles:
+    active:
   application:
     name: main-service
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.xml
   datasource:
-    url: jdbc:postgresql://${app.db-host}:5432/spring-rest
+    url: jdbc:postgresql://${app.postgres.host}:5432/spring-rest
     username: user
     password: password
     driver-class-name: org.postgresql.Driver
@@ -21,13 +30,15 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-  cloud:
-    openfeign:
-      client:
-        config:
-          trainer-service:
-            connectTimeout: 1500
-            readTimeout: 3000
+  activemq:
+    broker-url: tcp://${app.active-mq.host}:61616
+    user: admin
+    password: admin
+    packages:
+      trust-all: false
+      trusted: com.nikolabojanic
+    queue:
+      deadLetterQueue: DLQ
 management:
   endpoints:
     web:
@@ -36,11 +47,3 @@ management:
   endpoint:
     health:
       show-details: always
-resilience4j:
-  circuitbreaker:
-    instances:
-      trainer-service:
-        minimum-number-of-calls: 5
-        automatic-transition-from-open-to-half-open-enabled: true
-        wait-duration-in-open-state: 5s
-        permitted-number-of-calls-in-half-open-state: 3

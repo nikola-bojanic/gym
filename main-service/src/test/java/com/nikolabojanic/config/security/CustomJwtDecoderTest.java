@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.nikolabojanic.exception.ScNotAuthorizedException;
 import com.nikolabojanic.service.security.TokenService;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
@@ -15,7 +16,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtException;
 
 @ExtendWith(MockitoExtension.class)
 class CustomJwtDecoderTest {
@@ -45,7 +45,7 @@ class CustomJwtDecoderTest {
         //act
         assertThatThrownBy(() -> customJwtDecoder.decode(RandomStringUtils.randomAlphabetic(10)))
             //assert
-            .isInstanceOf(JwtException.class)
+            .isInstanceOf(ScNotAuthorizedException.class)
             .hasMessage("Cannot authorize request");
 
     }

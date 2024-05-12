@@ -1,4 +1,4 @@
-package com.nikolabojanic.client.trainer;
+package com.nikolabojanic.dto;
 
 import com.nikolabojanic.enumeration.Action;
 import java.time.LocalDate;

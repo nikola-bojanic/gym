@@ -3,14 +3,14 @@ package com.nikolabojanic.service;
 import com.nikolabojanic.entity.TrainingEntity;
 import com.nikolabojanic.exception.TsEntityNotFoundException;
 import com.nikolabojanic.repository.TrainingRepository;
-import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-@Transactional
+@Transactional("transactionManager")
 @Service
 @Slf4j
 public class TrainingService {

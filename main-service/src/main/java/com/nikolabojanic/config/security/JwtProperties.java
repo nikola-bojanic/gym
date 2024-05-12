@@ -2,7 +2,6 @@ package com.nikolabojanic.config.security;
 
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.OctetSequenceKey;
-import java.time.Duration;
 import javax.crypto.SecretKey;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,7 +16,6 @@ public class JwtProperties {
     private SecretKey key;
     private String issuer;
     private JWSAlgorithm algorithm;
-    private Duration expiresIn;
 
     public void setAlgorithm(String algorithm) {
         this.algorithm = JWSAlgorithm.parse(algorithm);
@@ -33,4 +31,5 @@ public class JwtProperties {
             .algorithm(algorithm).build();
         this.key = jwk.toSecretKey();
     }
+
 }

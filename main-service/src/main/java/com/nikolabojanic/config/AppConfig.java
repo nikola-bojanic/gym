@@ -1,13 +1,22 @@
 package com.nikolabojanic.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
+import org.springframework.jms.support.converter.MessageConverter;
+import org.springframework.jms.support.converter.MessageType;
 import org.springframework.web.client.RestTemplate;
 
 @Configuration
+@RequiredArgsConstructor
 public class AppConfig {
+    private final ObjectMapper objectMapper;
+
     /**
      * Creates and registers a counter named "total_transactions" in the specified {@link MeterRegistry}.
      * The counter tracks the number of total transactions.
@@ -97,5 +106,20 @@ public class AppConfig {
     @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();
+    }
+
+    /**
+     * Registers and configures a JSON converter bean used by active mq broker.
+     *
+     * @return Configured JSON message converter.
+     */
+    @Bean
+    public MessageConverter jsonMessageConverter() {
+        MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
+        objectMapper.registerModule(new JavaTimeModule());
+        converter.setObjectMapper(objectMapper);
+        converter.setTargetType(MessageType.TEXT);
+        converter.setTypeIdPropertyName("_type");
+        return converter;
     }
 }

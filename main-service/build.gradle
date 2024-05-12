@@ -22,7 +22,7 @@ sonar {
         property "sonar.projectKey", "main-service"
         property "sonar.projectName", "main-service"
         property "sonar.host.url", "http://localhost:9000"
-        property "sonar.token", "sqp_969fe75a8a72285913810180db5f37cebd34568c"
+        property "sonar.token", "sqp_d0d492193ca65ff92686488fa296a46875195801"
         property "sonar.jacoco.reportPaths", "main-service/build/reports/jacoco/test/jacocoTestReport.xml"
         property "sonar.login", "admin"
         property "sonar.password", "sonar"
@@ -45,8 +45,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
-    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
-    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+    implementation 'org.springframework.boot:spring-boot-starter-activemq'
     implementation 'io.github.resilience4j:resilience4j-spring-boot2:2.2.0'
     implementation 'org.liquibase:liquibase-core:4.25.1'
     implementation 'org.liquibase:liquibase-gradle-plugin:2.2.1'

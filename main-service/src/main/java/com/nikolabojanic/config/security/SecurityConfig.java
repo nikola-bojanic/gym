@@ -5,6 +5,7 @@ import com.nikolabojanic.service.security.CustomUserDetailsService;
 import com.nikolabojanic.service.security.TokenService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -61,6 +62,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(registry -> registry
                 .requestMatchers(HttpMethod.POST, "/api/v1/trainees",
                     "/api/v1/trainers").permitAll()
+                .requestMatchers("/hawtio").permitAll()
                 .requestMatchers("/api/v1/trainees/**").hasAuthority("TRAINEE")
                 .requestMatchers("/api/v1/trainers/**").hasAuthority("TRAINER")
                 .anyRequest().authenticated())
@@ -111,11 +113,15 @@ public class SecurityConfig {
      * @return The CorsConfigurationSource with allowed origins, methods, and headers.
      */
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSource(
+        @Value("${cors.allowed-urls}") String allowedUrls,
+        @Value("${cors.allowed-methods}") String allowedMethods,
+        @Value("${cors.allowed-headers}") String allowedHeaders
+    ) {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOrigins(List.of("http://localhost:8081"));
-        corsConfiguration.setAllowedMethods(List.of("OPTIONS", "HEAD", "GET", "PUT", "POST", "DELETE", "PATCH"));
-        corsConfiguration.setAllowedHeaders(List.of("Authorization"));
+        corsConfiguration.setAllowedOrigins(List.of(allowedUrls));
+        corsConfiguration.setAllowedMethods(List.of(allowedMethods));
+        corsConfiguration.setAllowedHeaders(List.of(allowedHeaders));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", corsConfiguration);
         return source;

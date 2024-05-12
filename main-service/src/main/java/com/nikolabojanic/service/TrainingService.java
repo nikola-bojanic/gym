@@ -1,16 +1,14 @@
 package com.nikolabojanic.service;
 
-import com.nikolabojanic.client.trainer.TrainerServiceClient;
-import com.nikolabojanic.client.trainer.TrainerWorkloadRequestDto;
+import com.nikolabojanic.dto.TrainerWorkloadRequestDto;
 import com.nikolabojanic.entity.TrainerEntity;
 import com.nikolabojanic.entity.TrainingEntity;
 import com.nikolabojanic.entity.UserEntity;
 import com.nikolabojanic.enumeration.Action;
 import com.nikolabojanic.exception.ScEntityNotFoundException;
-import com.nikolabojanic.logging.MdcFilter;
 import com.nikolabojanic.repository.TrainingRepository;
+import com.nikolabojanic.service.jms.MessageSender;
 import io.micrometer.core.instrument.Counter;
-import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +16,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @AllArgsConstructor
@@ -28,8 +27,7 @@ public class TrainingService {
     private final TrainingTypeService trainingTypeService;
     private final TraineeService traineeService;
     private final TrainerService trainerService;
-    private final TrainerServiceClient trainerServiceClient;
-    private final MdcFilter mdcFilter;
+    private final MessageSender messageSender;
     private final Counter totalTransactionsCounter;
 
     /**
@@ -56,22 +54,15 @@ public class TrainingService {
         log.info("Created a new training");
         totalTransactionsCounter.increment();
         UserEntity user = trainer.getUser();
-        TrainerWorkloadRequestDto requestDto = new TrainerWorkloadRequestDto(
+        messageSender.send(new TrainerWorkloadRequestDto(
             user.getUsername(),
             user.getFirstName(),
             user.getLastName(),
             user.getIsActive(),
             training.getDate(),
             training.getDuration(),
-            Action.ADD);
-        log.info("{} {} {} {} {} {} {}", requestDto.getUsername(),
-            requestDto.getFirstName(),
-            requestDto.getLastName(),
-            requestDto.getIsActive(),
-            requestDto.getDate(),
-            requestDto.getDuration(),
-            requestDto.getAction());
-        trainerServiceClient.workloadUpdate(requestDto, mdcFilter.getTraceId(), jwt);
+            Action.ADD));
+        log.info("Successfully saved a training");
         return trainingRepository.save(training);
     }
 
@@ -95,7 +86,7 @@ public class TrainingService {
             log.warn("Deleted training with id: {}", id);
             TrainingEntity deletedTraining = deleted.get();
             UserEntity user = deletedTraining.getTrainer().getUser();
-            TrainerWorkloadRequestDto requestDto = new TrainerWorkloadRequestDto(
+            messageSender.send(new TrainerWorkloadRequestDto(
                 user.getUsername(),
                 user.getFirstName(),
                 user.getLastName(),
@@ -103,8 +94,7 @@ public class TrainingService {
                 deletedTraining.getDate(),
                 deletedTraining.getDuration(),
                 Action.DELETE
-            );
-            trainerServiceClient.workloadUpdate(requestDto, mdcFilter.getTraceId(), jwt);
+            ));
             return deleted.get();
         }
     }

@@ -10,7 +10,6 @@ import com.nikolabojanic.service.UserService;
 import com.nikolabojanic.service.security.LoginAttemptService;
 import com.nikolabojanic.service.security.TokenService;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -32,6 +31,7 @@ public class CredentialsAuthenticationFilter extends AbstractAuthenticationProce
     private final JwtIssuer jwtIssuer;
     private final TokenService tokenService;
     private final UserService userService;
+    private final ObjectMapper objectMapper;
 
     /**
      * Constructs a new CredentialsAuthenticationFilter.
@@ -47,13 +47,15 @@ public class CredentialsAuthenticationFilter extends AbstractAuthenticationProce
         JwtIssuer jwtIssuer,
         TokenService tokenService,
         UserService userService,
-        @Lazy AuthenticationManager authenticationManager) {
+        @Lazy AuthenticationManager authenticationManager,
+        ObjectMapper objectMapper) {
         super(new AntPathRequestMatcher("/api/v1/users/login", "POST"));
         super.setAuthenticationManager(authenticationManager);
         this.loginAttemptService = loginAttemptService;
         this.jwtIssuer = jwtIssuer;
         this.tokenService = tokenService;
         this.userService = userService;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -95,7 +97,6 @@ public class CredentialsAuthenticationFilter extends AbstractAuthenticationProce
             user);
         tokenService.save(token);
         AuthDtoResponse authDtoResponse = new AuthDtoResponse(accessToken);
-        ObjectMapper objectMapper = new ObjectMapper();
         String jsonResponse = objectMapper.writeValueAsString(authDtoResponse);
         response.setContentType("application/json");
         response.getWriter().write(jsonResponse);

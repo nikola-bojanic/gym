@@ -64,7 +64,7 @@ class TrainingControllerTest {
     @Test
     void getTrainingsByTrainerAndFilterTest() {
         //given
-        doNothing().when(trainingValidation).validateUsernameNotNull(any(String.class));
+        doNothing().when(trainingValidation).validateUsername(any(String.class));
         when(trainingService.findByTrainerAndFilter(
             any(String.class),
             any(LocalDate.class),
@@ -86,7 +86,7 @@ class TrainingControllerTest {
     void deleteTrainingTest() {
         //arrange
         doNothing().when(trainingEndpointsHitCounter).increment();
-        doNothing().when(trainingValidation).validateIdNotNull(anyLong());
+        doNothing().when(trainingValidation).validateId(anyLong());
         when(trainingService.deleteTraining(anyLong(), anyString())).thenReturn(new TrainingEntity());
         //act
         trainingController.deleteTraining(
@@ -99,7 +99,7 @@ class TrainingControllerTest {
     @Test
     void getTrainingsByTraineeAndFilterTest() {
         //given
-        doNothing().when(trainingValidation).validateUsernameNotNull(any(String.class));
+        doNothing().when(trainingValidation).validateUsername(any(String.class));
         when(trainingService.findByTraineeAndFilter(
             any(String.class),
             any(LocalDate.class),

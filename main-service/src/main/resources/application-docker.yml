@@ -1,7 +1,15 @@
 app:
-  db-host: postgres
+  active-mq:
+    workload-queue: workload.queue.docker
+    host: activemq-docker
+  postgres:
+    host: postgres
 spring:
   datasource:
-    url: jdbc:postgresql://${app.db-host}:5432/spring-rest-docker
+    url: jdbc:postgresql://${app.postgres.host}:5432/spring-rest-docker
     username: docker
+    password: docker
+  activemq:
+    broker-url: tcp://${app.active-mq.host}:61616
+    user: docker
     password: docker

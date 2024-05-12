@@ -1,6 +1,7 @@
 package com.nikolabojanic.validation;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import com.nikolabojanic.exception.TsValidationException;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -43,5 +44,15 @@ class WorkloadValidationTest {
             //assert
             .isInstanceOf(TsValidationException.class)
             .hasMessage("Username must be at least 4 characters long");
+    }
+
+    @Test
+    void validateUsernameTest() {
+        //arrange
+        String username = RandomStringUtils.randomAlphabetic(10);
+        //act
+        //assert
+        assertDoesNotThrow(() -> workloadValidation.validateUsernameNotNull(username));
+
     }
 }

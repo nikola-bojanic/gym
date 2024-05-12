@@ -2,7 +2,6 @@ package com.nikolabojanic.config.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nikolabojanic.service.security.LoginAttemptService;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -12,11 +11,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class CustomAuthenticationFailureHandler implements AuthenticationEntryPoint {
     private final LoginAttemptService loginAttemptService;
+    private final ObjectMapper objectMapper;
 
     @Override
     public void commence(
@@ -32,7 +33,6 @@ public class CustomAuthenticationFailureHandler implements AuthenticationEntryPo
         } else {
             message = "Username or password not correct";
         }
-        ObjectMapper objectMapper = new ObjectMapper();
         String jsonResponse = objectMapper.writeValueAsString(
             Collections.singletonMap("error", message));
         response.getWriter().write(jsonResponse);

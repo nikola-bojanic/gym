@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import com.nikolabojanic.dto.TrainingRequestDto;
 import com.nikolabojanic.exception.ScValidationException;
 import java.time.LocalDate;
+import java.util.List;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,99 +20,100 @@ class TrainingValidationTest {
     private TrainingValidation trainingValidation;
 
     @Test
-    void validateNullUsernameNotNullTest() {
+    void validateNullUsernameTest() {
         //given
         String username = null;
         //when
-        assertThatThrownBy(() -> trainingValidation.validateUsernameNotNull(username))
+        assertThatThrownBy(() -> trainingValidation.validateUsername(username))
             //then
             .isInstanceOf(ScValidationException.class)
             .hasMessage("Username must be at least 4 characters long");
     }
 
     @Test
-    void validateUsernameNotNullTest() {
+    void validateBlankUsernameTest() {
+        //given
+        String username = " ";
+        //when
+        assertThatThrownBy(() -> trainingValidation.validateUsername(username))
+            //then
+            .isInstanceOf(ScValidationException.class)
+            .hasMessage("Username must be at least 4 characters long");
+    }
+
+    @Test
+    void validateShortUsernameTest() {
+        //given
+        String username = null;
+        //when
+        assertThatThrownBy(() -> trainingValidation.validateUsername(username))
+            //then
+            .isInstanceOf(ScValidationException.class)
+            .hasMessage("Username must be at least 4 characters long");
+    }
+
+    @Test
+    void validateUsernameTest() {
         //given
         String username = RandomStringUtils.randomAlphabetic(10);
         //then
-        assertDoesNotThrow(() -> trainingValidation.validateUsernameNotNull(username));
+        assertDoesNotThrow(() -> trainingValidation.validateUsername(username));
     }
 
     @Test
-    void validateNullCreateTrainingRequestTest() {
-        //given
-        TrainingRequestDto training = null;
-        //when
-        assertThatThrownBy(() -> trainingValidation.validateCreateTrainingRequest(training))
-            //then
+    void validateNullId() {
+        //act
+        assertThatThrownBy(() -> trainingValidation.validateId(null))
+            //assert
             .isInstanceOf(ScValidationException.class)
-            .hasMessage("Cannot create training with null");
+            .hasMessage("Id must not be null");
+
     }
 
     @Test
-    void validateNullNameCreateTrainingRequestTest() {
+    void validateId() {
+        //arrange
+        Long id = Long.parseLong(RandomStringUtils.randomNumeric(5));
+        //assert
+        assertDoesNotThrow(() -> trainingValidation.validateId(id));
+    }
+
+    @Test
+    void validateNullNameNullDateNullDurationNullTraineeUsernameNullTrainerUsernameCreateTrainingRequestTest() {
         //given
+        List<String> message = List.of(
+            "Cannot create training without a name",
+            "Cannot create training without a date",
+            "Cannot create training without a duration",
+            "Cannot create training without a trainee username",
+            "Cannot create training without a trainer username"
+        );
         TrainingRequestDto training = new TrainingRequestDto();
         //when
         assertThatThrownBy(() -> trainingValidation.validateCreateTrainingRequest(training))
             //then
             .isInstanceOf(ScValidationException.class)
-            .hasMessage("Cannot create training without a name");
+            .hasMessage(message.toString());
     }
 
     @Test
-    void validateNullDateCreateTrainingRequestTest() {
+    void validateBlankNameCreateTrainingRequestTest() {
         //given
-        TrainingRequestDto training = new TrainingRequestDto();
-        training.setName(RandomStringUtils.randomAlphabetic(5));
+        List<String> message = List.of("Cannot create training without a name");
+        TrainingRequestDto training = new TrainingRequestDto(
+            RandomStringUtils.randomAlphabetic(5),
+            RandomStringUtils.randomAlphabetic(5),
+            " ",
+            LocalDate.now(),
+            Double.parseDouble(RandomStringUtils.randomNumeric(5))
+        );
         //when
         assertThatThrownBy(() -> trainingValidation.validateCreateTrainingRequest(training))
             //then
             .isInstanceOf(ScValidationException.class)
-            .hasMessage("Cannot create training without a date");
+            .hasMessage(message.toString());
     }
 
-    @Test
-    void validateNullDurationCreateTrainingRequestTest() {
-        //given
-        TrainingRequestDto training = new TrainingRequestDto();
-        training.setName(RandomStringUtils.randomAlphabetic(5));
-        training.setDate(LocalDate.now());
-        //when
-        assertThatThrownBy(() -> trainingValidation.validateCreateTrainingRequest(training))
-            //then
-            .isInstanceOf(ScValidationException.class)
-            .hasMessage("Cannot create training without a duration");
-    }
-
-    @Test
-    void validateNullTraineeUsernameCreateTrainingRequestTest() {
-        //given
-        TrainingRequestDto training = new TrainingRequestDto();
-        training.setName(RandomStringUtils.randomAlphabetic(5));
-        training.setDate(LocalDate.now());
-        training.setDuration(Double.parseDouble(RandomStringUtils.randomNumeric(5)));
-        //when
-        assertThatThrownBy(() -> trainingValidation.validateCreateTrainingRequest(training))
-            //then
-            .isInstanceOf(ScValidationException.class)
-            .hasMessage("Cannot create training without a trainee username");
-    }
-
-    @Test
-    void validateNullTrainerUsernameCreateTrainingRequestTest() {
-        //given
-        TrainingRequestDto training = new TrainingRequestDto();
-        training.setName(RandomStringUtils.randomAlphabetic(5));
-        training.setDate(LocalDate.now());
-        training.setDuration(Double.parseDouble(RandomStringUtils.randomNumeric(5)));
-        training.setTraineeUsername(RandomStringUtils.randomAlphabetic(10));
-        //when
-        assertThatThrownBy(() -> trainingValidation.validateCreateTrainingRequest(training))
-            //then
-            .isInstanceOf(ScValidationException.class)
-            .hasMessage("Cannot create training without a trainer username");
-    }
 
     @Test
     void validateCreateTrainingRequestTest() {

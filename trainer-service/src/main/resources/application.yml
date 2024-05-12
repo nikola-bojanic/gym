@@ -1,12 +1,15 @@
 app:
+  active-mq:
+    host: localhost
+    workload-queue: workload.queue
   jwt:
     key: 5pAq6zRyX8bC3dV2wS7gN1mK9jF0hL4tUoP6iBvE3nG8xZaQrY7cW2fA
     algorithm: HS256
-    issuer: main-service
-    expiresIn: 1d
 server:
   port: 8081
 spring:
+  profiles:
+    active:
   application:
     name: trainer-service
   datasource:
@@ -20,3 +23,13 @@ spring:
       ddl-auto: create-drop
   h2:
     console.enabled: true
+  activemq:
+    broker-url: tcp://${app.active-mq.host}:61616
+    user: admin
+    password: admin
+    packages:
+      trust-all: false
+      trusted: com.nikolabojanic
+  jms:
+    listener:
+      concurrency: 5

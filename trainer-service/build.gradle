@@ -18,7 +18,7 @@ sonar {
         property "sonar.projectKey", "trainer-service"
         property "sonar.projectName", "trainer-service"
         property "sonar.host.url", "http://localhost:9000"
-        property "sonar.token", "sqp_8b6ad7f1afe7d8dd68dd1791e24dc83756b7fd43"
+        property "sonar.token", "sqp_b497679a3829f41f1d7f2d67872be06e65f2239a"
         property "sonar.jacoco.reportPaths", "trainer-service/build/reports/jacoco/test/jacocoTestReport.xml"
         property "sonar.login", "admin"
         property "sonar.password", "sonar"
@@ -41,11 +41,11 @@ dependencyManagement {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-activemq'
     implementation 'com.h2database:h2:2.2.224'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-api:2.2.0'

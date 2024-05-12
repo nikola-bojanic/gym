@@ -5,7 +5,6 @@ import com.nikolabojanic.entity.UserEntity;
 import com.nikolabojanic.exception.ScEntityNotFoundException;
 import com.nikolabojanic.repository.UserRepository;
 import io.micrometer.core.instrument.Counter;
-import jakarta.transaction.Transactional;
 import java.security.SecureRandom;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +12,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -29,9 +29,10 @@ public class UserService {
      * @param totalTransactionsCounter The counter for tracking total transactions.
      * @param passwordEncoder          The password encoder for encoding user passwords.
      */
-    public UserService(UserRepository userRepository,
-                       Counter totalTransactionsCounter,
-                       @Lazy PasswordEncoder passwordEncoder) {
+    public UserService(
+        UserRepository userRepository,
+        Counter totalTransactionsCounter,
+        @Lazy PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.totalTransactionsCounter = totalTransactionsCounter;
         this.passwordEncoder = passwordEncoder;

@@ -1,5 +1,8 @@
+app:
+  active-mq:
+    workload-queue: workload.queue.local
 spring:
   datasource:
-    url: jdbc:postgresql://${app.db-host}:5432/spring-rest-local
+    url: jdbc:postgresql://${app.postgres.host}:5432/spring-rest-local
     username: local
     password: local

@@ -10,7 +10,6 @@ import com.nikolabojanic.enumeration.UserRole;
 import com.nikolabojanic.exception.ScEntityNotFoundException;
 import com.nikolabojanic.repository.TrainerRepository;
 import io.micrometer.core.instrument.Counter;
-import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
@@ -18,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @AllArgsConstructor

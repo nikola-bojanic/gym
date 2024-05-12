@@ -7,7 +7,6 @@ import com.nikolabojanic.entity.TrainerEntity;
 import com.nikolabojanic.entity.TrainingEntity;
 import com.nikolabojanic.exception.TsEntityNotFoundException;
 import com.nikolabojanic.repository.TrainerRepository;
-import jakarta.transaction.Transactional;
 import java.time.Month;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -17,8 +16,9 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-@Transactional
+@Transactional("transactionManager")
 @Service
 @RequiredArgsConstructor
 @Slf4j

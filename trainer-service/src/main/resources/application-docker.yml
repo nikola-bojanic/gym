@@ -1,0 +1,9 @@
+app:
+  active-mq:
+    host: activemq-docker
+    workload-queue: workload.queue.docker
+spring:
+  activemq:
+    broker-url: tcp://${app.active-mq.host}:61616
+    user: docker
+    password: docker
