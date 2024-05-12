@@ -13,10 +13,10 @@ java {
 
 sonar {
     properties {
-        property "sonar.projectKey", "spring-core"
-        property "sonar.projectName", "spring-core"
+        property "sonar.projectKey", "spring-hibernate"
+        property "sonar.projectName", "spring-hibernate"
         property "sonar.host.url", "http://localhost:9002"
-        property "sonar.token", "sqp_1a61a5a841a42c01c5370b71d4f03f556dd09eff"
+        property "sonar.token", "sqp_dac6f85f4b1511783cdfc0cc9e534163c028933b"
         property "sonar.jacoco.reportPaths", "build/reports/jacoco/test/jacocoTestReport.xml"
         property "sonar.login", "admin"
         property "sonar.password", "sonar"
@@ -42,13 +42,16 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.30'
     implementation 'org.slf4j:slf4j-api:1.7.32'
     implementation 'org.slf4j:slf4j-simple:1.7.32'
-
+    implementation 'org.hibernate:hibernate-core:6.4.0.Final'
+    implementation 'org.postgresql:postgresql:42.7.0'
+    implementation 'org.springframework:spring-orm:6.1.1'
 }
 
 test {
     useJUnitPlatform()
     finalizedBy jacocoTestReport
 }
+
 jacocoTestReport {
     dependsOn test
     reports {

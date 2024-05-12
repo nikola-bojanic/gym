@@ -1,5 +1,6 @@
 package com.nikolabojanic.model;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -15,41 +16,44 @@ class TrainingTypeTest {
 
     @Test
     void setAndGetTrainingTypeTest() {
-        List<Training> trainings = new ArrayList<>();
-        List<Trainer> trainers = new ArrayList<>();
-        TrainingType type = new TrainingType();
+        TrainingTypeEntity type = new TrainingTypeEntity();
+        Long id = Long.parseLong(RandomStringUtils.randomNumeric(3, 6));
+        List<TrainerEntity> trainers = new ArrayList<>();
+        List<TrainingEntity> trainings = new ArrayList<>();
+        String name = RandomStringUtils.randomAlphabetic(3, 6);
 
-        type.setId(1L);
+        type.setId(id);
+        type.setName(name);
         type.setTrainings(trainings);
         type.setTrainers(trainers);
-        type.setName("name");
 
-        assertEquals(1L, type.getId());
-        assertEquals(trainers, type.getTrainers());
+        assertEquals(id, type.getId());
+        assertEquals(name, type.getName());
         assertEquals(trainings, type.getTrainings());
-        assertEquals("name", type.getName());
+        assertEquals(trainers, type.getTrainers());
     }
 
     @Test
     void allArgsConstructorTest() {
-        List<Training> trainings = new ArrayList<>();
-        List<Trainer> trainers = new ArrayList<>();
-        TrainingType type = new TrainingType(1L, "name", trainings, trainers);
+        Long id = Long.parseLong(RandomStringUtils.randomNumeric(3, 6));
+        List<TrainerEntity> trainers = new ArrayList<>();
+        List<TrainingEntity> trainings = new ArrayList<>();
+        String name = RandomStringUtils.randomAlphabetic(3, 6);
+        TrainingTypeEntity type = new TrainingTypeEntity(id, name, trainers, trainings);
 
-        assertEquals(1L, type.getId());
+        assertEquals(id, type.getId());
+        assertEquals(name, type.getName());
         assertEquals(trainers, type.getTrainers());
         assertEquals(trainings, type.getTrainings());
-        assertEquals("name", type.getName());
     }
 
     @Test
     void noArgsConstructorTest() {
-        TrainingType type = new TrainingType();
+        TrainingTypeEntity type = new TrainingTypeEntity();
 
-        assertNull(type.getTrainings());
         assertNull(type.getId());
-        assertNull(type.getTrainers());
         assertNull(type.getName());
+        assertNull(type.getTrainers());
+        assertNull(type.getTrainings());
     }
-
 }

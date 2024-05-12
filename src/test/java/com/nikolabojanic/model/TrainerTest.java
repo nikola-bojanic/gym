@@ -1,11 +1,12 @@
 package com.nikolabojanic.model;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -15,49 +16,52 @@ class TrainerTest {
 
     @Test
     void setAndGetTrainer() {
-        User user = new User();
-        TrainingType specialization = new TrainingType();
-        Set<Training> trainings = new HashSet<>();
-        Set<Trainee> trainees = new HashSet<>();
-        Trainer trainer = new Trainer();
+        UserEntity user = new UserEntity();
+        TrainingTypeEntity specialization = new TrainingTypeEntity();
+        TrainerEntity trainer = new TrainerEntity();
+        List<TrainingEntity> trainings = new ArrayList<>();
+        List<TraineeEntity> trainees = new ArrayList<>();
+        Long id = Long.parseLong(RandomStringUtils.randomNumeric(3, 6));
 
-        trainer.setId(1L);
-        trainer.setTrainees(trainees);
+        trainer.setId(id);
         trainer.setUser(user);
-        trainer.setTrainings(trainings);
         trainer.setSpecialization(specialization);
+        trainer.setTrainees(trainees);
+        trainer.setTrainings(trainings);
 
-        assertEquals(1L, trainer.getId());
-        assertEquals(trainees, trainer.getTrainees());
-        assertEquals(trainings, trainer.getTrainings());
+        assertEquals(id, trainer.getId());
         assertEquals(user, trainer.getUser());
         assertEquals(specialization, trainer.getSpecialization());
+        assertEquals(trainings, trainer.getTrainings());
+        assertEquals(trainees, trainer.getTrainees());
     }
 
     @Test
     void allArgsConstructorTest() {
-        User user = new User();
-        TrainingType specialization = new TrainingType();
-        Set<Training> trainings = new HashSet<>();
-        Set<Trainee> trainees = new HashSet<>();
-        Trainer trainer = new Trainer(1L, user, trainees, trainings, specialization);
+        UserEntity user = new UserEntity();
+        TrainingTypeEntity specialization = new TrainingTypeEntity();
+        List<TrainingEntity> trainings = new ArrayList<>();
+        List<TraineeEntity> trainees = new ArrayList<>();
+        Long id = Long.parseLong(RandomStringUtils.randomNumeric(3, 6));
 
-        assertEquals(1L, trainer.getId());
-        assertEquals(trainees, trainer.getTrainees());
-        assertEquals(trainings, trainer.getTrainings());
+        TrainerEntity trainer = new TrainerEntity(id, user, specialization, trainees, trainings);
+
+        assertEquals(id, trainer.getId());
         assertEquals(user, trainer.getUser());
         assertEquals(specialization, trainer.getSpecialization());
+        assertEquals(trainings, trainer.getTrainings());
+        assertEquals(trainees, trainer.getTrainees());
     }
 
     @Test
     void noArgsConstructorTest() {
-        Trainer trainer = new Trainer();
+        TrainerEntity trainer = new TrainerEntity();
 
         assertNull(trainer.getSpecialization());
         assertNull(trainer.getId());
-        assertEquals(new HashSet<Trainee>(), trainer.getTrainees());
-        assertEquals(new HashSet<Training>(), trainer.getTrainings());
         assertNull(trainer.getUser());
+        assertNull(trainer.getTrainees());
+        assertNull(trainer.getTrainings());
     }
 
 }

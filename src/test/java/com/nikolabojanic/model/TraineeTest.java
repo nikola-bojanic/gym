@@ -1,12 +1,13 @@
 package com.nikolabojanic.model;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -16,55 +17,57 @@ class TraineeTest {
 
     @Test
     void setAndGetTraineeTest() {
-        //Arrange
-        Trainee trainee = new Trainee();
-        User user = new User();
-        Set<Trainer> trainers = new HashSet<>();
-        Set<Training> trainings = new HashSet<>();
+        TraineeEntity trainee = new TraineeEntity();
+        UserEntity user = new UserEntity();
+        List<TrainerEntity> trainers = new ArrayList<>();
+        List<TrainingEntity> trainings = new ArrayList<>();
         LocalDate date = LocalDate.of(2023, 11, 22);
-        //Act
-        trainee.setId(1L);
+        String address = RandomStringUtils.randomAlphabetic(3, 6);
+        Long id = Long.parseLong(RandomStringUtils.randomNumeric(3, 6));
+
+        trainee.setId(id);
         trainee.setUser(user);
-        trainee.setAddress("address");
-        trainee.setTrainings(trainings);
-        trainee.setTrainers(trainers);
+        trainee.setAddress(address);
         trainee.setDateOfBirth(date);
-        //Assert
-        assertEquals(1L, trainee.getId());
-        assertEquals("address", trainee.getAddress());
-        assertEquals(trainings, trainee.getTrainings());
-        assertEquals(trainers, trainee.getTrainers());
+        trainee.setTrainers(trainers);
+        trainee.setTrainings(trainings);
+
+        assertEquals(id, trainee.getId());
+        assertEquals(address, trainee.getAddress());
         assertEquals(user, trainee.getUser());
         assertEquals(date, trainee.getDateOfBirth());
+        assertEquals(trainers, trainee.getTrainers());
+        assertEquals(trainings, trainee.getTrainings());
     }
 
     @Test
     void allArgsConstructorTest() {
-        //Arrange and act
-        User user = new User();
-        Set<Trainer> trainers = new HashSet<>();
-        Set<Training> trainings = new HashSet<>();
+        UserEntity user = new UserEntity();
+        List<TrainerEntity> trainers = new ArrayList<>();
+        List<TrainingEntity> trainings = new ArrayList<>();
         LocalDate date = LocalDate.of(2023, 11, 22);
-        Trainee trainee = new Trainee(1L, date, "address", user, trainers, trainings);
-        //Assert
-        assertEquals(1L, trainee.getId());
-        assertEquals("address", trainee.getAddress());
-        assertEquals(trainings, trainee.getTrainings());
-        assertEquals(trainers, trainee.getTrainers());
+        String address = RandomStringUtils.randomAlphabetic(3, 6);
+        Long id = Long.parseLong(RandomStringUtils.randomNumeric(3, 6));
+
+        TraineeEntity trainee = new TraineeEntity(id, date, address, user, trainers, trainings);
+
+        assertEquals(id, trainee.getId());
+        assertEquals(address, trainee.getAddress());
         assertEquals(user, trainee.getUser());
         assertEquals(date, trainee.getDateOfBirth());
+        assertEquals(trainers, trainee.getTrainers());
+        assertEquals(trainings, trainee.getTrainings());
     }
 
     @Test
     void noArgsConstructorTest() {
-        //Arrange and act
-        Trainee trainee = new Trainee();
-        //Assert
+        TraineeEntity trainee = new TraineeEntity();
+
         assertNull(trainee.getId());
         assertNull(trainee.getAddress());
-        assertEquals(new HashSet<Training>(), trainee.getTrainings());
-        assertEquals(new HashSet<Trainer>(), trainee.getTrainers());
         assertNull(trainee.getUser());
         assertNull(trainee.getDateOfBirth());
+        assertNull(trainee.getTrainings());
+        assertNull(trainee.getTrainers());
     }
 }

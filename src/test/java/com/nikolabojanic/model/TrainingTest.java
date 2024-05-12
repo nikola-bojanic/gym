@@ -1,5 +1,6 @@
 package com.nikolabojanic.model;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -14,24 +15,27 @@ class TrainingTest {
 
     @Test
     void setAndGetTrainingTest() {
-        Trainer trainer = new Trainer();
-        Trainee trainee = new Trainee();
+        TrainerEntity trainer = new TrainerEntity();
+        TraineeEntity trainee = new TraineeEntity();
         LocalDate date = LocalDate.of(2023, 11, 22);
-        TrainingType type = new TrainingType();
-        Training training = new Training();
+        TrainingTypeEntity type = new TrainingTypeEntity();
+        TrainingEntity training = new TrainingEntity();
+        Long id = Long.parseLong(RandomStringUtils.randomNumeric(3, 6));
+        String name = RandomStringUtils.randomAlphabetic(3, 6);
+        Double duration = Double.parseDouble(RandomStringUtils.randomNumeric(3, 6));
 
-        training.setId(1L);
+        training.setId(id);
         training.setDate(date);
-        training.setDuration(10.0);
+        training.setDuration(duration);
         training.setTrainer(trainer);
         training.setTrainee(trainee);
-        training.setName("name");
+        training.setName(name);
         training.setType(type);
 
-        assertEquals(1L, training.getId());
+        assertEquals(id, training.getId());
         assertEquals(date, training.getDate());
-        assertEquals(10.0, training.getDuration());
-        assertEquals("name", training.getName());
+        assertEquals(duration, training.getDuration());
+        assertEquals(name, training.getName());
         assertEquals(trainee, training.getTrainee());
         assertEquals(trainer, training.getTrainer());
         assertEquals(type, training.getType());
@@ -39,17 +43,20 @@ class TrainingTest {
 
     @Test
     void allArgsConstructorTest() {
-        Trainer trainer = new Trainer();
-        Trainee trainee = new Trainee();
+        TrainerEntity trainer = new TrainerEntity();
+        TraineeEntity trainee = new TraineeEntity();
         LocalDate date = LocalDate.of(2023, 11, 22);
-        TrainingType type = new TrainingType();
+        Long id = Long.parseLong(RandomStringUtils.randomNumeric(3, 6));
+        String name = RandomStringUtils.randomAlphabetic(3, 6);
+        Double duration = Double.parseDouble(RandomStringUtils.randomNumeric(3, 6));
+        TrainingTypeEntity type = new TrainingTypeEntity();
 
-        Training training = new Training(1L, trainee, trainer, "name", type, date, 10.0);
+        TrainingEntity training = new TrainingEntity(id, trainee, trainer, name, type, date, duration);
 
-        assertEquals(1L, training.getId());
+        assertEquals(id, training.getId());
         assertEquals(date, training.getDate());
-        assertEquals(10.0, training.getDuration());
-        assertEquals("name", training.getName());
+        assertEquals(duration, training.getDuration());
+        assertEquals(name, training.getName());
         assertEquals(trainee, training.getTrainee());
         assertEquals(trainer, training.getTrainer());
         assertEquals(type, training.getType());
@@ -58,8 +65,7 @@ class TrainingTest {
 
     @Test
     void noArgsConstructorTest() {
-
-        Training training = new Training();
+        TrainingEntity training = new TrainingEntity();
 
         assertNull(training.getDate());
         assertNull(training.getId());

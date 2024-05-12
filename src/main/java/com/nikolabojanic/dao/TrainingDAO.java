@@ -1,11 +1,15 @@
 package com.nikolabojanic.dao;
 
-import com.nikolabojanic.model.Training;
+import com.nikolabojanic.model.TrainingEntity;
 
-import java.util.Optional;
+import java.time.LocalDate;
+import java.util.List;
 
 public interface TrainingDAO {
-    Optional<Training> findById(Long id);
 
-    Training save(Training training);
+    TrainingEntity save(TrainingEntity training);
+
+    List<TrainingEntity> findByTraineeIdAndDate(Long id, LocalDate beginDate, LocalDate endDate);
+
+    List<TrainingEntity> findByTrainerIdAndDate(Long id, LocalDate beginDate, LocalDate endDate);
 }

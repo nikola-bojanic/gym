@@ -1,16 +1,22 @@
 package com.nikolabojanic.dao;
 
-import com.nikolabojanic.model.Trainee;
+import com.nikolabojanic.model.TraineeEntity;
+import com.nikolabojanic.model.TrainerEntity;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface TraineeDAO {
-    List<Trainee> getAll();
 
-    Optional<Trainee> findById(Long id);
+    Optional<TraineeEntity> findById(Long id);
 
-    Void delete(Long id);
+    void delete(Long id);
 
-    Trainee save(Trainee trainee);
+    TraineeEntity save(TraineeEntity trainee);
+
+    Optional<TraineeEntity> findByUserId(Long id);
+
+    TraineeEntity saveTrainers(TraineeEntity trainee, List<TrainerEntity> trainers);
+
+    void changeActiveStatus(TraineeEntity trainee);
 }
