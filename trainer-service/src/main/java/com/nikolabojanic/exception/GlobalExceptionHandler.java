@@ -26,7 +26,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(TsValidationException.class)
     public ResponseEntity<Object> handleTsValidationException(TsValidationException e, WebRequest request) {
-        return handle(e, HttpStatus.NOT_FOUND, request);
+        return handle(e, HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(TsIllegalOperationException.class)
+    public ResponseEntity<Object> handleTsIllegalOperationException(TsIllegalOperationException e, WebRequest request) {
+        return handle(e, HttpStatus.BAD_REQUEST, request);
     }
 
     @Override
@@ -47,7 +53,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return handle(e, HttpStatus.BAD_REQUEST, request);
     }
 
-    private ResponseEntity<Object> handle(Exception e, HttpStatusCode status, WebRequest request) {
+    private ResponseEntity<Object> handle(RuntimeException e, HttpStatusCode status, WebRequest request) {
         log.error(e.getMessage(), e);
         return handleExceptionInternal(e, e.getMessage(), new HttpHeaders(), status, request);
     }

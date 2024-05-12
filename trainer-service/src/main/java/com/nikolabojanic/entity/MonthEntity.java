@@ -1,4 +1,4 @@
-package com.nikolabojanic.dto;
+package com.nikolabojanic.entity;
 
 import java.time.Month;
 import lombok.AllArgsConstructor;
@@ -6,11 +6,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Setter
 @Getter
-@NoArgsConstructor
+@Setter
 @AllArgsConstructor
-public class MonthDto {
+@NoArgsConstructor
+public class MonthEntity {
     private Month month;
     private Double trainingSummary;
 }

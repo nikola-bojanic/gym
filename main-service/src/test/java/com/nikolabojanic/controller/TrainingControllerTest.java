@@ -3,7 +3,6 @@ package com.nikolabojanic.controller;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -49,13 +48,12 @@ class TrainingControllerTest {
         doNothing().when(trainingValidation).validateCreateTrainingRequest(any(TrainingRequestDto.class));
         when(trainingConverter.convertToEntity(any(TrainingRequestDto.class)))
             .thenReturn(new TrainingEntity());
-        when(trainingService.create(any(TrainingEntity.class), anyString()))
+        when(trainingService.create(any(TrainingEntity.class)))
             .thenReturn(new TrainingEntity());
         when(trainingConverter.convertToDto(any(TrainingEntity.class)))
             .thenReturn(new TrainingResponseDto());
         //when
-        ResponseEntity<TrainingResponseDto> response = trainingController.createTraining(
-            new TrainingRequestDto(), RandomStringUtils.randomAlphabetic(10));
+        ResponseEntity<TrainingResponseDto> response = trainingController.createTraining(new TrainingRequestDto());
         //then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
@@ -87,13 +85,12 @@ class TrainingControllerTest {
         //arrange
         doNothing().when(trainingEndpointsHitCounter).increment();
         doNothing().when(trainingValidation).validateId(anyLong());
-        when(trainingService.deleteTraining(anyLong(), anyString())).thenReturn(new TrainingEntity());
+        when(trainingService.deleteTraining(anyLong())).thenReturn(new TrainingEntity());
         //act
         trainingController.deleteTraining(
-            Long.parseLong(RandomStringUtils.randomNumeric(5)),
-            RandomStringUtils.randomAlphabetic(5));
+            Long.parseLong(RandomStringUtils.randomNumeric(5)));
         //assert
-        verify(trainingService, times(1)).deleteTraining(anyLong(), anyString());
+        verify(trainingService, times(1)).deleteTraining(anyLong());
     }
 
     @Test

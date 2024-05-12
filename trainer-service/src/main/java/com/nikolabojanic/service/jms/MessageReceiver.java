@@ -18,7 +18,7 @@ public class MessageReceiver {
     /**
      * Listens for messages from the specified JMS destination (queue) and processes them asynchronously.
      *
-     * @param requestDto The payload of the received JMS message, representing a workload request for a trainer.
+     * @param requestDto The payload of the received JMS message, representing a trainer's training update request.
      * @param traceId    The trace ID extracted from the JMS message header for logging and traceability.
      */
     @JmsListener(destination = "${app.active-mq.workload-queue}", concurrency = "${spring.jms.listener.concurrency}")
@@ -26,7 +26,7 @@ public class MessageReceiver {
         @Payload TrainerWorkloadRequestDto requestDto,
         @Header("traceId") String traceId) {
         MDC.put("traceId", traceId);
-        log.info("Received workload for trainer {}", requestDto.getUsername());
+        log.info("Received training summary update for trainer {}", requestDto.getUsername());
         messageProcessingService.processMessage(requestDto);
     }
 }

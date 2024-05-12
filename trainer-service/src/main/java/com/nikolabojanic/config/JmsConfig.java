@@ -14,7 +14,6 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
 import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.jms.support.converter.MessageType;
-import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
@@ -62,10 +61,6 @@ public class JmsConfig {
         return new JmsTransactionManager(connectionFactory);
     }
 
-    @Bean
-    public PlatformTransactionManager transactionManager() {
-        return new JpaTransactionManager();
-    }
 
     /**
      * Creates a {@link JmsTemplate} bean for sending and receiving JMS messages within a Spring application.

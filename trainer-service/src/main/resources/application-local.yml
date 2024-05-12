@@ -1,3 +1,7 @@
 app:
   active-mq:
     workload-queue: workload.queue.local
+spring:
+  data:
+    mongodb:
+      database: workload-dev

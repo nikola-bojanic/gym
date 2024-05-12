@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -61,7 +60,6 @@ public class TrainingController {
      * Controller method to create a new training.
      *
      * @param requestDto The data representing the training creation request.
-     * @param jwt        The Authorization token in the request header for user authentication.
      * @return ResponseEntity containing the TrainingResponseDto and HTTP status.
      */
     @PostMapping(consumes = "application/json", produces = "application/json")
@@ -72,12 +70,11 @@ public class TrainingController {
         @ApiResponse(responseCode = "400", description = "Application failed to process the request")
     })
     public ResponseEntity<TrainingResponseDto> createTraining(
-        @RequestBody TrainingRequestDto requestDto,
-        @RequestHeader("Authorization") String jwt) {
+        @RequestBody TrainingRequestDto requestDto) {
         trainingEndpointsHitCounter.increment();
         trainingValidation.validateCreateTrainingRequest(requestDto);
         TrainingEntity domainModel = trainingConverter.convertToEntity(requestDto);
-        TrainingEntity created = trainingService.create(domainModel, jwt);
+        TrainingEntity created = trainingService.create(domainModel);
         TrainingResponseDto responseDto = trainingConverter.convertToDto(created);
         log.info("Successfully created a training. Training id: {} Status: {}", created.getId(), HttpStatus.OK.value());
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
@@ -86,8 +83,7 @@ public class TrainingController {
     /**
      * Controller method to delete a training by its ID.
      *
-     * @param id  The unique identifier of the training to be deleted.
-     * @param jwt The Authorization token in the request header for user authentication.
+     * @param id The unique identifier of the training to be deleted.
      * @return ResponseEntity with HTTP status indicating the success of the training deletion.
      */
     @DeleteMapping(produces = "application/json", value = "/{id}")
@@ -98,11 +94,10 @@ public class TrainingController {
         @ApiResponse(responseCode = "400", description = "Application failed to process the request")
     })
     public ResponseEntity<Void> deleteTraining(
-        @PathVariable("id") Long id,
-        @RequestHeader("Authorization") String jwt) {
+        @PathVariable("id") Long id) {
         trainingEndpointsHitCounter.increment();
         trainingValidation.validateId(id);
-        trainingService.deleteTraining(id, jwt);
+        trainingService.deleteTraining(id);
         log.info("Successfully deleted a training.Status: {}", HttpStatus.OK.value());
         return ResponseEntity.noContent().build();
     }

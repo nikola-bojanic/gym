@@ -11,5 +11,5 @@ spring:
     password: docker
   activemq:
     broker-url: tcp://${app.active-mq.host}:61616
-    user: docker
-    password: docker
+    user: admin
+    password: admin

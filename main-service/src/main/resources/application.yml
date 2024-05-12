@@ -13,8 +13,6 @@ cors:
   allowed-methods: OPTIONS, HEAD, GET, PUT, POST, DELETE, PATCH
   allowed-headers: Authorization
 spring:
-  profiles:
-    active:
   application:
     name: main-service
   liquibase:

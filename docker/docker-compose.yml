@@ -15,8 +15,8 @@ services:
     container_name: activemq-docker
     image: apache/activemq-artemis:2.32.0-alpine
     environment:
-      ARTEMIS_USER: docker
-      ARTEMIS_PASSWORD: docker
+      ARTEMIS_USER: admin
+      ARTEMIS_PASSWORD: admin
     ports:
       - 61616:61616
       - 8161:8161
@@ -56,6 +56,11 @@ services:
       - ../main-service/grafana/dashboards:/var/lib/grafana/dashboards
     depends_on:
       - prometheus
+  mongodb:
+    container_name: mongodb
+    image: mongo:7.0.5
+    ports:
+      - "27018:27017"
   trainer-service:
     container_name: trainer-service
     build:
@@ -65,5 +70,6 @@ services:
       - "8081:8081"
     depends_on:
       - activemq-docker
+      - mongodb
 volumes:
   postgres_data:

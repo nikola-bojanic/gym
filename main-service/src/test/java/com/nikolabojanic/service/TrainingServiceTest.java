@@ -57,7 +57,7 @@ class TrainingServiceTest {
         when(trainingRepository.save(any(TrainingEntity.class))).thenReturn(new TrainingEntity());
         when(trainerService.findByUsername(anyString())).thenReturn(trainer);
         //act
-        TrainingEntity addedTraining = trainingService.create(training, RandomStringUtils.randomAlphabetic(5));
+        TrainingEntity addedTraining = trainingService.create(training);
         //assert
         assertThat(addedTraining).isNotNull();
     }
@@ -79,7 +79,7 @@ class TrainingServiceTest {
         when(trainingTypeService.findById(anyLong())).thenReturn(type);
         when(trainingRepository.save(training)).thenReturn(new TrainingEntity());
         //act
-        TrainingEntity savedTraining = trainingService.create(training, RandomStringUtils.randomAlphabetic(5));
+        TrainingEntity savedTraining = trainingService.create(training);
         //assert
         assertThat(savedTraining).isNotNull();
     }
@@ -101,7 +101,7 @@ class TrainingServiceTest {
         when(trainerService.findByUsername(anyString())).thenReturn(trainer);
         when(trainingRepository.save(training)).thenReturn(new TrainingEntity());
         //act
-        TrainingEntity savedTraining = trainingService.create(training, RandomStringUtils.randomAlphabetic(5));
+        TrainingEntity savedTraining = trainingService.create(training);
         //assert
         assertThat(savedTraining).isNotNull();
     }
@@ -127,7 +127,7 @@ class TrainingServiceTest {
         when(trainerService.findByUsername(anyString())).thenReturn(trainer);
         when(trainingRepository.save(training)).thenReturn(new TrainingEntity());
         //act
-        TrainingEntity savedTraining = trainingService.create(training, RandomStringUtils.randomAlphabetic(5));
+        TrainingEntity savedTraining = trainingService.create(training);
         //assert
         assertThat(savedTraining).isNotNull();
     }
@@ -165,8 +165,7 @@ class TrainingServiceTest {
         doNothing().when(trainingRepository).deleteById(anyLong());
         //act
         TrainingEntity deletedTraining =
-            trainingService.deleteTraining(Long.parseLong(RandomStringUtils.randomNumeric(5)),
-                RandomStringUtils.randomAlphabetic(5));
+            trainingService.deleteTraining(Long.parseLong(RandomStringUtils.randomNumeric(5)));
         //assert
         assertThat(deletedTraining).isNotNull();
     }
@@ -178,7 +177,7 @@ class TrainingServiceTest {
         when(trainingRepository.findById(anyLong())).thenReturn(Optional.empty());
         Long id = Long.parseLong(RandomStringUtils.randomNumeric(5));
         //act
-        assertThatThrownBy(() -> trainingService.deleteTraining(id, RandomStringUtils.randomAlphabetic(5)))
+        assertThatThrownBy(() -> trainingService.deleteTraining(id))
             //assert
             .isInstanceOf(ScEntityNotFoundException.class).hasMessage("Training with id " + id + " doesn't exist");
 
