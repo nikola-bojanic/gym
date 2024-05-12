@@ -21,4 +21,8 @@ public interface TokenRepository extends JpaRepository<TokenEntity, Long> {
     @Query("DELETE FROM TokenEntity WHERE user.id = :id "
         + "AND data != :data")
     void deleteInvalidTokens(Long id, String data);
+
+    @Modifying
+    @Query("DELETE FROM TokenEntity WHERE user.id = :id")
+    void deleteForUser(Long id);
 }

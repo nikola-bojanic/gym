@@ -50,6 +50,10 @@ public class TokenService {
             .orElse(false);
     }
 
+    public void deleteForUser(Long id) {
+        tokenRepository.deleteForUser(id);
+    }
+
     public void deleteInvalidUserTokens(Long id, String data) {
         log.info("Deleting old tokens for user: {}", id);
         tokenRepository.deleteInvalidTokens(id, data);

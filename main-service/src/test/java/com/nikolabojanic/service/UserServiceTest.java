@@ -58,7 +58,7 @@ class UserServiceTest {
         UserPasswordChangeRequestDto requestDto = new UserPasswordChangeRequestDto();
         requestDto.setNewPassword(RandomStringUtils.randomAlphabetic(10));
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(new UserEntity()));
-        when(passwordEncoder.encode(anyString())).thenReturn(new String());
+        when(passwordEncoder.encode(anyString())).thenReturn("");
         when(userRepository.save(any(UserEntity.class))).thenReturn(new UserEntity());
         //act
         UserEntity user = userService.changeUserPassword(

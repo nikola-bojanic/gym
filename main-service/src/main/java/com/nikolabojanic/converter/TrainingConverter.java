@@ -41,6 +41,7 @@ public class TrainingConverter {
      */
     public TrainingResponseDto convertToDto(TrainingEntity domainModel) {
         TrainingResponseDto dto = new TrainingResponseDto();
+        dto.setId(domainModel.getId());
         dto.setName(domainModel.getName());
         dto.setDuration(domainModel.getDuration());
         dto.setDate(domainModel.getDate());

@@ -1,3 +1,5 @@
 rootProject.name = 'microservices'
 include 'trainer-service'
 include 'main-service'
+include 'integration-service'
+

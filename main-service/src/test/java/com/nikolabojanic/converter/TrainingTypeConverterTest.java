@@ -2,6 +2,7 @@ package com.nikolabojanic.converter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.nikolabojanic.dto.TrainingTypeRequestDto;
 import com.nikolabojanic.dto.TrainingTypeResponseDto;
 import com.nikolabojanic.entity.TrainingTypeEntity;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -36,5 +37,16 @@ class TrainingTypeConverterTest {
         //then
         assertThat(responseDto.getId()).isEqualTo(type.getId());
         assertThat(responseDto.getName()).isEqualTo(type.getName());
+    }
+
+    @Test
+    void convertDtoToModelTest() {
+        //assert
+        TrainingTypeRequestDto requestDto = new TrainingTypeRequestDto();
+        requestDto.setName(RandomStringUtils.randomAlphabetic(5));
+        //when
+        TrainingTypeEntity type = trainingTypeConverter.convertDtoToModel(requestDto);
+        //then
+        assertThat(type.getName()).isEqualTo(requestDto.getName());
     }
 }

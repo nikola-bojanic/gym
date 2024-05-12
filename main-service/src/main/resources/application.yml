@@ -35,8 +35,6 @@ spring:
     packages:
       trust-all: false
       trusted: com.nikolabojanic
-    queue:
-      deadLetterQueue: DLQ
 management:
   endpoints:
     web:

@@ -18,7 +18,7 @@ sonar {
         property "sonar.projectKey", "trainer-service"
         property "sonar.projectName", "trainer-service"
         property "sonar.host.url", "http://localhost:9000"
-        property "sonar.token", "sqp_b497679a3829f41f1d7f2d67872be06e65f2239a"
+        property "sonar.token", "sqp_96c2379c29449cba4ba53b587d0c49fe692f425e"
         property "sonar.jacoco.reportPaths", "trainer-service/build/reports/jacoco/test/jacocoTestReport.xml"
         property "sonar.login", "admin"
         property "sonar.password", "sonar"
@@ -46,7 +46,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-activemq'
-    implementation 'com.h2database:h2:2.2.224'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-api:2.2.0'
     compileOnly 'org.projectlombok:lombok:1.18.30'
@@ -56,11 +55,22 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'org.assertj:assertj-core:3.24.2'
+    testImplementation 'io.rest-assured:rest-assured:5.4.0'
+    testImplementation 'org.testcontainers:testcontainers:1.19.6'
+    testImplementation 'org.testcontainers:junit-jupiter:1.19.6'
+    testImplementation "org.testcontainers:mongodb:1.19.6"
 }
 
 test {
     useJUnitPlatform()
     finalizedBy jacocoTestReport
+    exclude '**/*IT.class'
+}
+
+task integrationTest(type: Test) {
+    group 'verification'
+    useJUnitPlatform()
+    include '**/*IT.class'
 }
 
 jacocoTestReport {

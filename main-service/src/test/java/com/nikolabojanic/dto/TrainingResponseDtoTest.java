@@ -36,6 +36,7 @@ class TrainingResponseDtoTest {
     @Test
     void allArgsConstructorTest() {
         //given
+        Long id = Long.parseLong(RandomStringUtils.randomNumeric(5));
         String traineeUsername = RandomStringUtils.randomAlphabetic(5);
         String trainerUsername = RandomStringUtils.randomAlphabetic(5);
         String name = RandomStringUtils.randomAlphabetic(5);
@@ -43,12 +44,14 @@ class TrainingResponseDtoTest {
         Double duration = Double.parseDouble(RandomStringUtils.randomNumeric(5));
         //when
         TrainingResponseDto responseDto = new TrainingResponseDto(
+            id,
             traineeUsername,
             trainerUsername,
             name,
             date,
             duration);
         //then
+        assertThat(responseDto.getId()).isEqualTo(id);
         assertThat(responseDto.getTraineeUsername()).isEqualTo(traineeUsername);
         assertThat(responseDto.getTrainerUsername()).isEqualTo(trainerUsername);
         assertThat(responseDto.getName()).isEqualTo(name);

@@ -22,7 +22,7 @@ sonar {
         property "sonar.projectKey", "main-service"
         property "sonar.projectName", "main-service"
         property "sonar.host.url", "http://localhost:9000"
-        property "sonar.token", "sqp_d0d492193ca65ff92686488fa296a46875195801"
+        property "sonar.token", "sqp_7b8c35ccdc8ef9d2305cf49a3052915d3b628edc"
         property "sonar.jacoco.reportPaths", "main-service/build/reports/jacoco/test/jacocoTestReport.xml"
         property "sonar.login", "admin"
         property "sonar.password", "sonar"
@@ -62,11 +62,26 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'org.assertj:assertj-core:3.24.2'
+    testImplementation('io.rest-assured:rest-assured:5.4.0') {
+        exclude group: 'org.apache.groovy', module: 'groovy'
+        exclude group: 'org.apache.groovy', module: 'groovy-xml'
+    }
+    testImplementation 'org.testcontainers:testcontainers:1.19.6'
+    testImplementation 'org.testcontainers:junit-jupiter:1.19.6'
+    testImplementation 'org.testcontainers:postgresql:1.19.6'
 }
+
 
 test {
     useJUnitPlatform()
     finalizedBy jacocoTestReport
+    exclude '**/*IT.class'
+}
+
+task integrationTest(type: Test) {
+    group 'verification'
+    useJUnitPlatform()
+    include '**/*IT.class'
 }
 
 jacocoTestReport {

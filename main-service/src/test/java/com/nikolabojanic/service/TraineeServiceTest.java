@@ -3,6 +3,7 @@ package com.nikolabojanic.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
@@ -13,6 +14,7 @@ import com.nikolabojanic.entity.TraineeEntity;
 import com.nikolabojanic.entity.TrainerEntity;
 import com.nikolabojanic.entity.UserEntity;
 import com.nikolabojanic.repository.TraineeRepository;
+import com.nikolabojanic.service.security.TokenService;
 import io.micrometer.core.instrument.Counter;
 import java.util.List;
 import java.util.Optional;
@@ -36,6 +38,8 @@ class TraineeServiceTest {
     private Counter totalTransactionsCounter;
     @Mock
     private TraineeConverter traineeConverter;
+    @Mock
+    private TokenService tokenService;
     @Mock
     private PasswordEncoder passwordEncoder;
     @InjectMocks
@@ -88,8 +92,13 @@ class TraineeServiceTest {
     @Test
     void deleteByUsernameTest() {
         //given
-        when(traineeRepository.findByUsername(any(String.class))).thenReturn(Optional.of(new TraineeEntity()));
-        doNothing().when(traineeRepository).deleteByUsername(any(String.class));
+        UserEntity user = new UserEntity();
+        user.setId(Long.parseLong(RandomStringUtils.randomNumeric(5)));
+        TraineeEntity trainee = new TraineeEntity();
+        trainee.setUser(user);
+        when(traineeRepository.findByUsername(any(String.class))).thenReturn(Optional.of(trainee));
+        doNothing().when(traineeRepository).delete(any(TraineeEntity.class));
+        doNothing().when(tokenService).deleteForUser(anyLong());
         //when
         TraineeEntity deleted = traineeService.deleteByUsername(
             RandomStringUtils.randomAlphabetic(10));

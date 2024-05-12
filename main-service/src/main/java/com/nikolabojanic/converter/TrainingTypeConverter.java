@@ -1,5 +1,6 @@
 package com.nikolabojanic.converter;
 
+import com.nikolabojanic.dto.TrainingTypeRequestDto;
 import com.nikolabojanic.dto.TrainingTypeResponseDto;
 import com.nikolabojanic.entity.TrainingTypeEntity;
 import lombok.AllArgsConstructor;
@@ -35,5 +36,17 @@ public class TrainingTypeConverter {
         responseDto.setName(trainingType.getName());
         log.info("Successfully converted training type model to training type response.");
         return responseDto;
+    }
+
+    /**
+     * Convert a TrainingTypeRequestDto to a TrainingTypeEntity.
+     *
+     * @param requestDto The {@link TrainingTypeRequestDto} to be converted.
+     * @return {@link TrainingTypeEntity} representing the converted response.
+     */
+    public TrainingTypeEntity convertDtoToModel(TrainingTypeRequestDto requestDto) {
+        TrainingTypeEntity trainingType = new TrainingTypeEntity();
+        trainingType.setName(requestDto.getName());
+        return trainingType;
     }
 }

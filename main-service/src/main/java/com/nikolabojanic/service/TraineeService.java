@@ -9,6 +9,7 @@ import com.nikolabojanic.entity.UserEntity;
 import com.nikolabojanic.enumeration.UserRole;
 import com.nikolabojanic.exception.ScEntityNotFoundException;
 import com.nikolabojanic.repository.TraineeRepository;
+import com.nikolabojanic.service.security.TokenService;
 import io.micrometer.core.instrument.Counter;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,7 @@ public class TraineeService {
     private final PasswordEncoder passwordEncoder;
     private final TraineeConverter traineeConverter;
     private final Counter totalTransactionsCounter;
+    private final TokenService tokenService;
 
     /**
      * Constructs a new TraineeService with the specified dependencies.
@@ -47,13 +49,15 @@ public class TraineeService {
         @Lazy TrainerService trainerService,
         PasswordEncoder passwordEncoder,
         TraineeConverter traineeConverter,
-        Counter totalTransactionsCounter) {
+        Counter totalTransactionsCounter,
+        TokenService tokenService) {
         this.traineeRepository = traineeRepository;
         this.userService = userService;
         this.trainerService = trainerService;
         this.passwordEncoder = passwordEncoder;
         this.traineeConverter = traineeConverter;
         this.totalTransactionsCounter = totalTransactionsCounter;
+        this.tokenService = tokenService;
     }
 
     /**
@@ -136,7 +140,8 @@ public class TraineeService {
             throw new ScEntityNotFoundException("Trainee with username " + username + " doesn't exist");
         } else {
             totalTransactionsCounter.increment();
-            traineeRepository.deleteByUsername(username);
+            tokenService.deleteForUser(deleted.get().getUser().getId());
+            traineeRepository.delete(deleted.get());
             log.warn("Deleted trainee with username: {}", username);
             return deleted.get();
         }

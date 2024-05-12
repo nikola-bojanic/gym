@@ -66,6 +66,7 @@ class TrainingConverterTest {
         TrainerEntity trainer = new TrainerEntity();
         trainer.setUser(user);
         TrainingEntity training = new TrainingEntity();
+        training.setId(Long.parseLong(RandomStringUtils.randomNumeric(5)));
         training.setTrainer(trainer);
         training.setTrainee(trainee);
         training.setName(RandomStringUtils.randomAlphabetic(10));
@@ -74,6 +75,7 @@ class TrainingConverterTest {
         //when
         TrainingResponseDto responseDto = trainingConverter.convertToDto(training);
         //then
+        assertThat(responseDto.getId()).isEqualTo(training.getId());
         assertThat(responseDto.getDate()).isEqualTo(training.getDate());
         assertThat(responseDto.getDuration()).isEqualTo(training.getDuration());
         assertThat(responseDto.getName()).isEqualTo(training.getName());

@@ -2,6 +2,7 @@ package com.nikolabojanic.service;
 
 import com.nikolabojanic.entity.TrainingTypeEntity;
 import com.nikolabojanic.exception.ScEntityNotFoundException;
+import com.nikolabojanic.exception.ScValidationException;
 import com.nikolabojanic.repository.TrainingTypeRepository;
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +26,21 @@ public class TrainingTypeService {
      */
     public List<TrainingTypeEntity> getAll() {
         return trainingTypeRepository.findAll();
+    }
+
+    /**
+     * Saves a training type to the database.
+     *
+     * @return Saved {@link TrainingTypeEntity}
+     */
+    public TrainingTypeEntity create(TrainingTypeEntity trainingTypeEntity) {
+        Optional<TrainingTypeEntity> exists = trainingTypeRepository.findByName(trainingTypeEntity.getName());
+        if (exists.isPresent()) {
+            log.error("Attempted to create a training type that already exists");
+            throw new ScValidationException("Training type with name - " + trainingTypeEntity.getName()
+                + "already exists");
+        }
+        return trainingTypeRepository.save(trainingTypeEntity);
     }
 
     /**
