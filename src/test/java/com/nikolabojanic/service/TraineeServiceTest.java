@@ -1,11 +1,11 @@
 package com.nikolabojanic.service;
 
-import com.nikolabojanic.dao.TraineeDAO;
-import com.nikolabojanic.dto.AuthDTO;
 import com.nikolabojanic.dto.TraineeTrainerUpdateRequestDTO;
 import com.nikolabojanic.model.TraineeEntity;
 import com.nikolabojanic.model.TrainerEntity;
 import com.nikolabojanic.model.UserEntity;
+import com.nikolabojanic.repository.TraineeRepository;
+import io.micrometer.core.instrument.Counter;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,7 +13,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,11 +25,13 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class TraineeServiceTest {
     @Mock
-    private TraineeDAO traineeDAO;
+    private TraineeRepository traineeRepository;
     @Mock
     private UserService userService;
     @Mock
     private TrainerService trainerService;
+    @Mock
+    private Counter totalTransactionsCounter;
     @InjectMocks
     private TraineeService traineeService;
 
@@ -41,7 +42,7 @@ class TraineeServiceTest {
         TraineeEntity trainee = new TraineeEntity();
         trainee.setUser(user);
         when(userService.generateUsernameAndPassword(any(UserEntity.class))).thenReturn(new UserEntity());
-        when(traineeDAO.save(any(TraineeEntity.class))).thenReturn(new TraineeEntity());
+        when(traineeRepository.save(any(TraineeEntity.class))).thenReturn(new TraineeEntity());
         //when
         TraineeEntity createdTrainee = traineeService.createTraineeProfile(trainee);
         //then
@@ -54,12 +55,10 @@ class TraineeServiceTest {
         UserEntity user = new UserEntity();
         TraineeEntity trainee = new TraineeEntity();
         trainee.setUser(user);
-        when(traineeDAO.findByUsername(any(String.class))).thenReturn(Optional.of(trainee));
-        doNothing().when(userService).authentication(any(AuthDTO.class));
-        when(traineeDAO.save(any(TraineeEntity.class))).thenReturn(new TraineeEntity());
+        when(traineeRepository.findByUsername(any(String.class))).thenReturn(Optional.of(trainee));
+        when(traineeRepository.save(any(TraineeEntity.class))).thenReturn(new TraineeEntity());
         //when
         TraineeEntity updatedTrainee = traineeService.updateTraineeProfile(
-                new AuthDTO(),
                 RandomStringUtils.randomAlphabetic(10),
                 trainee);
         //then
@@ -69,11 +68,9 @@ class TraineeServiceTest {
     @Test
     void findByUsernameTest() {
         //given
-        doNothing().when(userService).authentication(any(AuthDTO.class));
-        when(traineeDAO.findByUsername(any(String.class))).thenReturn(Optional.of(new TraineeEntity()));
+        when(traineeRepository.findByUsername(any(String.class))).thenReturn(Optional.of(new TraineeEntity()));
         //when
         TraineeEntity trainee = traineeService.findByUsername(
-                new AuthDTO(),
                 RandomStringUtils.randomAlphabetic(10));
         //then
         assertThat(trainee).isNotNull();
@@ -82,11 +79,10 @@ class TraineeServiceTest {
     @Test
     void deleteByUsernameTest() {
         //given
-        doNothing().when(userService).authentication(any(AuthDTO.class));
-        when(traineeDAO.deleteByUsername(any(String.class))).thenReturn(Optional.of(new TraineeEntity()));
+        when(traineeRepository.findByUsername(any(String.class))).thenReturn(Optional.of(new TraineeEntity()));
+        doNothing().when(traineeRepository).deleteByUsername(any(String.class));
         //when
         TraineeEntity deleted = traineeService.deleteByUsername(
-                new AuthDTO(),
                 RandomStringUtils.randomAlphabetic(10));
         //then
         assertThat(deleted).isNotNull();
@@ -100,17 +96,15 @@ class TraineeServiceTest {
         UserEntity user = new UserEntity();
         TrainerEntity trainer = new TrainerEntity();
         trainer.setUser(user);
-        doNothing().when(userService).authentication(any(AuthDTO.class));
-        when(traineeDAO.findByUsername(any(String.class))).thenReturn(Optional.of(new TraineeEntity()));
-        when(trainerService.findByUsername(any(AuthDTO.class), any(String.class))).thenReturn(trainer);
-        when(traineeDAO.saveTrainers(any(TraineeEntity.class), any(List.class))).thenReturn(new ArrayList<>());
+        when(traineeRepository.findByUsername(any(String.class))).thenReturn(Optional.of(new TraineeEntity()));
+        when(trainerService.findByUsername(any(String.class))).thenReturn(trainer);
+        when(traineeRepository.save(any(TraineeEntity.class))).thenReturn(new TraineeEntity());
         //when
-        List<TrainerEntity> trainers = traineeService.updateTraineeTrainers(
-                new AuthDTO(),
+        TraineeEntity updated = traineeService.updateTraineeTrainers(
                 RandomStringUtils.randomAlphabetic(10),
                 List.of(requestDTO));
         //then
-        assertThat(trainers).isNotNull();
+        assertThat(updated).isNotNull();
     }
 
     @Test
@@ -119,12 +113,10 @@ class TraineeServiceTest {
         UserEntity user = new UserEntity();
         TraineeEntity trainee = new TraineeEntity();
         trainee.setUser(user);
-        doNothing().when(userService).authentication(any(AuthDTO.class));
-        when(traineeDAO.findByUsername(any(String.class))).thenReturn(Optional.of(trainee));
-        when(traineeDAO.save(any(TraineeEntity.class))).thenReturn(new TraineeEntity());
+        when(traineeRepository.findByUsername(any(String.class))).thenReturn(Optional.of(trainee));
+        when(traineeRepository.save(any(TraineeEntity.class))).thenReturn(new TraineeEntity());
         //then
         assertDoesNotThrow(() -> traineeService.changeActiveStatus(
-                new AuthDTO(),
                 RandomStringUtils.randomAlphabetic(10), true));
     }
 

@@ -4,15 +4,16 @@ import com.nikolabojanic.converter.TraineeConverter;
 import com.nikolabojanic.converter.TrainerConverter;
 import com.nikolabojanic.dto.*;
 import com.nikolabojanic.model.TraineeEntity;
-import com.nikolabojanic.model.TrainerEntity;
 import com.nikolabojanic.service.TraineeService;
+import com.nikolabojanic.service.UserService;
 import com.nikolabojanic.validation.TraineeValidation;
+import io.micrometer.core.instrument.Counter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,14 +21,30 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @Slf4j
-@AllArgsConstructor
 @RestController
 @RequestMapping(value = "api/v1/trainees")
 public class TraineeController {
-    private final TraineeValidation traineeValidation;
-    private final TraineeConverter traineeConverter;
     private final TraineeService traineeService;
+    private final UserService userService;
+    private final TraineeConverter traineeConverter;
     private final TrainerConverter trainerConverter;
+    private final TraineeValidation traineeValidation;
+    private final Counter traineeEndpointsHitCounter;
+
+    public TraineeController(
+            TraineeService traineeService,
+            UserService userService,
+            TraineeConverter traineeConverter,
+            TrainerConverter trainerConverter,
+            TraineeValidation traineeValidation,
+            @Qualifier("traineeEndpointsHitCounter") Counter traineeEndpointsHitCounter) {
+        this.traineeService = traineeService;
+        this.userService = userService;
+        this.traineeConverter = traineeConverter;
+        this.trainerConverter = trainerConverter;
+        this.traineeValidation = traineeValidation;
+        this.traineeEndpointsHitCounter = traineeEndpointsHitCounter;
+    }
 
     @GetMapping(value = "/{username}", produces = "application/json")
     @Operation(summary = "fetch Trainee")
@@ -46,8 +63,10 @@ public class TraineeController {
             @RequestHeader("Auth-Username") String authUsername,
             @RequestHeader("Auth-Password") String authPassword
     ) {
+        traineeEndpointsHitCounter.increment();
+        userService.authentication(new AuthDTO(authUsername, authPassword));
         traineeValidation.validateUsernameNotNull(username);
-        TraineeEntity trainee = traineeService.findByUsername(new AuthDTO(authUsername, authPassword), username);
+        TraineeEntity trainee = traineeService.findByUsername(username);
         TraineeResponseDTO responseDTO = traineeConverter.convertModelToResponse(trainee);
         log.info("Successfully retrieved trainee with username {}. Status: {}", username, HttpStatus.OK.value());
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
@@ -70,11 +89,12 @@ public class TraineeController {
             @RequestHeader("Auth-Username") String authUsername,
             @RequestHeader("Auth-Password") String authPassword,
             @RequestBody TraineeUpdateRequestDTO requestDTO) {
+        traineeEndpointsHitCounter.increment();
+        userService.authentication(new AuthDTO(authUsername, authPassword));
         traineeValidation.validateUsernameNotNull(username);
         traineeValidation.validateUpdateTraineeRequest(requestDTO);
         TraineeEntity trainee = traineeConverter.convertUpdateRequestToModel(requestDTO);
-        TraineeEntity updated = traineeService.updateTraineeProfile(new AuthDTO(
-                authUsername, authPassword), username, trainee);
+        TraineeEntity updated = traineeService.updateTraineeProfile(username, trainee);
         TraineeUpdateResponseDTO responseDTO = traineeConverter.convertModelToUpdateResponse(updated);
         log.info("Successfully updated trainee with username {}. Status: {}", username, HttpStatus.OK.value());
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
@@ -88,6 +108,7 @@ public class TraineeController {
     })
     public ResponseEntity<RegistrationResponseDTO> registerTrainee(
             @RequestBody TraineeRegistrationRequestDTO requestDTO) {
+        traineeEndpointsHitCounter.increment();
         traineeValidation.validateRegisterRequest(requestDTO);
         TraineeEntity model = traineeConverter.convertRegistrationRequestToModel(requestDTO);
         TraineeEntity registered = traineeService.createTraineeProfile(model);
@@ -113,8 +134,10 @@ public class TraineeController {
             @PathVariable("username") String username,
             @RequestHeader("Auth-Username") String authUsername,
             @RequestHeader("Auth-Password") String authPassword) {
+        traineeEndpointsHitCounter.increment();
+        userService.authentication(new AuthDTO(authUsername, authPassword));
         traineeValidation.validateUsernameNotNull(username);
-        traineeService.deleteByUsername(new AuthDTO(authUsername, authPassword), username);
+        traineeService.deleteByUsername(username);
         log.info("Successfully deleted trainee with username {}. Status: {}", username, HttpStatus.OK.value());
         return ResponseEntity.ok().build();
     }
@@ -136,11 +159,12 @@ public class TraineeController {
             @RequestHeader("Auth-Username") String authUsername,
             @RequestHeader("Auth-Password") String authPassword,
             @RequestBody List<TraineeTrainerUpdateRequestDTO> requestDTO) {
+        traineeEndpointsHitCounter.increment();
+        userService.authentication(new AuthDTO(authUsername, authPassword));
         traineeValidation.validateUsernameNotNull(username);
         traineeValidation.validateUpdateTrainersRequest(requestDTO);
-        List<TrainerEntity> updated = traineeService.updateTraineeTrainers(new AuthDTO(
-                authUsername, authPassword), username, requestDTO);
-        List<TraineeTrainerResponseDTO> responseDTO = updated.stream()
+        TraineeEntity updated = traineeService.updateTraineeTrainers(username, requestDTO);
+        List<TraineeTrainerResponseDTO> responseDTO = updated.getTrainers().stream()
                 .map(trainerConverter::convertModelToTraineeTrainer).toList();
         log.info("Successfully updated trainee's trainer list. Trainee username {}. " +
                 "Status: {}", username, HttpStatus.OK.value());
@@ -159,13 +183,15 @@ public class TraineeController {
             @ApiResponse(responseCode = "500",
                     description = "Application failed to process the request")
     })
-    public ResponseEntity<Void> changeActiveStatus(@PathVariable("username") String username,
-                                                   @RequestHeader("Auth-Username") String authUsername,
-                                                   @RequestHeader("Auth-Password") String authPassword,
-                                                   @RequestParam("activeStatus") Boolean activeStatus
-    ) {
+    public ResponseEntity<Void> changeActiveStatus(
+            @PathVariable("username") String username,
+            @RequestHeader("Auth-Username") String authUsername,
+            @RequestHeader("Auth-Password") String authPassword,
+            @RequestParam("activeStatus") Boolean activeStatus) {
+        traineeEndpointsHitCounter.increment();
+        userService.authentication(new AuthDTO(authUsername, authPassword));
         traineeValidation.validateActiveStatusRequest(username, activeStatus);
-        traineeService.changeActiveStatus(new AuthDTO(authUsername, authPassword), username, activeStatus);
+        traineeService.changeActiveStatus(username, activeStatus);
         log.info("Successfully changed trainee active status. Trainee username {}. " +
                 "Status: {}", username, HttpStatus.OK.value());
         return ResponseEntity.ok().build();

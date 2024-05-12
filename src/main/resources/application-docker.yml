@@ -1,0 +1,7 @@
+app:
+  db-host: postgres
+spring:
+  datasource:
+    url: jdbc:postgresql://${app.db-host}:5432/spring-rest-docker
+    username: docker
+    password: docker

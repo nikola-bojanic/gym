@@ -4,13 +4,15 @@ import com.nikolabojanic.converter.TrainerConverter;
 import com.nikolabojanic.dto.*;
 import com.nikolabojanic.model.TrainerEntity;
 import com.nikolabojanic.service.TrainerService;
+import com.nikolabojanic.service.UserService;
 import com.nikolabojanic.validation.TrainerValidation;
+import io.micrometer.core.instrument.Counter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,13 +20,27 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @Slf4j
-@AllArgsConstructor
 @RestController
 @RequestMapping(value = "api/v1/trainers")
 public class TrainerController {
+    private final TrainerService trainerService;
+    private final UserService userService;
     private final TrainerConverter trainerConverter;
     private final TrainerValidation trainerValidation;
-    private final TrainerService trainerService;
+    private final Counter trainerEndpointsHitCounter;
+
+    public TrainerController(
+            TrainerService trainerService,
+            UserService userService,
+            TrainerConverter trainerConverter,
+            TrainerValidation trainerValidation,
+            @Qualifier("trainerEndpointsHitCounter") Counter trainerEndpointsHitCounter) {
+        this.trainerService = trainerService;
+        this.userService = userService;
+        this.trainerConverter = trainerConverter;
+        this.trainerValidation = trainerValidation;
+        this.trainerEndpointsHitCounter = trainerEndpointsHitCounter;
+    }
 
     @GetMapping(value = "/{username}", produces = "application/json")
     @Operation(summary = "fetch Trainer")
@@ -42,8 +58,10 @@ public class TrainerController {
             @PathVariable("username") String username,
             @RequestHeader(name = "Auth-Username") String authUsername,
             @RequestHeader(name = "Auth-Password") String authPassword) {
+        trainerEndpointsHitCounter.increment();
+        userService.authentication(new AuthDTO(authUsername, authPassword));
         trainerValidation.validateUsernameNotNull(username);
-        TrainerEntity trainer = trainerService.findByUsername(new AuthDTO(authUsername, authPassword), username);
+        TrainerEntity trainer = trainerService.findByUsername(username);
         TrainerResponseDTO responseDTO = trainerConverter.convertModelToResponseDTO(trainer);
         log.info("Successfully retrieved trainer with username {}. Status: {}", username, HttpStatus.OK.value());
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
@@ -66,11 +84,12 @@ public class TrainerController {
             @RequestHeader("Auth-Username") String authUsername,
             @RequestHeader("Auth-Password") String authPassword,
             @RequestBody TrainerUpdateRequestDTO requestDTO) {
+        trainerEndpointsHitCounter.increment();
+        userService.authentication(new AuthDTO(authUsername, authPassword));
         trainerValidation.validateUsernameNotNull(username);
         trainerValidation.validateUpdateTrainerRequest(requestDTO);
         TrainerEntity trainer = trainerConverter.convertUpdateRequestToModel(requestDTO);
-        TrainerEntity updated = trainerService.updateTrainerProfile(new AuthDTO(
-                authUsername, authPassword), username, trainer);
+        TrainerEntity updated = trainerService.updateTrainerProfile(username, trainer);
         TrainerUpdateResponseDTO responseDTO = trainerConverter.convertModelToUpdateResponse(updated);
         log.info("Successfully updated trainer with username {}. Status: {}", username, HttpStatus.OK.value());
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
@@ -84,6 +103,7 @@ public class TrainerController {
     })
     public ResponseEntity<RegistrationResponseDTO> registerTrainer(
             @RequestBody TrainerRegistrationRequestDTO requestDTO) {
+        trainerEndpointsHitCounter.increment();
         trainerValidation.validateRegisterRequest(requestDTO);
         TrainerEntity model = trainerConverter.convertRegistrationRequestToModel(requestDTO);
         TrainerEntity registered = trainerService.createTrainerProfile(model);
@@ -109,9 +129,10 @@ public class TrainerController {
             @PathVariable("username") String username,
             @RequestHeader("Auth-Username") String authUsername,
             @RequestHeader("Auth-Password") String authPassword) {
+        trainerEndpointsHitCounter.increment();
+        userService.authentication(new AuthDTO(authUsername, authPassword));
         trainerValidation.validateUsernameNotNull(username);
-        List<TrainerEntity> trainers = trainerService.findActiveForOtherTrainees(new AuthDTO(
-                authUsername, authPassword), username);
+        List<TrainerEntity> trainers = trainerService.findActiveForOtherTrainees(username);
         List<ActiveTrainerResponseDTO> responseDTO = trainers.stream()
                 .map(trainerConverter::convertModelToActiveTrainerResponse)
                 .toList();
@@ -137,8 +158,10 @@ public class TrainerController {
             @RequestHeader("Auth-Password") String authPassword,
             @RequestParam("activeStatus") Boolean activeStatus
     ) {
+        trainerEndpointsHitCounter.increment();
+        userService.authentication(new AuthDTO(authUsername, authPassword));
         trainerValidation.validateActiveStatusRequest(username, activeStatus);
-        trainerService.changeActiveStatus(new AuthDTO(authUsername, authPassword), username, activeStatus);
+        trainerService.changeActiveStatus(username, activeStatus);
         log.info("Successfully changed trainer active status. Trainee username {}. " +
                 "Status: {}", username, HttpStatus.OK.value());
         return ResponseEntity.ok().build();

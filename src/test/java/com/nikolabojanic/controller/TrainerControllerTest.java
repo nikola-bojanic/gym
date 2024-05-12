@@ -5,7 +5,9 @@ import com.nikolabojanic.dto.*;
 import com.nikolabojanic.model.TrainerEntity;
 import com.nikolabojanic.model.UserEntity;
 import com.nikolabojanic.service.TrainerService;
+import com.nikolabojanic.service.UserService;
 import com.nikolabojanic.validation.TrainerValidation;
+import io.micrometer.core.instrument.Counter;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,19 +27,24 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class TrainerControllerTest {
     @Mock
+    private TrainerService trainerService;
+    @Mock
+    private UserService userService;
+    @Mock
     private TrainerConverter trainerConverter;
     @Mock
     private TrainerValidation trainerValidation;
     @Mock
-    private TrainerService trainerService;
+    private Counter trainerEndpointsHitCounter;
     @InjectMocks
     private TrainerController trainerController;
 
     @Test
     void getTrainerTest() {
         //given
+        doNothing().when(userService).authentication(any(AuthDTO.class));
         doNothing().when(trainerValidation).validateUsernameNotNull(any(String.class));
-        when(trainerService.findByUsername(any(AuthDTO.class), any(String.class))).thenReturn(new TrainerEntity());
+        when(trainerService.findByUsername(any(String.class))).thenReturn(new TrainerEntity());
         when(trainerConverter.convertModelToResponseDTO(any(TrainerEntity.class))).thenReturn(new TrainerResponseDTO());
         //when
         ResponseEntity<TrainerResponseDTO> response = trainerController.getTrainer(
@@ -52,11 +59,12 @@ class TrainerControllerTest {
     @Test
     void updateTrainerTest() {
         //given
+        doNothing().when(userService).authentication(any(AuthDTO.class));
         doNothing().when(trainerValidation).validateUsernameNotNull(any(String.class));
         doNothing().when(trainerValidation).validateUpdateTrainerRequest(any(TrainerUpdateRequestDTO.class));
         when(trainerConverter.convertUpdateRequestToModel(any(TrainerUpdateRequestDTO.class)))
                 .thenReturn(new TrainerEntity());
-        when(trainerService.updateTrainerProfile(any(AuthDTO.class), any(String.class), any(TrainerEntity.class)))
+        when(trainerService.updateTrainerProfile(any(String.class), any(TrainerEntity.class)))
                 .thenReturn(new TrainerEntity());
         when(trainerConverter.convertModelToUpdateResponse(any(TrainerEntity.class)))
                 .thenReturn(new TrainerUpdateResponseDTO());
@@ -97,8 +105,9 @@ class TrainerControllerTest {
         //given
         TrainerEntity trainer = new TrainerEntity();
         List<TrainerEntity> trainers = List.of(trainer);
+        doNothing().when(userService).authentication(any(AuthDTO.class));
         doNothing().when(trainerValidation).validateUsernameNotNull(any(String.class));
-        when(trainerService.findActiveForOtherTrainees(any(AuthDTO.class), any(String.class)))
+        when(trainerService.findActiveForOtherTrainees(any(String.class)))
                 .thenReturn(trainers);
         when(trainerConverter.convertModelToActiveTrainerResponse(any(TrainerEntity.class)))
                 .thenReturn(new ActiveTrainerResponseDTO());
@@ -116,8 +125,9 @@ class TrainerControllerTest {
     @Test
     void changeActiveStatusTest() {
         //given
+        doNothing().when(userService).authentication(any(AuthDTO.class));
         doNothing().when(trainerValidation).validateActiveStatusRequest(any(String.class), any(Boolean.class));
-        doNothing().when(trainerService).changeActiveStatus(any(AuthDTO.class), any(String.class), any(Boolean.class));
+        doNothing().when(trainerService).changeActiveStatus(any(String.class), any(Boolean.class));
         //when
         ResponseEntity<Void> response = trainerController.changeActiveStatus(
                 RandomStringUtils.randomAlphabetic(10),

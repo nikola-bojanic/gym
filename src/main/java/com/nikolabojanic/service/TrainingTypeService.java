@@ -1,9 +1,8 @@
 package com.nikolabojanic.service;
 
-import com.nikolabojanic.dao.TrainingTypeDAO;
 import com.nikolabojanic.exception.SCEntityNotFoundException;
 import com.nikolabojanic.model.TrainingTypeEntity;
-import com.nikolabojanic.validation.TrainingTypeValidation;
+import com.nikolabojanic.repository.TrainingTypeRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -16,16 +15,14 @@ import java.util.Optional;
 @Slf4j
 @AllArgsConstructor
 public class TrainingTypeService {
-    private final TrainingTypeDAO trainingTypeDAO;
-    private final TrainingTypeValidation trainingTypeValidation;
+    private final TrainingTypeRepository trainingTypeRepository;
 
     public List<TrainingTypeEntity> getAll() {
-        return trainingTypeDAO.getAll();
+        return trainingTypeRepository.findAll();
     }
 
     public TrainingTypeEntity findById(Long id) {
-        trainingTypeValidation.validateIdNotNull(id);
-        Optional<TrainingTypeEntity> exists = trainingTypeDAO.findById(id);
+        Optional<TrainingTypeEntity> exists = trainingTypeRepository.findById(id);
         if (exists.isPresent()) {
             log.info("Successfully retrieved training type with id {}.", id);
             return exists.get();

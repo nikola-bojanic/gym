@@ -4,7 +4,9 @@ import com.nikolabojanic.converter.TrainingConverter;
 import com.nikolabojanic.dto.*;
 import com.nikolabojanic.model.TrainingEntity;
 import com.nikolabojanic.service.TrainingService;
+import com.nikolabojanic.service.UserService;
 import com.nikolabojanic.validation.TrainingValidation;
+import io.micrometer.core.instrument.Counter;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,23 +27,27 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class TrainingControllerTest {
-
     @Mock
     private TrainingService trainingService;
+    @Mock
+    private UserService userService;
     @Mock
     private TrainingConverter trainingConverter;
     @Mock
     private TrainingValidation trainingValidation;
+    @Mock
+    private Counter trainingEndpointsHitCounter;
     @InjectMocks
     private TrainingController trainingController;
 
     @Test
     void createTrainingTest() {
         //given
+        doNothing().when(userService).authentication(any(AuthDTO.class));
         doNothing().when(trainingValidation).validateCreateTrainingRequest(any(TrainingRequestDTO.class));
         when(trainingConverter.convertToEntity(any(TrainingRequestDTO.class)))
                 .thenReturn(new TrainingEntity());
-        when(trainingService.create(any(AuthDTO.class), any(TrainingEntity.class)))
+        when(trainingService.create(any(TrainingEntity.class)))
                 .thenReturn(new TrainingEntity());
         when(trainingConverter.convertToDto(any(TrainingEntity.class)))
                 .thenReturn(new TrainingResponseDTO());
@@ -58,8 +64,9 @@ class TrainingControllerTest {
     @Test
     void getTrainingsByTrainerAndFilterTest() {
         //given
+        doNothing().when(userService).authentication(any(AuthDTO.class));
         doNothing().when(trainingValidation).validateUsernameNotNull(any(String.class));
-        when(trainingService.findByTrainerAndFilter(any(AuthDTO.class),
+        when(trainingService.findByTrainerAndFilter(
                 any(String.class),
                 any(LocalDate.class),
                 any(LocalDate.class),
@@ -81,8 +88,9 @@ class TrainingControllerTest {
     @Test
     void getTrainingsByTraineeAndFilterTest() {
         //given
+        doNothing().when(userService).authentication(any(AuthDTO.class));
         doNothing().when(trainingValidation).validateUsernameNotNull(any(String.class));
-        when(trainingService.findByTraineeAndFilter(any(AuthDTO.class),
+        when(trainingService.findByTraineeAndFilter(
                 any(String.class),
                 any(LocalDate.class),
                 any(LocalDate.class),

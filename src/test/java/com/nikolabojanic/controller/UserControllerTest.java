@@ -5,6 +5,7 @@ import com.nikolabojanic.dto.UserPasswordChangeRequestDTO;
 import com.nikolabojanic.model.UserEntity;
 import com.nikolabojanic.service.UserService;
 import com.nikolabojanic.validation.UserValidation;
+import io.micrometer.core.instrument.Counter;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,6 +26,8 @@ class UserControllerTest {
     private UserService userService;
     @Mock
     private UserValidation userValidation;
+    @Mock
+    private Counter userEndpointsHitCounter;
     @InjectMocks
     private UserController userController;
 
@@ -43,9 +46,10 @@ class UserControllerTest {
     @Test
     void changePasswordTest() {
         //given
+        doNothing().when(userService).authentication(any(AuthDTO.class));
         doNothing().when(userValidation).validatePasswordRequestDTO(any(String.class),
                 any(UserPasswordChangeRequestDTO.class));
-        when(userService.changeUserPassword(any(AuthDTO.class), any(String.class),
+        when(userService.changeUserPassword(any(String.class),
                 any(UserPasswordChangeRequestDTO.class))).thenReturn(new UserEntity());
         //when
         ResponseEntity<Void> response = userController.changePassword(
@@ -55,6 +59,5 @@ class UserControllerTest {
                 new UserPasswordChangeRequestDTO());
         //then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-
     }
 }

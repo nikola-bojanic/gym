@@ -1,12 +1,12 @@
 package com.nikolabojanic.service;
 
 
-import com.nikolabojanic.dao.TrainerDAO;
-import com.nikolabojanic.dto.AuthDTO;
 import com.nikolabojanic.exception.SCEntityNotFoundException;
 import com.nikolabojanic.model.TraineeEntity;
 import com.nikolabojanic.model.TrainerEntity;
 import com.nikolabojanic.model.UserEntity;
+import com.nikolabojanic.repository.TrainerRepository;
+import io.micrometer.core.instrument.Counter;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,10 +21,11 @@ import java.util.Optional;
 @Transactional
 @Service
 public class TrainerService {
-    private final TrainerDAO trainerDAO;
+    private final TrainerRepository trainerRepository;
     private final UserService userService;
     private final TrainingTypeService trainingTypeService;
     private final TraineeService traineeService;
+    private final Counter totalTransactionsCounter;
 
     public TrainerEntity createTrainerProfile(TrainerEntity trainer) {
         UserEntity user = userService.generateUsernameAndPassword(trainer.getUser());
@@ -33,23 +34,25 @@ public class TrainerService {
             trainer.setSpecialization(trainingTypeService.findById(trainer.getSpecialization().getId()));
         }
         log.info("Created trainer profile");
-        return trainerDAO.save(trainer);
+        totalTransactionsCounter.increment();
+        return trainerRepository.save(trainer);
     }
 
-    public TrainerEntity updateTrainerProfile(AuthDTO authDTO, String username, TrainerEntity trainer) {
-        TrainerEntity managedTrainer = findByUsername(authDTO, username);
+    public TrainerEntity updateTrainerProfile(String username, TrainerEntity trainer) {
+        TrainerEntity managedTrainer = findByUsername(username);
         UserEntity inputUser = trainer.getUser();
         UserEntity managedUser = managedTrainer.getUser();
         managedUser.setIsActive(inputUser.getIsActive());
         managedUser.setFirstName(inputUser.getFirstName());
         managedUser.setLastName(inputUser.getLastName());
         log.info("Updated trainer profile");
-        return trainerDAO.save(managedTrainer);
+        totalTransactionsCounter.increment();
+        return trainerRepository.save(managedTrainer);
     }
 
-    public TrainerEntity findByUsername(AuthDTO authDTO, String username) {
-        userService.authentication(authDTO);
-        Optional<TrainerEntity> exists = trainerDAO.findByUsername(username);
+    public TrainerEntity findByUsername(String username) {
+        totalTransactionsCounter.increment();
+        Optional<TrainerEntity> exists = trainerRepository.findByUsername(username);
         if (exists.isPresent()) {
             log.info("Successfully retrieved trainer with username {}.", username);
             return exists.get();
@@ -60,17 +63,19 @@ public class TrainerService {
         }
     }
 
-    public void changeActiveStatus(AuthDTO authDTO, String username, Boolean isActive) {
-        TrainerEntity trainer = findByUsername(authDTO, username);
+    public void changeActiveStatus(String username, Boolean isActive) {
+        TrainerEntity trainer = findByUsername(username);
         UserEntity managedUser = trainer.getUser();
         managedUser.setIsActive(isActive);
         log.info("Changed active status");
-        trainerDAO.save(trainer);
+        totalTransactionsCounter.increment();
+        trainerRepository.save(trainer);
     }
 
-    public List<TrainerEntity> findActiveForOtherTrainees(AuthDTO authDTO, String username) {
-        TraineeEntity trainee = traineeService.findByUsername(authDTO, username);
+    public List<TrainerEntity> findActiveForOtherTrainees(String username) {
+        TraineeEntity trainee = traineeService.findByUsername(username);
         log.info("Successfully retrieved active trainers for other trainees");
-        return trainerDAO.findActiveForOtherTrainees(trainee.getId());
+        totalTransactionsCounter.increment();
+        return trainerRepository.findActiveForOtherTrainees(trainee.getId());
     }
 }

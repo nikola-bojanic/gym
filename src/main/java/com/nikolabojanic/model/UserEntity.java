@@ -26,5 +26,4 @@ public class UserEntity {
     private String password;
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
-
 }

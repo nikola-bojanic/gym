@@ -1,0 +1,5 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${app.db-host}:5432/spring-rest-dev
+    username: dev
+    password: dev

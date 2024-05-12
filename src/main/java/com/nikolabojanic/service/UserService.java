@@ -1,12 +1,13 @@
 package com.nikolabojanic.service;
 
-import com.nikolabojanic.dao.UserDAO;
 import com.nikolabojanic.dto.AuthDTO;
 import com.nikolabojanic.dto.UserPasswordChangeRequestDTO;
 import com.nikolabojanic.exception.SCAuthenticationException;
 import com.nikolabojanic.exception.SCEntityNotFoundException;
 import com.nikolabojanic.model.UserEntity;
+import com.nikolabojanic.repository.UserRepository;
 import com.nikolabojanic.validation.UserValidation;
+import io.micrometer.core.instrument.Counter;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,11 +22,13 @@ import java.util.Optional;
 @Transactional
 @Slf4j
 public class UserService {
-    private final UserDAO userDAO;
+    private final UserRepository userRepository;
     private final UserValidation userValidation;
+    private final Counter totalTransactionsCounter;
 
     public UserEntity findByUsername(String username) {
-        Optional<UserEntity> exists = userDAO.findByUsername(username);
+        totalTransactionsCounter.increment();
+        Optional<UserEntity> exists = userRepository.findByUsername(username);
         if (exists.isPresent()) {
             log.info("Successfully retrieved user with username {}.", username);
             return exists.get();
@@ -38,7 +41,8 @@ public class UserService {
 
     public void authentication(AuthDTO authDTO) {
         userValidation.validateAuthDto(authDTO);
-        Optional<UserEntity> exists = userDAO.findByUsername(authDTO.getUsername());
+        totalTransactionsCounter.increment();
+        Optional<UserEntity> exists = userRepository.findByUsername(authDTO.getUsername());
         if (exists.isEmpty()) {
             log.error("Attempted to login with non-existing username: {}," +
                     " Status: {}", authDTO.getUsername(), HttpStatus.UNAUTHORIZED.value());
@@ -51,17 +55,17 @@ public class UserService {
         }
     }
 
-    public UserEntity changeUserPassword(AuthDTO authDTO, String username, UserPasswordChangeRequestDTO requestDTO) {
-        authentication(authDTO);
+    public UserEntity changeUserPassword(String username, UserPasswordChangeRequestDTO requestDTO) {
         UserEntity user = findByUsername(username);
-        userValidation.validateUserPermissionToEdit(username, authDTO.getUsername());
         user.setPassword(requestDTO.getNewPassword());
         log.warn("Changed password for user with username {}", username);
-        return userDAO.save(user);
+        totalTransactionsCounter.increment();
+        return userRepository.save(user);
     }
 
     public UserEntity generateUsernameAndPassword(UserEntity user) {
-        Long count = userDAO.countUsersWithSameName(user.getFirstName(), user.getLastName());
+        totalTransactionsCounter.increment();
+        Long count = userRepository.countUsersWithSameName(user.getFirstName(), user.getLastName());
         if (count == 0) {
             user.setUsername(user.getFirstName() + "." + user.getLastName());
         } else {

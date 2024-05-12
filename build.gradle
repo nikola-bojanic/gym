@@ -1,8 +1,9 @@
 plugins {
     id 'java'
+    id 'org.springframework.boot' version '3.2.1'
+    id 'io.spring.dependency-management' version '1.1.4'
     id 'jacoco'
     id "org.sonarqube" version "4.4.1.3373"
-    id 'war'
 }
 
 group = 'com.nikolabojanic'
@@ -13,10 +14,10 @@ java {
 
 sonar {
     properties {
-        property "sonar.projectKey", "spring-rest"
-        property "sonar.projectName", "spring-rest"
-        property "sonar.host.url", "http://localhost:9002"
-        property "sonar.token", "sqp_f765f580854c9675a85df520cf009d3bd33531d4"
+        property "sonar.projectKey", "springboot"
+        property "sonar.projectName", "springboot"
+        property "sonar.host.url", "http://localhost:9000"
+        property "sonar.token", "sqp_2bf881d6334206689ae62b91e76eedb7f72c29f7"
         property "sonar.jacoco.reportPaths", "build/reports/jacoco/test/jacocoTestReport.xml"
         property "sonar.login", "admin"
         property "sonar.password", "sonar"
@@ -28,26 +29,21 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.hibernate:hibernate-core:6.4.0.Final'
-    implementation 'org.springframework:spring-orm:6.1.1'
+    implementation 'org.springframework.boot:spring-boot-starter-web:3.2.1'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa:3.2.1'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator:3.2.1'
+    implementation 'org.liquibase:liquibase-core:4.25.1'
+    implementation 'org.liquibase:liquibase-gradle-plugin:2.2.1'
     implementation 'org.postgresql:postgresql:42.7.1'
-    implementation 'org.springframework:spring-webmvc:6.1.2'
-    implementation 'jakarta.servlet:jakarta.servlet-api:6.0.0'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.16.0'
-    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.16.0'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-api:2.2.0'
     implementation 'ch.qos.logback:logback-classic:1.4.14'
-    implementation 'org.junit.jupiter:junit-jupiter-engine:5.10.1'
+    implementation 'io.micrometer:micrometer-registry-prometheus:1.12.1'
     compileOnly 'org.projectlombok:lombok:1.18.30'
     annotationProcessor 'org.projectlombok:lombok:1.18.30'
     testCompileOnly 'org.projectlombok:lombok:1.18.30'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.30'
-    testImplementation 'org.springframework:spring-test:6.1.0'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.1'
-    testImplementation 'org.mockito:mockito-core:5.7.0'
-    testImplementation 'org.mockito:mockito-junit-jupiter:5.7.0'
-    testImplementation 'org.apache.commons:commons-lang3:3.14.0'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test:3.2.1'
     testImplementation 'org.assertj:assertj-core:3.24.2'
 }
 
