@@ -13,13 +13,13 @@ java {
 
 sonar {
     properties {
-        property "sonar.projectKey", ""
-        property "sonar.projectName", ""
-        property "sonar.host.url", ""
-        property "sonar.token", ""
-        property "sonar.jacoco.reportPaths", ""
-        property "sonar.login", ""
-        property "sonar.password", ""
+        property "sonar.projectKey", "spring-core"
+        property "sonar.projectName", "spring-core"
+        property "sonar.host.url", "http://localhost:9002"
+        property "sonar.token", "sqp_1a61a5a841a42c01c5370b71d4f03f556dd09eff"
+        property "sonar.jacoco.reportPaths", "build/reports/jacoco/test/jacocoTestReport.xml"
+        property "sonar.login", "admin"
+        property "sonar.password", "sonar"
     }
 }
 
