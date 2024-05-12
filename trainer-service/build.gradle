@@ -1,0 +1,71 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.2.2'
+    id 'io.spring.dependency-management' version '1.1.4'
+    id 'checkstyle'
+    id 'jacoco'
+    id "org.sonarqube" version "4.4.1.3373"
+}
+
+group = 'com.nikolabojanic'
+
+java {
+    sourceCompatibility = '17'
+}
+
+sonar {
+    properties {
+        property "sonar.projectKey", "trainer-service"
+        property "sonar.projectName", "trainer-service"
+        property "sonar.host.url", "http://localhost:9000"
+        property "sonar.token", "sqp_8b6ad7f1afe7d8dd68dd1791e24dc83756b7fd43"
+        property "sonar.jacoco.reportPaths", "trainer-service/build/reports/jacoco/test/jacocoTestReport.xml"
+        property "sonar.login", "admin"
+        property "sonar.password", "sonar"
+    }
+}
+
+checkstyle {
+    configFile = rootProject.file("${project.rootDir}/trainer-service/config/checkstyle/checkstyle.xml")
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:2023.0.0"
+    }
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'com.h2database:h2:2.2.224'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-api:2.2.0'
+    compileOnly 'org.projectlombok:lombok:1.18.30'
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
+    testCompileOnly 'org.projectlombok:lombok:1.18.30'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.30'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation 'org.assertj:assertj-core:3.24.2'
+}
+
+test {
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+    }
+}

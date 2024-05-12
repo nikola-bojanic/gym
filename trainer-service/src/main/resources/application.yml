@@ -1,0 +1,22 @@
+app:
+  jwt:
+    key: 5pAq6zRyX8bC3dV2wS7gN1mK9jF0hL4tUoP6iBvE3nG8xZaQrY7cW2fA
+    algorithm: HS256
+    issuer: main-service
+    expiresIn: 1d
+server:
+  port: 8081
+spring:
+  application:
+    name: trainer-service
+  datasource:
+    url: jdbc:h2:mem:mydb
+    username: sa
+    password: password
+    driverClassName: org.h2.Driver
+  jpa:
+    spring.jpa.database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+  h2:
+    console.enabled: true

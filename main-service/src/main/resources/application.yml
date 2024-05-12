@@ -1,0 +1,46 @@
+app:
+  db-host: localhost
+  jwt:
+    key: 5pAq6zRyX8bC3dV2wS7gN1mK9jF0hL4tUoP6iBvE3nG8xZaQrY7cW2fA
+    algorithm: HS256
+    issuer: main-service
+    expiresIn: 1d
+spring:
+  application:
+    name: main-service
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+  datasource:
+    url: jdbc:postgresql://${app.db-host}:5432/spring-rest
+    username: user
+    password: password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  cloud:
+    openfeign:
+      client:
+        config:
+          trainer-service:
+            connectTimeout: 1500
+            readTimeout: 3000
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+resilience4j:
+  circuitbreaker:
+    instances:
+      trainer-service:
+        minimum-number-of-calls: 5
+        automatic-transition-from-open-to-half-open-enabled: true
+        wait-duration-in-open-state: 5s
+        permitted-number-of-calls-in-half-open-state: 3
